@@ -1,0 +1,72 @@
+/* Beat Plan (Electrical) — v1.8 */
+
+/* This page does NOT load reminders.css, so .select-filter is defined here.
+   All colors use theme variables so day/night flip automatically. */
+.select-filter {
+  background: var(--bg2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+.select-filter:focus { border-color: var(--accent); }
+
+.bp-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 14px;
+}
+.bp-tab {
+  padding: 7px 14px; border-radius: 8px; cursor: pointer; user-select: none;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text2); font-size: 13px; font-weight: 500;
+}
+.bp-tab .bp-count {
+  margin-left: 6px; font-size: 11px; color: var(--text3); font-family: var(--mono);
+}
+.bp-tab.active {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.bp-tab.active .bp-count { color: rgba(255,255,255,.85); }
+
+.bp-route { font-size: 11px; color: var(--text3); }
+
+.bp-modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.bp-modal-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+  width: min(440px, 92vw); max-height: 90vh; overflow: auto;
+  box-shadow: var(--shadow);
+}
+.bp-modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+}
+.bp-modal-head h3 { margin: 0; font-size: 16px; color: var(--text); }
+.bp-modal-close {
+  background: none; border: none; color: var(--text2); font-size: 16px; cursor: pointer;
+}
+.bp-modal-body { padding: 16px 18px; }
+.bp-modal-body label {
+  display: block; font-size: 12px; color: var(--text2); margin: 10px 0 4px;
+}
+/* Modal text inputs have no leading icon, so cancel the .search-input icon indent
+   and force theme-correct colors in BOTH themes. */
+.bp-modal-body .search-input,
+.bp-modal-body .select-filter {
+  width: 100%;
+  padding-left: 12px;
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.bp-modal-body .search-input::placeholder { color: var(--text3); }
+.bp-modal-body .search-input:focus,
+.bp-modal-body .select-filter:focus { border-color: var(--accent); }
+
+/* Import preview / result lines */
+.bp-import-note { font-size: 12px; color: var(--text2); margin: 8px 0; line-height: 1.5; }
+.bp-import-err  { color: var(--red); }

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Billing Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/soBacklog.css" />
+  <link rel="stylesheet" href="./css/billing.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Billing Report</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <div class="chip">
+            <span class="chip-dot" style="background: var(--green);"></span>
+            <span>API Connected</span>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="grid-4 backlog-summary" id="summaryCards" style="display:none;">
+          <div class="card stat-card"><div class="card-title">Total Lines</div><div class="card-value" id="statTotalLines">—</div><div class="card-sub">in date range</div></div>
+          <div class="card stat-card"><div class="card-title">Total Extn Resale</div><div class="card-value accent-green" id="statExtnResale">—</div><div class="card-sub">billed amount</div></div>
+          <div class="card stat-card"><div class="card-title">Total Unit Cost</div><div class="card-value accent-purple" id="statUnitCost">—</div><div class="card-sub">cost of goods</div></div>
+          <div class="card stat-card"><div class="card-title">Total Charge Amt</div><div class="card-value accent-amber" id="statChargeAmt">—</div><div class="card-sub">extra charges</div></div>
+        </div>
+        <div class="card">
+          <div class="section-head so-header">
+            <div class="so-header-left">
+              <h2>Billing Report</h2>
+              <span class="chip"><span class="chip-dot" style="background:var(--green);"></span><span id="bilTotalText">— records</span></span>
+            </div>
+            <div class="so-header-right">
+              <button id="bilExportBtn" class="btn btn-export">⬇ Export Excel</button>
+              <button id="bilRefreshBtn" class="btn btn-ghost btn-sm">⟳ Refresh</button>
+            </div>
+          </div>
+          <div class="so-filters">
+            <div class="so-date-group">
+              <div class="inv-date-wrap"><label class="inv-date-label" for="fromDateInput">From</label><input type="date" id="fromDateInput" class="form-input inv-date-input" /></div>
+              <div class="inv-date-wrap"><label class="inv-date-label" for="toDateInput">To</label><input type="date" id="toDateInput" class="form-input inv-date-input" /></div>
+              <button id="bilApplyDate" class="btn btn-ghost btn-sm">Apply</button>
+            </div>
+            <div class="input-wrap so-search-wrap"><span class="input-icon">⌕</span><input id="bilSearchInput" class="search-input" placeholder="Search Invoice No., Customer Name, Customer No., SO No., Customer PO No…" /></div>
+            <button id="bilClearBtn" class="btn btn-ghost btn-sm" style="display:none;">✕ Clear</button>
+          </div>
+          <div id="bilLoading" class="loading-center"><div class="spinner"></div><span>Loading billing data…</span></div>
+          <div class="table-wrap so-table-wrap" id="bilTableWrap" style="display:none;">
+            <table id="bilTable">
+              <thead><tr>
+                <th class="col-freeze">#</th><th>Year</th><th>Quarter</th><th>Month</th>
+                <th>Invoice Date</th><th>CRD</th><th>Promise Del. Date</th><th>Revised Promise Date</th>
+                <th>Inword Date</th><th style="text-align:right;">Store to Dispatch</th>
+                <th style="text-align:right;">Total Time</th><th style="text-align:right;">Vendor Commi. Gap</th>
+                <th style="text-align:right;">Purchase Response Time</th>
+                <th>Invoice No.</th><th>Country</th><th>Region</th><th>Branch</th><th>FSR</th>
+                <th>Customer Name</th><th>Customer</th><th>Vertical</th><th>Segment</th><th>Sub Segment</th>
+                <th>Currency</th><th>Customer PO No.</th><th>Customer PO Date</th><th>SO No.</th>
+                <th>Air Waybill / Docket</th><th>Dispatch Through</th><th>Company</th>
+                <th>Customer Part No.</th><th>MPN</th><th>Description</th><th>Make</th>
+                <th style="text-align:right;">Ship Qty</th><th style="text-align:right;">Unit Resale</th>
+                <th style="text-align:right;">Extn Resale</th><th style="text-align:right;">Charge Amount</th>
+                <th style="text-align:right;">Unit Cost</th><th>Basic Unit</th><th>Remarks</th>
+                <th>Inventory Posting Group</th><th>IRN No.</th><th>Customer GSTN No.</th>
+                <th>Posted by CSR Date &amp; Time</th><th>Posted by CSR Name</th>
+              </tr></thead>
+              <tbody id="bilBody"></tbody>
+            </table>
+          </div>
+          <div id="bilEmpty" class="empty" style="display:none;"><div class="empty-icon">🧾</div><div class="empty-text">No billing records found</div></div>
+          <div id="bilError" class="empty" style="display:none;"><div class="empty-icon">⚠</div><div class="empty-text" id="bilErrorText">Failed to load billing data.</div></div>
+          <div class="pagination" id="bilPagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/mobile-menu.js"></script>
+  <script src="./js/billing.js"></script>
+</body>
+</html>

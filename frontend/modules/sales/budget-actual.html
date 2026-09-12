@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Budget vs Actual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    .ba-controls { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+    .ba-field { display:flex; flex-direction:column; gap:4px; }
+    .ba-field label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.04em; }
+    .ba-field select { min-width:130px; }
+    table.ba-table th, table.ba-table td { white-space:nowrap; }
+    table.ba-table td.num, table.ba-table th.num { text-align:right; font-variant-numeric:tabular-nums; }
+    .ba-group-booking { background: rgba(37,99,235,.06); }
+    .ba-group-billing { background: rgba(16,185,129,.06); }
+    .ba-group-ar { background: rgba(245,158,11,.08); }
+    .ba-group-inv { background: rgba(139,92,246,.07); }
+    .ba-group-visit { background: rgba(20,184,166,.08); }
+    .ba-overall { font-weight:700; }
+    tr.ba-top td { background: rgba(16,185,129,.12); }
+    tr.ba-bottom td { background: rgba(220,38,38,.07); }
+    .ba-drill { cursor:pointer; text-decoration: underline dotted; text-underline-offset:2px; }
+    .ba-drill:hover { text-decoration: underline; }
+    .pct { font-weight:600; }
+    .pct.good { color: var(--green, #16a34a); }
+    .pct.bad  { color: #dc2626; }
+    tfoot .ba-total-row td { font-weight:700; border-top:2px solid var(--border); }
+    .ba-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:flex-start; justify-content:center; z-index:1000; overflow:auto; padding:40px 12px; }
+    .ba-modal { background:var(--bg2); border:1px solid var(--border); border-radius:12px; max-width:760px; width:100%; padding:20px; }
+    .ba-modal h3 { margin:0 0 4px; }
+    .ba-entry-grid { width:100%; border-collapse:collapse; margin-top:12px; }
+    .ba-entry-grid th, .ba-entry-grid td { padding:6px 8px; border-bottom:1px solid var(--border); text-align:left; }
+    .ba-entry-grid input { width:130px; }
+    .ba-modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+    /* ── Premium Dashboard view (COMPANYA navy + gold, IBM Plex) ── */
+    .ba-dash { font-family: 'IBM Plex Sans', 'DM Sans', system-ui, sans-serif; margin-top: 16px; }
+    .dash-toolbar { display:flex; justify-content:flex-end; align-items:flex-end; margin-bottom:14px; }
+    .dash-filter { display:flex; flex-direction:column; gap:4px; }
+    .dash-filter label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.04em; }
+    .dash-filter select { min-width:200px; }
+    .kpi-row { display:grid; grid-template-columns: repeat(5, 1fr); gap:14px; margin-bottom:16px; }
+    .kpi-card {
+      background: var(--bg2); border:1px solid var(--border); border-radius:14px; padding:16px 12px 14px;
+      display:flex; flex-direction:column; align-items:center; text-align:center;
+      box-shadow: 0 1px 3px rgba(16,32,64,.06); position:relative; overflow:hidden;
+    }
+    .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg,#1e3a5f,#c9a227); }
+    .kpi-ring {
+      width:92px; height:92px; border-radius:50%; display:grid; place-items:center; margin-bottom:10px;
+      background: conic-gradient(var(--col) calc(var(--pct) * 1%), var(--bg3, #e6e8ec) 0);
+    }
+    .kpi-ring-inner { width:70px; height:70px; border-radius:50%; background:var(--bg2); display:grid; place-items:center; }
+    .kpi-pct { font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:19px; color:var(--text); }
+    .kpi-name { font-weight:600; font-size:13px; color:var(--text); letter-spacing:.02em; }
+    .kpi-figs { font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text2); margin-top:3px; }
+    .kpi-sub { font-size:10px; color:var(--text3); margin-top:2px; text-transform:uppercase; letter-spacing:.04em; }
+    .dash-grid { display:grid; grid-template-columns: 2fr 1fr; gap:14px; }
+    .dash-card {
+      background: var(--bg2); border:1px solid var(--border); border-radius:14px; padding:14px 16px 16px;
+      box-shadow: 0 1px 3px rgba(16,32,64,.06);
+    }
+    .dash-card-wide { grid-column: 1 / -1; }
+    .dash-card-title { font-weight:600; font-size:14px; color:var(--text); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .dash-card-title::before { content:''; width:4px; height:15px; border-radius:2px; background:linear-gradient(180deg,#1e3a5f,#c9a227); }
+    .dash-canvas-wrap { position:relative; height:300px; }
+    .dash-canvas-wrap.tall { height:420px; }
+    .dash-canvas-wrap.pie { height:300px; }
+    @media (max-width: 900px) {
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+      .dash-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Budget vs Actual</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <div class="chip"><span class="chip-dot" style="background: var(--green);"></span><span>API Connected</span></div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="card">
+          <div class="section-head so-header">
+            <div class="so-header-left">
+              <h2>Sales Budget vs Actual</h2>
+              <span class="chip"><span class="chip-dot" style="background:var(--green);"></span><span id="baPeriodText">—</span></span>
+            </div>
+            <div class="so-header-right">
+              <button id="baImportBtn" class="btn btn-ghost btn-sm" style="display:none;" title="Upload an Excel: Salesperson · Booking · Billing · Visit (annual — Booking/Billing in ₹ Lakh for COMPANYA or $ '000 for CompanyB; Visit = count). AR & Inventory are auto-computed, not uploaded.">⬆ Import Budget</button>
+              <input type="file" id="baImportFile" accept=".xlsx,.xls" style="display:none;" />
+              <button id="baBookingBtn" class="btn btn-ghost btn-sm" style="display:none;" title="Upload the '&lt;Company&gt; Booking Billing Consolidated' sheet (columns: Date · Company Name · Part NO · QTY · Rate · Amount · ISR NAME · PO Number). Booking ACTUAL is summed per salesperson (ISR NAME) by date. Re-uploading a month replaces it (no double-count). COMPANYA and CompanyB are uploaded separately.">⬆ Upload Booking</button>
+              <input type="file" id="baBookingFile" accept=".xlsx,.xls" style="display:none;" />
+              <button id="baSetBtn" class="btn btn-primary btn-sm" style="display:none;">✎ Set Budgets</button>
+              <button id="baExportBtn" class="btn btn-ghost btn-sm">⬇ Export</button>
+              <button id="baRefreshBtn" class="btn btn-ghost btn-sm">⟳ Refresh</button>
+            </div>
+          </div>
+          <div class="so-filters ba-controls">
+            <div class="ba-field"><label for="baView">View</label>
+              <select id="baView" class="form-input">
+                <option value="dashboard">📊 Dashboard</option>
+                <option value="summary">Summary table</option>
+                <option value="monthly">Monthly trend</option>
+              </select>
+            </div>
+            <div class="ba-field"><label for="baFy">Fiscal Year</label><select id="baFy" class="form-input"></select></div>
+            <div class="ba-field" id="baPeriodWrap"><label for="baPeriod">Period</label>
+              <select id="baPeriod" class="form-input">
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="quarter">Quarter</option>
+                <option value="fy">Year</option>
+              </select>
+            </div>
+            <div class="ba-field" id="baMonthWrap"><label for="baMonth" id="baMonthLabel">Month</label><select id="baMonth" class="form-input"></select></div>
+            <div class="ba-field" id="baWeekWrap" style="display:none;"><label for="baWeekDate">Week of</label><input type="date" id="baWeekDate" class="form-input" /></div>
+            <div class="ba-field" id="baSortWrap"><label for="baSort">Sort by</label>
+              <select id="baSort" class="form-input">
+                <option value="overall">Overall (leaderboard)</option>
+                <option value="name">Name</option>
+              </select>
+            </div>
+            <div class="ba-field" id="baSearchWrap"><label for="baSearch">Salesperson</label>
+              <select id="baSearch" class="form-input"><option value="">All salespeople</option></select>
+            </div>
+            <div class="ba-field" id="baMetricWrap" style="display:none;"><label for="baMetric">Metric</label>
+              <select id="baMetric" class="form-input">
+                <option value="billing">Billing</option>
+                <option value="booking">Booking</option>
+                <option value="ar">AR (Collections)</option>
+                <option value="inventory">Inventory (Ex-Stock)</option>
+                <option value="visit">Visit (Done)</option>
+              </select>
+            </div>
+          </div>
+          <div id="baLoading" class="loading-center"><div class="spinner"></div><span>Loading…</span></div>
+          <div class="table-wrap" id="baTableWrap" style="display:none;">
+            <table class="ba-table" id="baTable">
+              <thead>
+                <tr>
+                  <th rowspan="2" style="width:34px;">#</th>
+                  <th rowspan="2">Salesperson</th>
+                  <th colspan="3" style="text-align:center;" class="ba-group-booking">Booking</th>
+                  <th colspan="3" style="text-align:center;" class="ba-group-billing">Billing</th>
+                  <th colspan="4" style="text-align:center;" class="ba-group-ar" title="Collectible = Collected + still-owed (Closing) AR = what could be collected this period. Coll% = Collected ÷ Collectible (collection efficiency, 0–100%). Overdue% = the share of the still-owed AR that is past its due date (ageing discipline).">AR (Collections)</th>
+                  <th colspan="3" style="text-align:center;" class="ba-group-inv" title="Budget = Ex-Stock (open Ex-Stock SO value held as of period-end) + Billed = total ex-stock exposure. Actual = Billed. % = Billed ÷ (Ex-Stock + Billed) — how much of the total ex-stock has been billed.">Inventory (Ex+Billed → Billed)</th>
+                  <th colspan="4" style="text-align:center;" class="ba-group-visit" title="Visit plan is per-salesperson (same person in COMPANYA & CompanyB)">Visit</th>
+                  <th rowspan="2" class="num" title="Overall = every metric counts equally: the 4 money metrics blended by ₹ size (Booking/Billing/AR/Inventory) + Visit (Done÷Target). A rep with no visit target gets the money-only score.">Overall</th>
+                </tr>
+                <tr>
+                  <th class="num ba-group-booking">Budget</th><th class="num ba-group-booking">Actual</th><th class="num ba-group-booking">%</th>
+                  <th class="num ba-group-billing">Budget</th><th class="num ba-group-billing">Actual</th><th class="num ba-group-billing">%</th>
+                  <th class="num ba-group-ar" title="Collected + still-owed AR">Collectible</th><th class="num ba-group-ar">Collected</th><th class="num ba-group-ar" title="Collected ÷ Collectible = collection efficiency">Coll %</th><th class="num ba-group-ar" title="Overdue ÷ open-invoice AR = share of open invoices past due (ageing discipline, lower is better)">Overdue %</th>
+                  <th class="num ba-group-inv" title="Ex-Stock + Billed = total ex-stock exposure">Ex+Billed</th><th class="num ba-group-inv">Billed</th><th class="num ba-group-inv">%</th>
+                  <th class="num ba-group-visit">Target</th><th class="num ba-group-visit">Planned</th><th class="num ba-group-visit">Done</th><th class="num ba-group-visit">%</th>
+                </tr>
+              </thead>
+              <tbody id="baBody"></tbody>
+              <tfoot id="baFoot"></tfoot>
+            </table>
+          </div>
+          <div class="table-wrap" id="baMonthlyWrap" style="display:none;"></div>
+          <div id="baDashboardWrap" style="display:none;"></div>
+          <div id="baEmpty" class="empty" style="display:none;"><div class="empty-icon">📊</div><div class="empty-text">Nothing to show for this period. Set budgets, or pick another period.</div></div>
+          <div id="baError" class="empty" style="display:none;"><div class="empty-icon">⚠</div><div class="empty-text" id="baErrorText">Failed to load.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Set Budgets modal (MIS / admin) -->
+  <div class="ba-modal-overlay" id="baModal">
+    <div class="ba-modal">
+      <h3>Set Annual Budgets</h3>
+      <div class="card-sub" id="baModalSub">Enter each salesperson's annual Booking / Billing / Visit target for the selected fiscal year. AR and Inventory are computed automatically (no target).</div>
+      <div id="baEntryLoading" class="loading-center"><div class="spinner"></div><span>Loading…</span></div>
+      <div class="table-wrap" style="max-height:52vh;">
+        <table class="ba-entry-grid" id="baEntryTable" style="display:none;">
+          <thead><tr><th>Salesperson</th><th id="baColBooking">Annual Booking</th><th id="baColBilling">Annual Billing</th><th id="baColVisit">Visit Target (count)</th></tr></thead>
+          <tbody id="baEntryBody"></tbody>
+        </table>
+      </div>
+      <div class="ba-modal-actions">
+        <button class="btn btn-ghost" id="baCancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="baSaveBtn">Save all</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drill-down: documents behind an Actual number -->
+  <div class="ba-modal-overlay" id="baDetailModal">
+    <div class="ba-modal">
+      <h3 id="baDetailTitle">Details</h3>
+      <div id="baDetailNote" class="card-sub" style="margin:2px 0 6px; color:var(--text3); font-size:12px;"></div>
+      <div id="baDetailLoading" class="loading-center"><div class="spinner"></div><span>Loading…</span></div>
+      <div class="table-wrap" style="max-height:55vh;">
+        <table class="ba-entry-grid" id="baDetailTable" style="display:none;"><thead id="baDetailHead"></thead><tbody id="baDetailBody"></tbody></table>
+      </div>
+      <div class="ba-modal-actions"><button class="btn btn-ghost" id="baDetailClose">Close</button></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/mobile-menu.js"></script>
+  <script src="./js/budget-actual.js?v=3"></script>
+</body>
+</html>

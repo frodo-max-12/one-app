@@ -1,0 +1,38 @@
+{
+  "name": "oneapp-backend",
+  "version": "2.0.0",
+  "description": "ONE App — organization-wide platform for Company A & Company B. Multi-department: Sales, CSR, HR, Purchase, Account, Store, FAE, Product.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "oneapp",
+    "biznav",
+    "companya",
+    "companyb",
+    "nav2016",
+    "erp"
+  ],
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mssql": "^12.2.1",
+    "multer": "^2.1.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.10.1",
+    "pdfkit": "^0.18.0",
+    "xlsx": "^0.18.5",
+    "xlsx-js-style": "^1.2.0"
+  },
+  "optionalDependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}

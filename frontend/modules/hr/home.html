@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=4" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Home</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <div class="chip"><span class="chip-dot" id="apiDot"></span><span id="apiStatusLbl">Connecting…</span></div>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="lens-home">
+
+          <!-- ═════════════ HERO ═════════════ -->
+          <section class="lens-hero">
+            <svg class="hero-skyline" viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="var(--lens-sky-1)"/>
+                  <stop offset="1" stop-color="var(--lens-sky-2)"/>
+                </linearGradient>
+              </defs>
+              <rect width="600" height="120" fill="url(#skyGrad)"/>
+              <circle cx="510" cy="34" r="18" fill="#ffd166"/>
+              <g fill="var(--lens-bldg-1)" opacity="0.85">
+                <rect x="20"  y="60" width="40" height="60"/>
+                <rect x="65"  y="48" width="28" height="72"/>
+                <rect x="98"  y="70" width="34" height="50"/>
+                <rect x="137" y="36" width="22" height="84"/>
+                <rect x="164" y="60" width="36" height="60"/>
+                <rect x="205" y="50" width="30" height="70"/>
+                <rect x="240" y="68" width="42" height="52"/>
+                <rect x="287" y="42" width="26" height="78"/>
+                <rect x="318" y="58" width="38" height="62"/>
+                <rect x="361" y="72" width="24" height="48"/>
+                <rect x="390" y="44" width="30" height="76"/>
+                <rect x="425" y="60" width="44" height="60"/>
+                <rect x="474" y="80" width="28" height="40"/>
+                <rect x="505" y="62" width="32" height="58"/>
+                <rect x="542" y="48" width="34" height="72"/>
+              </g>
+              <g fill="var(--lens-bldg-2)" opacity="0.7">
+                <rect x="0"   y="90" width="100" height="30"/>
+                <rect x="105" y="86" width="80"  height="34"/>
+                <rect x="190" y="92" width="70"  height="28"/>
+                <rect x="265" y="84" width="90"  height="36"/>
+                <rect x="360" y="92" width="60"  height="28"/>
+                <rect x="425" y="86" width="100" height="34"/>
+                <rect x="530" y="92" width="70"  height="28"/>
+              </g>
+            </svg>
+
+            <div class="hero-inner">
+              <div class="hero-greeting">
+                <div class="hello-line">Hello <span id="userFirstName">there</span> <span class="wave">👋</span></div>
+                <div class="hero-sub" id="todayLine">—</div>
+              </div>
+
+              <div class="shift-card">
+                <div class="clock-wrap">
+                  <div class="clock-circle">
+                    <span class="clock-hour" id="clockHour">--</span><span class="clock-sep">:</span><span class="clock-min" id="clockMin">--</span>
+                    <div class="clock-ampm" id="clockAmpm">--</div>
+                  </div>
+                </div>
+                <div class="shift-info">
+                  <div class="shift-day" id="shiftDay">—</div>
+                  <div class="shift-hours" id="shiftHours">09:45 am To 06:15 pm Shift</div>
+                  <div class="shift-date" id="shiftDate">—</div>
+                </div>
+              </div>
+
+              <button class="sign-btn" id="signInBtn" type="button" onclick="openSignModal()">
+                <span id="signBtnLabel">Sign In</span>
+              </button>
+              <div class="signed-state" id="signedState" style="display:none;">
+                <span class="green-pulse"></span>
+                <span>Signed in at <strong id="signedAtLabel">—</strong></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Visit Punch quick-access — v1.8. Shown only for field roles
+               (sales / heads / FAE). Toggles between idle CTA and "active
+               punch" state with a running timer + Punch Out shortcut. -->
+          <section class="vp-home-card" id="vpHomeCard" style="display:none;">
+            <div class="vp-home-icon" id="vpHomeIcon">📍</div>
+            <div class="vp-home-text">
+              <div class="vp-home-title" id="vpHomeTitle">Punch In at Customer</div>
+              <div class="vp-home-sub"   id="vpHomeSub">Selfie + premise photo. GPS captured automatically.</div>
+            </div>
+            <a class="vp-home-cta" id="vpHomeCta" href="/modules/hr/visit-punch.html">▶ Open</a>
+          </section>
+
+          <!-- Compliance card — 4 time-points + countdown + status flags.
+               Visible only when there's an open or closed attendance for today. -->
+          <section class="att-compliance" id="attCompliance" style="display:none;">
+            <div class="att-comp-head">
+              <div class="att-comp-title">Today's Attendance</div>
+              <div class="att-countdown" id="attCountdown"></div>
+            </div>
+            <div class="att-pts">
+              <div class="att-pt" data-pt="signin">
+                <div class="att-pt-ic">🟢</div>
+                <div class="att-pt-meta">
+                  <div class="att-pt-lbl">Sign In</div>
+                  <div class="att-pt-val" id="ptSignIn">—</div>
+                </div>
+              </div>
+              <div class="att-pt" data-pt="lunchout">
+                <div class="att-pt-ic">🟡</div>
+                <div class="att-pt-meta">
+                  <div class="att-pt-lbl">Lunch Out</div>
+                  <div class="att-pt-val" id="ptLunchOut">—</div>
+                </div>
+              </div>
+              <div class="att-pt" data-pt="lunchin">
+                <div class="att-pt-ic">🟠</div>
+                <div class="att-pt-meta">
+                  <div class="att-pt-lbl">Lunch In</div>
+                  <div class="att-pt-val" id="ptLunchIn">—</div>
+                </div>
+              </div>
+              <div class="att-pt" data-pt="signout">
+                <div class="att-pt-ic">🔵</div>
+                <div class="att-pt-meta">
+                  <div class="att-pt-lbl">Sign Out</div>
+                  <div class="att-pt-val" id="ptSignOut">—</div>
+                </div>
+              </div>
+            </div>
+            <div class="att-flag-strip" id="attFlagStrip"></div>
+          </section>
+
+          <!-- Exception banner -->
+          <section class="exception-banner" id="exceptionBanner" style="display:none;">
+            <span class="ex-icon">!</span>
+            <span><strong id="exceptionDays">0</strong> Exception days</span>
+            <a href="/modules/hr/regularization.html" class="ex-link">Regularize</a>
+          </section>
+
+          <!-- Two-column -->
+          <section class="lens-grid">
+            <article class="lens-card who-card">
+              <div class="lens-card-head"><h2>Who Is In</h2><span class="lens-sub" id="whoisDate">Today</span></div>
+              <div class="who-body">
+                <div class="who-donut-wrap">
+                  <svg class="who-donut" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--lens-donut-track)" stroke-width="14"/>
+                    <circle id="whoArcOnTime" cx="50" cy="50" r="40" fill="none" stroke="#22c55e" stroke-width="14" stroke-dasharray="0 251" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+                    <circle id="whoArcLate"   cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" stroke-width="14" stroke-dasharray="0 251" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+                    <circle id="whoArcNotYet" cx="50" cy="50" r="40" fill="none" stroke="#ef4444" stroke-width="14" stroke-dasharray="0 251" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+                  </svg>
+                  <div class="who-center">
+                    <div class="who-num" id="whoTeamCount">0</div>
+                    <div class="who-label">Teammates</div>
+                  </div>
+                </div>
+                <ul class="who-legend">
+                  <li><span class="dot" style="background:#22c55e"></span> On Time <b id="cOnTime">0</b></li>
+                  <li><span class="dot" style="background:#f59e0b"></span> Late In <b id="cLateIn">0</b></li>
+                  <li><span class="dot" style="background:#ef4444"></span> Not Yet In <b id="cNotYet">0</b></li>
+                  <li><span class="dot" style="background:#94a3b8"></span> Out Of Office <b id="cOOO">0</b></li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="lens-card holidays-card">
+              <div class="lens-card-head"><h2>Upcoming Holidays</h2><a href="#" class="lens-sub" onclick="openHolidayModal(); return false;">View calendar →</a></div>
+              <div class="holiday-grid" id="holidayGrid">
+                <div class="holiday-skel"></div>
+                <div class="holiday-skel"></div>
+                <div class="holiday-skel"></div>
+                <div class="holiday-skel"></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="lens-card summary-card">
+            <div class="lens-card-head"><h2>Last 30 days</h2><span class="lens-sub" id="summaryHours">— hrs</span></div>
+            <div class="summary-grid" id="summaryGrid">
+              <div class="summary-cell"><div class="num">—</div><div class="lbl">Present</div></div>
+              <div class="summary-cell"><div class="num">—</div><div class="lbl">Absent</div></div>
+              <div class="summary-cell"><div class="num">—</div><div class="lbl">Leave</div></div>
+              <div class="summary-cell"><div class="num">—</div><div class="lbl">Holiday</div></div>
+              <div class="summary-cell"><div class="num">—</div><div class="lbl">Half-Day</div></div>
+              <div class="summary-cell"><div class="num">—</div><div class="lbl">Weekly Off</div></div>
+            </div>
+          </section>
+
+          <!-- Diagnostics (only shows when something fails) -->
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════ ALL HOLIDAYS MODAL ═════════════ -->
+  <div class="lens-modal" id="holidayModal" hidden>
+    <div class="lens-modal-card">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeHolidayModal()" aria-label="Close">←</button>
+        <span id="holidayModalTitle">Holiday Calendar</span>
+      </div>
+      <div class="holiday-all-list" id="holidayAllList">
+        <div class="holiday-empty">Loading…</div>
+      </div>
+    </div>
+  </div>
+  <style>
+    .holiday-all-list { max-height: 62vh; overflow-y: auto; padding: 4px 2px; }
+    .holiday-row { display: flex; align-items: center; gap: 14px; padding: 11px 6px; border-bottom: 1px solid var(--border); }
+    .holiday-row:last-child { border-bottom: 0; }
+    .holiday-row.past { opacity: .45; }
+    .holiday-row .hr-date { display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-width: 46px; padding: 6px 0; border-radius: 10px; background: var(--bg2); }
+    .holiday-row .hr-day { font-size: 18px; font-weight: 700; line-height: 1; }
+    .holiday-row .hr-mon { font-size: 11px; text-transform: uppercase; color: var(--text3); margin-top: 2px; }
+    .holiday-row .hr-occ { font-weight: 600; }
+    .holiday-row .hr-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  </style>
+
+  <!-- ═════════════ SIGN-IN / SIGN-OUT MODAL ═════════════ -->
+  <div class="lens-modal" id="signModal" hidden>
+    <div class="lens-modal-card">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" id="signClose" type="button" onclick="closeSignModal()" aria-label="Close">←</button>
+        <span id="signModalTitle">Sign-In Details</span>
+      </div>
+
+      <div class="loc-row" id="locRow">
+        <span class="loc-icon">📍</span>
+        <div class="loc-info">
+          <div id="locAcc">Fetching location…</div>
+          <div class="loc-coord" id="locCoord">Long, Lat: —, —</div>
+        </div>
+        <button class="loc-refresh" id="locRefresh" type="button" onclick="fetchLocation()" title="Refresh location">↻</button>
+      </div>
+
+      <div class="kv-row">
+        <div class="kv"><div class="kv-label">Date</div><div class="kv-value" id="signDate">—</div></div>
+        <div class="kv right"><div class="kv-label">Time</div><div class="kv-value" id="signTime">—</div></div>
+      </div>
+
+      <div class="kv">
+        <div class="kv-label">Attendance Scheme</div>
+        <div class="kv-value scheme-value">Default · 09:45 — 18:15</div>
+      </div>
+
+      <details class="selfie-section">
+        <summary>Selfie <span class="lens-sub">(optional)</span> <span class="caret">▾</span></summary>
+        <div class="selfie-inner">
+          <div class="selfie-frame">
+            <video id="selfieVideo" autoplay playsinline muted></video>
+            <img id="selfiePreview" alt="" style="display:none;" />
+          </div>
+          <div class="selfie-actions">
+            <button class="selfie-btn" id="selfieStart"   type="button" onclick="startCamera()">Start Camera</button>
+            <button class="selfie-btn primary" id="selfieCapture" type="button" onclick="captureSelfie()" disabled>📷 Capture</button>
+            <button class="selfie-btn" id="selfieRetake"  type="button" onclick="retakeSelfie()"  disabled>Retake</button>
+          </div>
+        </div>
+      </details>
+
+      <div class="kv">
+        <div class="kv-label">Remarks</div>
+        <textarea id="signRemarks" placeholder="Add Remarks (optional)" maxlength="200" oninput="document.getElementById('remarksCount').textContent=this.value.length"></textarea>
+        <div class="char-count"><span id="remarksCount">0</span>/200 characters</div>
+      </div>
+
+      <button class="sign-action-btn" id="signSubmit" type="button" onclick="submitSign()">Sign In</button>
+      <div class="sign-error" id="signError" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="lens-modal" id="confirmModal" hidden>
+    <div class="confirm-card">
+      <div class="confirm-tick">✓</div>
+      <div class="confirm-title" id="confirmTitle">Hurrah</div>
+      <div class="confirm-sub"   id="confirmSub">You've signed in.</div>
+      <div class="confirm-meta">
+        <div class="kv"><div class="kv-label">Date</div><div class="kv-value" id="confirmDate">—</div></div>
+        <div class="kv right"><div class="kv-label">Time</div><div class="kv-value" id="confirmTime">—</div></div>
+      </div>
+      <button class="sign-action-btn" id="confirmDone" type="button" onclick="closeConfirm()">Done</button>
+    </div>
+  </div>
+
+  <canvas id="selfieCanvas" style="display:none;"></canvas>
+
+  <!-- One-time tracking-setup guide (Android app only). Asks the user to grant
+       "Allow all the time" location + disable battery optimization so the
+       background tracking service isn't killed when the phone is idle. -->
+  <div class="lens-modal" id="trackingSetupModal" hidden>
+    <div class="confirm-card" style="max-width:420px;">
+      <div style="font-size:34px; margin-bottom:6px;">🛰️</div>
+      <div class="confirm-title" style="color:var(--lens-text,#e2e8f0);">Enable Accurate Tracking</div>
+      <div class="confirm-sub" style="text-align:left; margin:14px 0;">
+        For your field visits to track correctly, please set two phone permissions:
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; gap:10px;">
+            <div style="font-size:18px;">📍</div>
+            <div><b>Location → "Allow all the time"</b><br>
+              <span style="font-size:12px; color:var(--lens-text-2,#94a3b8);">Not just "While using the app" — otherwise tracking stops when the screen locks.</span></div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <div style="font-size:18px;">🔋</div>
+            <div><b>Battery → "Unrestricted" / "Don't optimize"</b><br>
+              <span style="font-size:12px; color:var(--lens-text-2,#94a3b8);">Keeps tracking running in the background when you're driving between customers.</span></div>
+          </div>
+        </div>
+      </div>
+      <button class="sign-action-btn" type="button" onclick="openTrackingSettings()">Open Settings</button>
+      <button class="sign-action-btn" type="button" onclick="dismissTrackingSetup()"
+              style="background:transparent; border:1px solid var(--lens-border,#2a3242); margin-top:8px;">I've done this</button>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=2"></script>
+  <script src="./js/home.js?v=5"></script>
+</body>
+</html>

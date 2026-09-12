@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — MOM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/mom.css?v=13" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App · MOM &amp; Action Points</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip"><span class="chip-dot" style="background:#22c55e"></span><span id="momCount">0 MOMs</span></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="mom-shell">
+
+          <!-- Tabs -->
+          <div class="mom-tabs">
+            <button id="tabBtnMom" class="mom-tab active" onclick="showTab('mom')">📋 Minutes of Meeting</button>
+            <button id="tabBtnAp"  class="mom-tab"        onclick="showTab('ap')">🗒 Action Points</button>
+          </div>
+
+          <!-- ═══════════ TAB 1: MOM ═══════════ -->
+          <div id="tabMom">
+            <div class="mom-toolbar">
+              <div class="mom-search-wrap">
+                <span class="mom-search-ic">🔍</span>
+                <input type="text" id="momSearch" placeholder="Search title, employee, project, task, customer, vendor…" />
+                <button id="momClearSearch" style="display:none;" class="mom-clear-btn" onclick="clearSearch()">✕</button>
+              </div>
+              <select id="momType" class="att-filter" title="MOM type">
+                <option value="">All types</option><option value="In-Person">In-Person</option><option value="Conference">Conference</option><option value="Telephonic">Telephonic</option>
+              </select>
+              <input type="date" id="momFrom" class="att-filter" title="MOM date FROM" />
+              <input type="date" id="momTo"   class="att-filter" title="MOM date TO" />
+              <button class="btn btn-ghost btn-sm" onclick="applyFilters()">Apply</button>
+              <div style="flex:1;"></div>
+              <button class="btn btn-sm" onclick="exportExcel()">⇩ Export Excel</button>
+              <button class="btn btn-primary btn-sm" id="momNewBtn" style="display:none;" onclick="openCreate()">+ New MOM</button>
+            </div>
+            <div class="mom-note">👁 MOM data is shared live with SmartSys. You see &amp; manage MOMs for yourself and your team.</div>
+            <div class="mom-stats" id="momStats">
+              <div class="stat-card stat-all"   onclick="filterByType('')"          title="Show all"><div class="stat-lbl">📋 All MOMs</div><div class="stat-num" id="statTotal">—</div></div>
+              <div class="stat-card stat-month" onclick="filterByType('')"          title="MOMs this month"><div class="stat-lbl">🗓 This Month</div><div class="stat-num" id="statMonth">—</div></div>
+              <div class="stat-card stat-inperson"   onclick="filterByType('In-Person')"  title="Filter In-Person"><div class="stat-lbl">🤝 In-Person</div><div class="stat-num" id="statInPerson">—</div></div>
+              <div class="stat-card stat-conference" onclick="filterByType('Conference')" title="Filter Conference"><div class="stat-lbl">💻 Conference</div><div class="stat-num" id="statConference">—</div></div>
+              <div class="stat-card stat-telephonic" onclick="filterByType('Telephonic')" title="Filter Telephonic"><div class="stat-lbl">📞 Telephonic</div><div class="stat-num" id="statTelephonic">—</div></div>
+            </div>
+            <div class="mom-table-wrap">
+              <table class="mom-table" id="momTable">
+                <thead><tr>
+                  <th style="width:64px;">MOM #</th><th style="width:96px;">DATE</th><th style="width:92px;">TYPE</th>
+                  <th>TITLE</th><th>EMPLOYEE</th><th>PROJECT</th><th>TASK</th><th>CUSTOMER</th>
+                  <th>MODIFIED BY</th><th style="width:96px;">MODIFIED</th><th style="width:70px;"></th>
+                </tr></thead>
+                <tbody id="momBody"><tr><td colspan="11" class="mom-loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+            <div class="mom-pagination" id="momPagination" style="margin-top: 12px;"></div>
+          </div>
+
+          <!-- ═══════════ TAB 2: ACTION POINTS ═══════════ -->
+          <div id="tabAp" hidden>
+            <div class="mom-toolbar">
+              <div class="mom-view-toggle" id="apViewToggle"></div>
+              <div class="mom-search-wrap">
+                <span class="mom-search-ic">🔍</span>
+                <input type="text" id="apSearch" placeholder="Search action, MOM title, salesperson / FAE name…" />
+                <button id="apClearSearch" style="display:none;" class="mom-clear-btn" onclick="apClearSearch()">✕</button>
+              </div>
+              <select id="apStatus" class="att-filter" title="Status">
+                <option value="">All statuses</option><option value="pending">Pending</option><option value="complete">Completed</option><option value="cancelled">Cancelled</option>
+              </select>
+              <div style="flex:1;"></div>
+              <button class="btn btn-sm" onclick="apExport()">⇩ Export Excel</button>
+            </div>
+            <div class="mom-note">🗒 Follow-ups from MOMs. Filter any column below · change a status inline (the change date is recorded) · click a row's # to open its MOM.</div>
+            <div class="mom-stats" id="apStats">
+              <div class="stat-card stat-all"     onclick="apSetFilter('all')"      title="All in view"><div class="stat-lbl">📋 All</div><div class="stat-num" id="apTotal">—</div></div>
+              <div class="stat-card stat-pending" onclick="apSetFilter('pending')"  title="Pending"><div class="stat-lbl">⏳ Pending</div><div class="stat-num" id="apPending">—</div></div>
+              <div class="stat-card stat-overdue" onclick="apSetFilter('overdue')"  title="Overdue"><div class="stat-lbl">🔴 Overdue</div><div class="stat-num" id="apOverdue">—</div></div>
+              <div class="stat-card stat-done"    onclick="apSetFilter('complete')" title="Completed"><div class="stat-lbl">🟢 Completed</div><div class="stat-num" id="apCompleted">—</div></div>
+            </div>
+            <div class="mom-table-wrap">
+              <table class="mom-table mom-ap-grid" id="apTable">
+                <thead>
+                  <tr>
+                    <th style="width:60px;">ID</th><th style="width:170px;">CUSTOMER</th><th style="width:130px;">VENDOR</th>
+                    <th style="min-width:240px;">DESCRIPTION</th><th style="width:162px;">STATUS</th><th style="width:66px;">MOM</th>
+                    <th style="width:96px;">DUE DATE</th><th style="width:86px;">OVERDUE</th><th style="width:160px;">ASSIGNED BY</th>
+                    <th style="width:150px;">RESOURCE</th><th style="width:160px;">MODIFIED BY</th><th style="width:96px;">MODIFIED</th>
+                    <th style="width:176px;">PENDING WITH</th>
+                  </tr>
+                  <tr class="mom-filter-row">
+                    <th></th>
+                    <th><input type="text" id="apfCustomer" placeholder="filter…" /></th>
+                    <th><input type="text" id="apfVendor" placeholder="filter…" /></th>
+                    <th></th><th></th>
+                    <th><input type="text" id="apfMomId" placeholder="# id" /></th>
+                    <th></th><th></th>
+                    <th><input type="text" id="apfAssignedBy" placeholder="filter…" /></th>
+                    <th><input type="text" id="apfResource" placeholder="name…" /></th>
+                    <th></th><th></th>
+                    <th><select id="apfPendingWith"><option value="">All</option><option>Customer</option><option>Sales</option><option>Supplier/Vendor</option><option>FAE</option><option>Purchase</option><option>Product</option><option>Accounts</option><option>Logistics</option><option>Management</option></select></th>
+                  </tr>
+                </thead>
+                <tbody id="apBody"><tr><td colspan="13" class="mom-loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+            <div class="mom-pagination" id="apPagination" style="margin-top: 12px;"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ Detail Modal (shared by both tabs) ════════ -->
+  <div class="lens-modal" id="momModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head"><button class="lens-modal-back" type="button" onclick="closeDetail()">←</button><span id="momModalTitle">MOM</span></div>
+      <div id="momDetailBody" class="mom-detail"><div class="mom-loading">Loading…</div></div>
+      <div class="mom-actions">
+        <div style="flex:1;"></div>
+        <button class="btn btn-sm" id="momMailBtn" style="display:none;" onclick="emailParticipants()">📧 Email Participants</button>
+        <button class="btn btn-sm" id="momEditBtn" style="display:none;" onclick="openEditFromDetail()">✎ Edit</button>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closeDetail()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ Create / Edit — full page ════════ -->
+  <div class="lens-modal" id="momFormModal" hidden>
+    <div class="lens-modal-card lens-modal-wide mom-form-page">
+      <div class="lens-modal-head"><button class="lens-modal-back" type="button" onclick="closeForm()">←</button><span id="momFormTitle">New MOM</span></div>
+      <div class="mom-form" id="momFormBody">
+        <div class="mom-form-grid">
+          <label class="kv">Project *<select id="fProject" onchange="onProjectChange()"></select></label>
+          <label class="kv">Task *<select id="fTask"><option value="">— select project first —</option></select></label>
+          <label class="kv">MOM Date *<input type="date" id="fDate" /></label>
+          <label class="kv">Type *<select id="fType"></select></label>
+          <label class="kv mom-form-full">Title * <span class="mom-sub" id="fTitleCount">0/50</span><input type="text" id="fTitle" maxlength="50" placeholder="MOM_Customer name / topic" /></label>
+          <label class="kv mom-typeahead">Customer<input type="text" id="fCustomer" autocomplete="off" placeholder="Type to search…" /><input type="hidden" id="fCustomerId" /><div class="mom-suggest" id="fCustomerSug" hidden></div></label>
+          <label class="kv mom-typeahead">Vendor<input type="text" id="fVendor" autocomplete="off" placeholder="Type to search…" /><input type="hidden" id="fVendorId" /><div class="mom-suggest" id="fVendorSug" hidden></div></label>
+        </div>
+        <label class="kv">Description<textarea id="fDesc" rows="3" placeholder="What was discussed…"></textarea></label>
+        <label class="kv">Internal Description<textarea id="fLocal" rows="3" placeholder="Internal notes (optional)"></textarea></label>
+        <label class="kv">Management View<textarea id="fMgmt" rows="2" placeholder="For management (optional)"></textarea></label>
+        <div class="mom-form-section">
+          <div class="mom-form-section-h">Participants <button type="button" class="mom-mini-btn" onclick="toggleAddParticipant()">+ Add</button></div>
+          <div class="mom-addpart" id="addPartRow" hidden>
+            <select id="pType" onchange="onPartTypeChange()"><option value="Employee">Employee</option><option value="Customer">Customer</option><option value="Vendor">Vendor</option></select>
+            <div class="mom-typeahead" style="flex:1; position:relative;"><input type="text" id="pSearch" autocomplete="off" placeholder="Search…" /><input type="hidden" id="pId" /><div class="mom-suggest" id="pSug" hidden></div></div>
+            <label class="mom-fyi"><input type="checkbox" id="pFyi" /> FYI</label>
+            <button type="button" class="mom-mini-btn" onclick="confirmAddParticipant()">Add</button>
+          </div>
+          <div id="partList" class="mom-chips"></div>
+        </div>
+        <div class="mom-form-section">
+          <div class="mom-form-section-h">Action Points <button type="button" class="mom-mini-btn" onclick="addActionPoint()">+ Add</button></div>
+          <div id="apFormList" class="mom-ap-list"></div>
+        </div>
+        <div class="mom-form-section" id="attachSection" hidden>
+          <div class="mom-form-section-h">Attachments <span class="mom-sub">(view-only — upload in SmartSys)</span></div>
+          <div id="attachList"></div>
+        </div>
+      </div>
+      <div class="mom-actions">
+        <div class="mom-form-err" id="momFormErr" style="display:none;"></div>
+        <div style="flex:1;"></div>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closeForm()">Cancel</button>
+        <button class="btn btn-primary" id="momSaveBtn" type="button" onclick="saveMom()">Save MOM</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=5"></script>
+  <script src="/shared/common.js?v=5"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/mom.js?v=11"></script>
+</body>
+</html>

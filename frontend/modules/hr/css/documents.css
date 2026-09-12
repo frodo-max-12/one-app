@@ -1,0 +1,174 @@
+/* Document Center (Phase 4E) */
+
+.docs-wrap {
+  padding: 14px 18px 40px;
+  max-width: 1400px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+.btn {
+  background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+  padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 13px;
+  font-weight: 500; transition: var(--theme-transition), transform 0.08s ease;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover  { background: var(--bg4); border-color: var(--border2); }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: white; border-color: var(--accent2); }
+.btn-primary:hover { background: var(--accent2); }
+.btn-sm    { padding: 5px 10px; font-size: 12px; }
+.btn-wide  { width: 100%; padding: 10px 14px; justify-content: center; }
+
+/* ── Toolbar ───────────────────────────────────────────────────────────── */
+.docs-toolbar {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.docs-toolbar input[type="search"] {
+  width: 100%; padding: 8px 12px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+  font-size: 13.5px; outline: none;
+}
+.docs-toolbar input[type="search"]:focus { border-color: var(--accent); }
+
+.docs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  background: var(--bg2); color: var(--text2); border: 1px solid var(--border);
+  padding: 5px 12px; border-radius: 999px; font-size: 12.5px; cursor: pointer;
+  transition: var(--theme-transition);
+}
+.chip:hover  { color: var(--text); border-color: var(--border2); }
+.chip.active { background: var(--nav-active-bg); color: var(--nav-active-color); border-color: var(--nav-active-border); }
+.chip-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer;
+}
+.chip-toggle input { margin: 0; }
+
+/* ── Grid ──────────────────────────────────────────────────────────────── */
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+.docs-empty {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 220px; color: var(--text2); font-size: 14px; text-align: center; padding: 24px;
+  background: var(--bg2); border: 1px dashed var(--border); border-radius: var(--radius);
+}
+.docs-err { color: var(--red); border-color: rgba(242,87,87,0.35); }
+
+/* ── Card ──────────────────────────────────────────────────────────────── */
+.doc-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 14px 16px 12px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: var(--theme-transition), transform 0.08s ease;
+  position: relative; min-width: 0;
+}
+.doc-card:hover { transform: translateY(-2px); border-color: var(--border2); box-shadow: var(--shadow); }
+.doc-card.is-pinned { border-color: var(--amber); box-shadow: 0 0 0 1px rgba(240,162,46,0.2); }
+.doc-card.is-archived { opacity: 0.65; border-style: dashed; }
+
+.doc-card-head {
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.doc-icon { font-size: 28px; line-height: 1; }
+.doc-head-meta { flex: 1; min-width: 0; }
+.doc-cat {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text2); font-weight: 600;
+}
+.doc-pillrow { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
+.pin-badge {
+  background: rgba(240,162,46,0.15); color: var(--amber);
+  padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600;
+}
+.arch-badge {
+  background: var(--bg3); color: var(--text2);
+  padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600;
+}
+
+.doc-menu { display: flex; gap: 2px; }
+.doc-iconbtn {
+  background: transparent; border: 0; color: var(--text2);
+  width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 13.5px;
+  transition: var(--theme-transition);
+}
+.doc-iconbtn:hover { background: var(--bg3); color: var(--text); }
+.doc-iconbtn-danger:hover { background: rgba(242,87,87,0.12); color: var(--red); }
+
+.doc-title {
+  margin: 0; font-size: 15px; font-weight: 600; color: var(--text);
+  line-height: 1.3; word-break: break-word;
+}
+.doc-desc {
+  margin: 0; font-size: 12.5px; color: var(--text2); line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+.doc-file {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 10px; font-size: 11.5px;
+  margin-top: auto;
+}
+.doc-ext {
+  background: var(--accent); color: white; padding: 1px 6px; border-radius: 4px;
+  font-weight: 700; font-size: 10px; letter-spacing: 0.4px;
+}
+.doc-filename {
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--text); font-family: var(--mono);
+}
+.doc-size { color: var(--text2); white-space: nowrap; }
+
+.doc-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border-top: 1px dashed var(--border); padding-top: 8px;
+}
+.doc-foot-meta { font-size: 11.5px; color: var(--text2); }
+
+/* ── Modal form ────────────────────────────────────────────────────────── */
+.docs-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.docs-field span { font-size: 12px; color: var(--text2); font-weight: 500; }
+.docs-field input[type="text"],
+.docs-field input[type="file"],
+.docs-field select,
+.docs-field textarea {
+  padding: 8px 12px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+  font: inherit; font-size: 13.5px; outline: none;
+}
+.docs-field textarea { resize: vertical; min-height: 70px; font-family: var(--font); }
+.docs-field input:focus, .docs-field select:focus, .docs-field textarea:focus { border-color: var(--accent); }
+
+.docs-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.docs-row .docs-field { flex: 1; margin-bottom: 0; min-width: 160px; }
+.docs-checkbox {
+  flex-direction: row !important; align-items: center; gap: 8px;
+  justify-content: flex-start; padding-top: 24px;
+}
+.docs-checkbox input { width: 16px; height: 16px; }
+
+.docs-fileslot {
+  position: relative;
+}
+.docs-fileslot input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+}
+.docs-fileslot span {
+  padding: 10px 12px; border-radius: 8px;
+  background: var(--bg3); border: 1px dashed var(--border); color: var(--text2);
+  display: block; font-size: 13px; text-align: center;
+  transition: var(--theme-transition);
+}
+.docs-fileslot:hover span { border-color: var(--accent); color: var(--text); }
+
+.docs-err {
+  margin-top: 10px; padding: 8px 12px; border-radius: 8px;
+  background: rgba(242,87,87,0.08); border: 1px solid rgba(242,87,87,0.3);
+  color: var(--red); font-size: 12.5px;
+}

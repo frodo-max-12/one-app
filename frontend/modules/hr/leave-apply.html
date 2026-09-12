@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Apply for Leave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/leave.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Apply for Leave</span>
+        <div class="topbar-actions">
+          <a href="/modules/hr/leave-balance.html" class="op-manage-btn" style="text-decoration:none;">← Back to Balance</a>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="leave-shell">
+
+          <div class="apply-card">
+
+            <!-- Leave type tiles -->
+            <div class="apply-section">
+              <h3>1. Leave type</h3>
+              <div id="typeTiles" class="type-tiles">
+                <div class="holiday-skel" style="height:90px;"></div>
+                <div class="holiday-skel" style="height:90px;"></div>
+                <div class="holiday-skel" style="height:90px;"></div>
+                <div class="holiday-skel" style="height:90px;"></div>
+              </div>
+            </div>
+
+            <!-- Date range with session toggles -->
+            <div class="apply-section">
+              <h3>2. Dates <span class="lens-sub" id="daysCalc">— · Sundays excluded</span></h3>
+              <div class="date-row">
+                <div class="date-block">
+                  <label>From</label>
+                  <input type="date" id="fromDate" oninput="recalc()" />
+                  <div class="session-radio" id="fromSessionRadio">
+                    <label><input type="radio" name="fromSession" value="1" checked onchange="recalc()" /><span>Full day (from AM)</span></label>
+                    <label><input type="radio" name="fromSession" value="2" onchange="recalc()" /><span>PM only</span></label>
+                  </div>
+                </div>
+                <div class="date-block">
+                  <label>To</label>
+                  <input type="date" id="toDate" oninput="recalc()" />
+                  <div class="session-radio" id="toSessionRadio">
+                    <label><input type="radio" name="toSession" value="2" checked onchange="recalc()" /><span>Full day (to PM)</span></label>
+                    <label><input type="radio" name="toSession" value="1" onchange="recalc()" /><span>AM only</span></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reason -->
+            <div class="apply-section">
+              <h3>3. Reason</h3>
+              <textarea class="apply-textarea" id="reason" placeholder="Tell your reviewer briefly why you're taking this leave…" maxlength="1000"></textarea>
+            </div>
+
+            <!-- Applying to + CC + Contact -->
+            <div class="apply-section">
+              <h3>4. Approval</h3>
+              <label class="lens-sub" style="display:block; margin-bottom:4px;">Applying to (reviewer)</label>
+              <select class="apply-select" id="appliedTo">
+                <option value="">Loading reviewers…</option>
+              </select>
+
+              <label class="lens-sub" style="display:block; margin-top:12px; margin-bottom:4px;">Contact details while on leave (optional)</label>
+              <input class="apply-input" id="contactDetails" placeholder="e.g. +91 98765 43210 or alternate email" maxlength="200" />
+            </div>
+
+            <button class="apply-submit" id="submitBtn" type="button" onclick="submitLeave()" disabled>Submit Application</button>
+
+            <div class="sign-error" id="applyError" style="display:none; margin-top:14px;"></div>
+            <div id="applySuccess" style="display:none; margin-top:14px; background:#dcfce7; color:#166534; padding:14px 16px; border-radius:10px; font-size:13px; border:1px solid #a7f3d0;">
+              ✓ Leave application submitted. <a href="/modules/hr/leave-balance.html" style="color:#166534; font-weight:600;">View status →</a>
+            </div>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/leave-apply.js?v=1"></script>
+</body>
+</html>

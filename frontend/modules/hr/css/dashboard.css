@@ -1,0 +1,122 @@
+/* HR Dashboard (Phase 4A) — card grid + KPI strip + chart frames */
+
+.dash-wrap {
+  display: flex; flex-direction: column; gap: 18px;
+  padding: 14px 18px 40px;
+  max-width: 1500px; margin: 0 auto;
+}
+
+/* ── Refresh chip in topbar ──────────────────────────────────────────── */
+.chip-btn {
+  background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+  padding: 5px 12px; border-radius: 999px; cursor: pointer; font-size: 13px;
+  transition: var(--theme-transition), transform 0.08s ease;
+}
+.chip-btn:hover  { background: var(--bg4); border-color: var(--border2); }
+.chip-btn:active { transform: scale(0.97); }
+
+/* ═════════════ KPI strip ═════════════ */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+}
+@media (max-width: 1200px) { .kpi-strip { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 720px)  { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+
+.kpi-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 14px 12px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: relative; overflow: hidden;
+  transition: var(--theme-transition), transform 0.12s ease;
+}
+.kpi-card:hover { transform: translateY(-2px); border-color: var(--border2); }
+.kpi-card::before {
+  content: ''; position: absolute; inset: 0 auto 0 0; width: 4px;
+  background: var(--kpi-tint, var(--accent));
+}
+.kpi-icon { font-size: 18px; opacity: 0.85; }
+.kpi-num  { font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+.kpi-lbl  { font-size: 11.5px; color: var(--text2); font-weight: 500; }
+
+.kpi-blue   { --kpi-tint: var(--accent); }
+.kpi-green  { --kpi-tint: var(--green);  }
+.kpi-teal   { --kpi-tint: var(--teal);   }
+.kpi-pink   { --kpi-tint: #ff6b9d;       }
+.kpi-amber  { --kpi-tint: var(--amber);  }
+.kpi-purple { --kpi-tint: var(--purple); }
+.kpi-red    { --kpi-tint: var(--red);    }
+
+/* ═════════════ Cards ═════════════ */
+.dash-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 16px 18px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: var(--theme-transition);
+}
+.dash-card-wide { grid-column: 1 / -1; }
+
+.dash-card-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 1px dashed var(--border); padding-bottom: 8px;
+}
+.dash-card-head h2 {
+  margin: 0; font-size: 15px; font-weight: 600; color: var(--text);
+}
+.dash-sub { font-size: 12px; color: var(--text2); }
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+@media (max-width: 980px) { .dash-grid { grid-template-columns: 1fr; } }
+
+.chart-frame { position: relative; height: 240px; }
+.chart-tall  { height: 280px; }
+
+/* ═════════════ Top leave takers list ═════════════ */
+.lt-list {
+  display: flex; flex-direction: column; gap: 10px;
+  min-height: 240px;
+}
+.lt-empty {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 200px; color: var(--text2); font-size: 13px;
+}
+.lt-row {
+  display: grid;
+  grid-template-columns: 22px 36px 1fr auto;
+  gap: 10px; align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.lt-row:last-child { border-bottom: 0; }
+.lt-rank   { font-weight: 700; color: var(--text2); font-size: 13px; text-align: center; }
+.lt-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 12px;
+}
+.lt-main   { min-width: 0; }
+.lt-name   { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.lt-name a { color: inherit; text-decoration: none; }
+.lt-name a:hover { color: var(--accent); }
+.lt-sub    { font-size: 11.5px; color: var(--text2); margin-top: 1px; }
+.lt-bar    { margin-top: 5px; height: 4px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.lt-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple)); border-radius: 4px; }
+.lt-days   {
+  text-align: right; line-height: 1.1;
+}
+.lt-days b { font-size: 16px; color: var(--text); font-weight: 700; }
+.lt-days span { display: block; font-size: 10.5px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ═════════════ Diagnostics box ═════════════ */
+.dash-diag {
+  background: rgba(242,87,87,0.08); border: 1px solid rgba(242,87,87,0.25);
+  border-radius: var(--radius); padding: 12px 16px;
+}
+.dash-diag h3 { margin: 0 0 6px; font-size: 14px; color: var(--red); font-weight: 600; }
+.dash-diag ul { margin: 0; padding-left: 18px; color: var(--text2); font-size: 12.5px; }

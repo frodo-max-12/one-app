@@ -1,0 +1,196 @@
+/* PDC page styles */
+.pdc-shell { padding: 14px 18px 40px; max-width: 1500px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+.pdc-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pdc-search-wrap { position: relative; display: flex; align-items: center; min-width: 320px; flex: 1; max-width: 480px; }
+.pdc-search-ic { position: absolute; left: 12px; color: var(--text2); font-size: 14px; pointer-events: none; }
+.pdc-search-wrap input { width: 100%; padding: 8px 32px; border-radius: 8px; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-size: 13px; outline: none; }
+.pdc-search-wrap input:focus { border-color: var(--accent); }
+.pdc-clear-btn { position: absolute; right: 8px; background: none; border: none; color: var(--text2); font-size: 14px; cursor: pointer; padding: 4px; }
+
+.pdc-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; transition: transform .12s, border-color .12s; }
+.stat-card[onclick] { cursor: pointer; }
+.stat-card[onclick]:hover { transform: translateY(-1px); border-color: var(--accent); }
+.stat-card.active { box-shadow: 0 0 0 2px var(--accent); background: rgba(59, 130, 246, 0.08); }
+.stat-lbl { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-num { font-size: 20px; font-weight: 700; margin-top: 4px; color: var(--text); line-height: 1.1; }
+.stat-amt { font-size: 11.5px; font-weight: 600; margin-top: 2px; color: var(--text2); font-variant-numeric: tabular-nums; }
+
+/* Left-border colours per remark type — easy visual scan */
+.stat-card.stat-all       { border-left: 4px solid #3b82f6; }
+.stat-card.stat-pending   { border-left: 4px solid #f59e0b; }
+.stat-card.stat-deposited { border-left: 4px solid #eab308; }
+.stat-card.stat-cleared   { border-left: 4px solid #16a34a; }
+.stat-card.stat-online    { border-left: 4px solid #06b6d4; }
+.stat-card.stat-bounced   { border-left: 4px solid #dc2626; }
+.stat-card.stat-cancelled { border-left: 4px solid #6b7280; }
+.stat-card.stat-mismatch  { border-left: 4px solid #e11d48; background: rgba(225, 29, 72, 0.04); }
+.stat-card.stat-all       .stat-num { color: #2563eb; }
+.stat-card.stat-pending   .stat-num { color: #d97706; }
+.stat-card.stat-deposited .stat-num { color: #ca8a04; }
+.stat-card.stat-cleared   .stat-num { color: #16a34a; }
+.stat-card.stat-online    .stat-num { color: #0891b2; }
+.stat-card.stat-bounced   .stat-num { color: #dc2626; }
+.stat-card.stat-cancelled .stat-num { color: #6b7280; }
+.stat-card.stat-mismatch  .stat-num { color: #e11d48; }
+.stat-card.stat-all       .stat-amt { color: #1d4ed8; }
+.stat-card.stat-pending   .stat-amt { color: #92400e; }
+.stat-card.stat-deposited .stat-amt { color: #854d0e; }
+.stat-card.stat-cleared   .stat-amt { color: #166534; }
+.stat-card.stat-online    .stat-amt { color: #155e75; }
+.stat-card.stat-bounced   .stat-amt { color: #991b1b; }
+.stat-card.stat-cancelled .stat-amt { color: #475569; }
+.stat-card.stat-mismatch  .stat-amt { color: #9f1239; }
+/* Hold card — replaces the Cancelled card (2026-08-07). Purple, matching the s-hold pill + row-hold tint. */
+.stat-card.stat-hold      { border-left: 4px solid #a855f7; }
+.stat-card.stat-hold      .stat-num { color: #9333ea; }
+.stat-card.stat-hold      .stat-amt { color: #6b21a8; }
+/* Lapsed card (2026-08-10) — past-dated cheques still on Hold / Not-Deposited.
+   Orange alert tint (distinct from red Bounced + rose Mismatch) — an attention flag, not an error. */
+.stat-card.stat-lapsed    { border-left: 4px solid #ea580c; background: rgba(234, 88, 12, 0.05); }
+.stat-card.stat-lapsed    .stat-num { color: #ea580c; }
+.stat-card.stat-lapsed    .stat-amt { color: #9a3412; }
+
+/* Status pill inside the table — uses the same palette as stat cards */
+.pdc-status-cell { white-space: nowrap; }
+.pdc-status-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; text-transform: capitalize; line-height: 1.4; }
+.pdc-status-pill.s-pending          { background: rgba(245, 158, 11, 0.18); color: #92400e; }
+.pdc-status-pill.s-not-deposited    { background: rgba(245, 158, 11, 0.14); color: #92400e; }
+.pdc-status-pill.s-with-salesperson { background: rgba(99, 102, 241, 0.18); color: #3730a3; }
+.pdc-status-pill.s-deposited        { background: rgba(234, 179, 8, 0.20);  color: #854d0e; }
+.pdc-status-pill.s-cleared          { background: rgba(34, 197, 94, 0.20);  color: #166534; }
+.pdc-status-pill.s-online           { background: rgba(6, 182, 212, 0.20);  color: #155e75; }
+.pdc-status-pill.s-bounced          { background: rgba(239, 68, 68, 0.18);  color: #991b1b; }
+.pdc-status-pill.s-hold             { background: rgba(168, 85, 247, 0.18); color: #6b21a8; }
+.pdc-status-pill.s-cancelled        { background: rgba(107, 114, 128, 0.20); color: #475569; }
+
+/* Row colouring based on remark text (Excel filter-by-color parity) */
+.pdc-table tbody tr.row-pending   { background: rgba(245, 158, 11, 0.07); border-left: 3px solid #f59e0b; }
+.pdc-table tbody tr.row-deposited { background: rgba(234, 179, 8, 0.10);  border-left: 3px solid #eab308; }
+.pdc-table tbody tr.row-cleared   { background: rgba(34, 197, 94, 0.09);  border-left: 3px solid #16a34a; }
+.pdc-table tbody tr.row-online    { background: rgba(6, 182, 212, 0.10);  border-left: 3px solid #06b6d4; }
+.pdc-table tbody tr.row-bounced   { background: rgba(239, 68, 68, 0.10);  border-left: 3px solid #dc2626; }
+.pdc-table tbody tr.row-cancelled { background: rgba(107, 114, 128, 0.10); border-left: 3px solid #6b7280; }
+.pdc-table tbody tr.row-hold        { background: rgba(168, 85, 247, 0.08); border-left: 3px solid #a855f7; }
+.pdc-table tbody tr.row-salesperson { background: rgba(99, 102, 241, 0.09); border-left: 3px solid #6366f1; }
+.pdc-table tbody tr.row-pending:hover   { background: rgba(245, 158, 11, 0.14); }
+.pdc-table tbody tr.row-deposited:hover { background: rgba(234, 179, 8, 0.18); }
+.pdc-table tbody tr.row-cleared:hover   { background: rgba(34, 197, 94, 0.16); }
+.pdc-table tbody tr.row-online:hover    { background: rgba(6, 182, 212, 0.18); }
+.pdc-table tbody tr.row-bounced:hover   { background: rgba(239, 68, 68, 0.18); }
+.pdc-table tbody tr.row-cancelled:hover { background: rgba(107, 114, 128, 0.18); }
+.pdc-table tbody tr.row-hold:hover        { background: rgba(168, 85, 247, 0.14); }
+.pdc-table tbody tr.row-salesperson:hover { background: rgba(99, 102, 241, 0.16); }
+
+.pdc-table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: auto; }
+.pdc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.pdc-table thead th { background: var(--bg3); color: var(--text2); padding: 10px 12px; text-align: left; font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1; }
+.pdc-table th.r, .pdc-table td.r { text-align: right; }
+.pdc-table tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+.pdc-table tbody tr:hover { background: var(--bg3); }
+.pdc-table .mono { font-family: var(--mono); font-size: 11.5px; }
+
+.pdc-loading, .pdc-empty { text-align: center; padding: 40px 20px; color: var(--text2); }
+
+.pdc-status-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; text-transform: capitalize; }
+.pdc-status-pending   { background: rgba(240,162,46,0.18); color: #92400e; }
+.pdc-status-deposited { background: rgba(59,130,246,0.18); color: #1e40af; }
+.pdc-status-cleared   { background: rgba(34,197,94,0.20); color: #166534; }
+.pdc-status-bounced   { background: rgba(239,68,68,0.18); color: #991b1b; }
+.pdc-status-cancelled { background: rgba(100,116,139,0.20); color: #475569; }
+
+.pdc-pagination { display: flex; justify-content: center; align-items: center; gap: 8px; }
+.pdc-pagination button { padding: 5px 12px; border-radius: 6px; background: var(--bg3); border: 1px solid var(--border); color: var(--text); cursor: pointer; font-size: 12px; }
+.pdc-pagination button:hover:not(:disabled) { background: var(--bg4); }
+.pdc-pagination button:disabled { opacity: 0.4; cursor: default; }
+.pdc-pagination .pdc-page-info { font-size: 12px; color: var(--text2); }
+
+.pdc-import-result {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; font-size: 12.5px; line-height: 1.6;
+}
+.pdc-import-result .row-pre { font-family: var(--mono); font-size: 11px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+
+.pdc-row-action { padding: 4px 10px; border-radius: 6px; background: var(--bg3); border: 1px solid var(--border); color: var(--text); cursor: pointer; font-size: 11.5px; }
+.pdc-row-action:hover { background: var(--bg4); }
+
+/* Selection bar — appears when rows are checked */
+.pdc-sel-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px;
+  background: rgba(59,130,246,0.10); border: 1px solid var(--accent);
+  border-radius: 8px; font-size: 13px;
+}
+.pdc-sel-bar > span:first-child { flex: 1; color: var(--text); }
+.pdc-sel-bar .btn { font-size: 12px; padding: 4px 12px; }
+.pdc-row-chk { cursor: pointer; }
+
+/* ── Form layout inside Add / Edit PDC modal ─────────────────────────────── */
+#pdcModal .lens-modal-card { max-width: 720px; width: 92vw; }
+.pdc-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px 14px; margin-bottom: 10px; }
+.pdc-form-grid .kv { display: flex; flex-direction: column; gap: 4px; }
+.pdc-form-grid .kv-label { font-size: 11.5px; color: var(--text2); font-weight: 500; }
+.pdc-form-grid input, .pdc-form-grid select { padding: 7px 10px; font-size: 13px; background: var(--bg2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; outline: none; font-family: var(--font); }
+.pdc-form-grid input:focus, .pdc-form-grid select:focus { border-color: var(--accent); }
+.pdc-form-grid .lens-sub { font-size: 10.5px; color: var(--text2); margin-top: 2px; }
+.pdc-form-grid-full { grid-column: 1 / -1; }   /* span the whole row */
+.pdc-form-textarea { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 12px; }
+.pdc-form-textarea textarea { padding: 7px 10px; font-size: 13px; background: var(--bg2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; outline: none; resize: vertical; min-height: 56px; font-family: var(--font); }
+.pdc-form-textarea label { font-size: 11.5px; color: var(--text2); font-weight: 500; }
+
+/* Import modal — bigger so the result panel doesn't get clipped */
+#importModal .lens-modal-card { max-width: 700px; width: 92vw; max-height: 88vh; overflow-y: auto; }
+.pdc-import-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 6px 14px; background: var(--bg2); padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border); margin-top: 6px; }
+.pdc-import-stats > div { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+.pdc-import-stats .lbl { color: var(--text2); }
+.pdc-import-stats .val { font-weight: 600; color: var(--text); }
+
+/* Bottom action bar for PDC modals — right-aligned Cancel/Save, full-width container */
+.pdc-actions {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.pdc-actions .btn { font-size: 12.5px; padding: 7px 14px; }
+.pdc-actions .btn-primary { padding: 8px 18px; font-weight: 600; }
+
+/* ── Customer-name typeahead dropdown ─────────────────────────────────────── */
+.pdc-suggest {
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  margin-top: 2px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 6px;
+  max-height: 280px; overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.20);
+}
+.pdc-suggest-row { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border); }
+.pdc-suggest-row:last-child { border-bottom: none; }
+.pdc-suggest-row:hover, .pdc-suggest-row.active { background: var(--bg3); }
+.pdc-suggest-row .name { font-size: 13px; color: var(--text); font-weight: 500; }
+.pdc-suggest-row .meta { font-size: 11px; color: var(--text2); margin-top: 2px; font-family: var(--mono); }
+.pdc-suggest-empty { padding: 12px; text-align: center; color: var(--text2); font-size: 12px; }
+
+/* ── Last-import failures banner ─────────────────────────────────────────── */
+.pdc-fail-banner {
+  background: rgba(225, 29, 72, 0.07);
+  border: 1px solid rgba(225, 29, 72, 0.40);
+  border-left: 4px solid #e11d48;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--text);
+}
+.pdc-fail-banner-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.pdc-fail-banner-head .ttl { font-weight: 700; color: #e11d48; flex: 1; }
+.pdc-fail-banner-head .ts  { font-size: 11px; color: var(--text2); }
+.pdc-fail-banner-head .dismiss {
+  background: none; border: 1px solid rgba(225, 29, 72, 0.30); color: #e11d48;
+  border-radius: 6px; padding: 3px 10px; font-size: 11.5px; cursor: pointer;
+}
+.pdc-fail-banner-head .dismiss:hover { background: rgba(225, 29, 72, 0.10); }
+.pdc-fail-row { padding: 5px 0; border-top: 1px dashed rgba(225, 29, 72, 0.20); font-family: var(--mono); font-size: 11.5px; line-height: 1.5; }
+.pdc-fail-row:first-of-type { border-top: none; }
+.pdc-fail-row .reason { display: block; color: #991b1b; font-size: 10.5px; font-family: var(--font); margin-top: 2px; }

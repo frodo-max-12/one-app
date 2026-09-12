@@ -1,0 +1,330 @@
+/* ── Theme CSS — Day / Night ─────────────────────────────────────────────── */
+
+/* ── Night theme (default) ──────────────────────────────────────────────── */
+:root {
+  --bg:      #0d0f14;
+  --bg2:     #13161e;
+  --bg3:     #1a1e28;
+  --bg4:     #222738;
+  --border:  #2a2f40;
+  --border2: #353b52;
+  --text:    #e8eaf2;
+  --text2:   #8b91a8;
+  --text3:   #555d78;
+  --accent:  #4f8ef7;
+  --accent2: #3a6fd4;
+  --green:   #34c77b;
+  --red:     #f25757;
+  --amber:   #f0a22e;
+  --purple:  #9b71f5;
+  --teal:    #2ec4b6;
+  --font:    'DM Sans', sans-serif;
+  --mono:    'DM Mono', monospace;
+  --radius:  10px;
+  --radius-lg: 16px;
+  --shadow:  0 4px 24px rgba(0,0,0,0.4);
+  --theme-transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+  /* Badge backgrounds — night */
+  --badge-red-bg:    rgba(242,87,87,0.15);
+  --badge-red-text:  #f25757;
+  --badge-red-border:rgba(242,87,87,0.25);
+  --badge-amber-bg:  rgba(240,162,46,0.15);
+  --badge-amber-text:#f0a22e;
+  --badge-amber-border:rgba(240,162,46,0.25);
+  --badge-green-bg:  rgba(52,199,123,0.12);
+  --badge-green-text:#34c77b;
+  --badge-green-border:rgba(52,199,123,0.22);
+  --badge-blue-bg:   rgba(79,142,247,0.12);
+  --badge-blue-text: #4f8ef7;
+  --badge-blue-border:rgba(79,142,247,0.22);
+
+  /* Nav active — night */
+  --nav-active-bg:     rgba(79,142,247,0.12);
+  --nav-active-color:  #4f8ef7;
+  --nav-active-border: rgba(79,142,247,0.2);
+
+  /* Card stat accents */
+  --accent-green-text: #34c77b;
+  --accent-purple-text:#9b71f5;
+  --accent-amber-text: #f0a22e;
+  --accent-red-text:   #f25757;
+}
+
+/* ── Day theme ───────────────────────────────────────────────────────────── */
+body.day-theme {
+  --bg:      #f0f2f8;
+  --bg2:     #ffffff;
+  --bg3:     #e8eaf0;
+  --bg4:     #d8dcea;
+  --border:  #c8ccde;
+  --border2: #adb3cc;
+  --text:    #12152a;
+  --text2:   #3a3f5c;
+  --text3:   #6b7194;
+  --accent:  #2563c8;
+  --accent2: #1a4fa8;
+  --green:   #0f8c4c;
+  --red:     #cc2222;
+  --amber:   #b86c00;
+  --purple:  #6238cc;
+  --teal:    #0d8c82;
+  --shadow:  0 4px 24px rgba(0,0,0,0.12);
+
+  /* Badge backgrounds — day (darker for readability on white) */
+  --badge-red-bg:    rgba(204,34,34,0.10);
+  --badge-red-text:  #aa1111;
+  --badge-red-border:rgba(204,34,34,0.25);
+  --badge-amber-bg:  rgba(184,108,0,0.10);
+  --badge-amber-text:#8a5000;
+  --badge-amber-border:rgba(184,108,0,0.25);
+  --badge-green-bg:  rgba(15,140,76,0.10);
+  --badge-green-text:#0a6636;
+  --badge-green-border:rgba(15,140,76,0.22);
+  --badge-blue-bg:   rgba(37,99,200,0.10);
+  --badge-blue-text: #1a4fa8;
+  --badge-blue-border:rgba(37,99,200,0.22);
+
+  /* Nav active — day */
+  --nav-active-bg:     rgba(37,99,200,0.10);
+  --nav-active-color:  #1a4fa8;
+  --nav-active-border: rgba(37,99,200,0.25);
+
+  /* Card stat accents — day (darker for white bg) */
+  --accent-green-text: #0a6636;
+  --accent-purple-text:#4a22aa;
+  --accent-amber-text: #8a5000;
+  --accent-red-text:   #aa1111;
+}
+
+/* ── Override badge colors to use variables ──────────────────────────────── */
+.badge-red {
+  background: var(--badge-red-bg) !important;
+  color:      var(--badge-red-text) !important;
+  border:     1px solid var(--badge-red-border) !important;
+}
+.badge-amber {
+  background: var(--badge-amber-bg) !important;
+  color:      var(--badge-amber-text) !important;
+  border:     1px solid var(--badge-amber-border) !important;
+}
+.badge-green {
+  background: var(--badge-green-bg) !important;
+  color:      var(--badge-green-text) !important;
+  border:     1px solid var(--badge-green-border) !important;
+}
+.badge-blue {
+  background: var(--badge-blue-bg) !important;
+  color:      var(--badge-blue-text) !important;
+  border:     1px solid var(--badge-blue-border) !important;
+}
+
+/* ── Nav active override ─────────────────────────────────────────────────── */
+.nav-item.active {
+  background:   var(--nav-active-bg) !important;
+  color:        var(--nav-active-color) !important;
+  border-color: var(--nav-active-border) !important;
+}
+
+/* ── Stat card accent text colors ────────────────────────────────────────── */
+.accent-green  { color: var(--accent-green-text)  !important; }
+.accent-purple { color: var(--accent-purple-text) !important; }
+.accent-amber  { color: var(--accent-amber-text)  !important; }
+.accent-red    { color: var(--accent-red-text)    !important; }
+
+/* ── Day theme: table & card readability ─────────────────────────────────── */
+body.day-theme th {
+  color: var(--text3) !important;
+  border-bottom-color: var(--border) !important;
+}
+body.day-theme td {
+  color: var(--text2) !important;
+  border-bottom-color: var(--border) !important;
+}
+body.day-theme tr:hover td {
+  background: var(--bg3) !important;
+  color:      var(--text) !important;
+}
+body.day-theme .td-bold { color: var(--text) !important; }
+body.day-theme .card-value { color: var(--text) !important; }
+body.day-theme .card-title { color: var(--text3) !important; }
+body.day-theme .card-sub   { color: var(--text2) !important; }
+body.day-theme .page-title { color: var(--text)  !important; }
+body.day-theme .section-head h2 { color: var(--text) !important; }
+body.day-theme .nav-section-label { color: var(--text3) !important; }
+body.day-theme .user-name  { color: var(--text)  !important; }
+body.day-theme .user-role  { color: var(--text3) !important; }
+body.day-theme .logo-text  { color: var(--text)  !important; }
+body.day-theme .logo-sub   { color: var(--text3) !important; }
+body.day-theme .chip       { color: var(--text3) !important; }
+body.day-theme .page-info  { color: var(--text3) !important; }
+body.day-theme .empty-text { color: var(--text3) !important; }
+body.day-theme .role-tag {
+  background: var(--nav-active-bg) !important;
+  color:      var(--nav-active-color) !important;
+  border-color: var(--nav-active-border) !important;
+}
+body.day-theme .btn-ghost {
+  background: var(--bg3) !important;
+  color:      var(--text2) !important;
+  border-color: var(--border) !important;
+}
+body.day-theme .btn-ghost:hover {
+  background: var(--bg4) !important;
+  color:      var(--text) !important;
+}
+body.day-theme .filter-tab {
+  background: var(--bg3) !important;
+  color:      var(--text2) !important;
+  border-color: var(--border) !important;
+}
+body.day-theme .filter-tab.active {
+  background: var(--accent) !important;
+  color:      #fff !important;
+  border-color: var(--accent) !important;
+}
+body.day-theme .page-btn {
+  background: var(--bg3) !important;
+  color:      var(--text2) !important;
+  border-color: var(--border) !important;
+}
+body.day-theme .page-btn.active {
+  background: var(--accent) !important;
+  color:      #fff !important;
+}
+body.day-theme .search-input,
+body.day-theme .form-input {
+  background:   var(--bg3) !important;
+  color:        var(--text) !important;
+  border-color: var(--border) !important;
+}
+body.day-theme .search-input::placeholder,
+body.day-theme .form-input::placeholder {
+  color: var(--text3) !important;
+}
+body.day-theme .search-input:focus,
+body.day-theme .form-input:focus {
+  border-color: var(--accent) !important;
+}
+body.day-theme .input-icon { color: var(--text3) !important; }
+body.day-theme .loading-center { color: var(--text3) !important; }
+
+/* ── Day: sidebar ────────────────────────────────────────────────────────── */
+body.day-theme .sidebar {
+  background:   var(--bg2) !important;
+  border-color: var(--border) !important;
+}
+body.day-theme .nav-item {
+  color: var(--text2) !important;
+}
+body.day-theme .nav-item:hover {
+  background: var(--bg3) !important;
+  color:      var(--text) !important;
+}
+body.day-theme .user-card { background: var(--bg3) !important; }
+body.day-theme .logout-btn { color: var(--text3) !important; }
+body.day-theme .logout-btn:hover { color: var(--red) !important; }
+
+/* ── Day: topbar ─────────────────────────────────────────────────────────── */
+body.day-theme .topbar {
+  background:   var(--bg2) !important;
+  border-color: var(--border) !important;
+}
+
+/* ── Day: modal ──────────────────────────────────────────────────────────── */
+body.day-theme .modal {
+  background:   var(--bg2) !important;
+  border-color: var(--border) !important;
+}
+body.day-theme .modal-header { border-color: var(--border) !important; }
+body.day-theme .modal-footer { border-color: var(--border) !important; }
+body.day-theme .form-group label { color: var(--text3) !important; }
+body.day-theme .toggle-label span { color: var(--text2) !important; }
+
+/* ── Day: progress bars ──────────────────────────────────────────────────── */
+body.day-theme .progress-track { background: var(--bg4) !important; }
+body.day-theme .progress-label { color: var(--text2) !important; }
+body.day-theme .progress-val   { color: var(--text2) !important; }
+
+/* ── Day: mini bar in visit plan cards ───────────────────────────────────── */
+body.day-theme .mini-bar-track { background: var(--bg4) !important; }
+
+/* ── Smooth transition on everything ─────────────────────────────────────── */
+body, .sidebar, .main, .topbar, .card, .nav-item, .user-card,
+table, th, td, .badge, .btn, .search-input, .form-input,
+.filter-tab, .page-btn, .modal, .role-tag, .chip, .page-title,
+.card-value, .card-title, .card-sub, .empty-text, .spinner,
+.logo-text, .logo-sub, .input-icon {
+  transition: var(--theme-transition);
+}
+
+/* ── Toggle button ───────────────────────────────────────────────────────── */
+.theme-toggle {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.theme-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.theme-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: #1a1e28;
+  border: 1.5px solid #353b52;
+  overflow: hidden;
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+body.day-theme .theme-track {
+  background: #87ceeb;
+  border-color: #5aafd4;
+}
+.theme-track::before {
+  content: '★ ★';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 7px;
+  color: #8b91a8;
+  letter-spacing: 2px;
+  transition: opacity 0.3s ease;
+  line-height: 1;
+}
+body.day-theme .theme-track::before { opacity: 0; }
+
+.theme-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #c8cfe0;
+  box-shadow: -2px 0 0 3px #8b91a8;
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1),
+              background 0.4s ease, box-shadow 0.4s ease;
+}
+body.day-theme .theme-thumb {
+  transform: translateX(28px);
+  background: #f9c74f;
+  box-shadow: 0 0 8px 3px rgba(249,199,79,0.5);
+}
+.theme-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.theme-label {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text3);
+  min-width: 28px;
+  transition: color 0.3s;
+}

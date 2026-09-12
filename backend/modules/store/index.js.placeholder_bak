@@ -1,0 +1,21 @@
+// =====================================================================
+// modules/store — Store department routes (PLACEHOLDER)
+//
+// Planned: 20 modules including:
+//   Core (1-11): Stock Inquiry, GRN, Outward, Stock Transfer/Adjustment,
+//                Material Issue, Physical Audit, Reorder Alert, Bin Mapping
+//   Dispatch & Communication (12-20): Dispatch Communication Hub
+//                (one-click invoice + DC + e-way bill + tracking → email + WhatsApp),
+//                Tracking Auto-Update, POD, Daily Dispatch Report,
+//                Pending Dispatch Queue, Courier Performance, Returns/RMA,
+//                Vehicle Log, Customer Reply Parsing
+// See BRD section 6.6 for full list.
+// =====================================================================
+
+const router = require('express').Router();
+
+router.get('/', (req, res) => {
+  res.json({ module: 'store', status: 'placeholder', message: 'Store module routes will be added here.' });
+});
+
+module.exports = router;

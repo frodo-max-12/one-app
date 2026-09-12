@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Payroll Run</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/payroll.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Payroll · <span id="topRunCode">—</span></span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <a class="btn" href="/modules/hr/payroll.html">← Back to runs</a>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="pr-wrap">
+
+          <!-- Run header card -->
+          <section class="pr-runhead" id="runHead">
+            <div class="pr-loading">Loading…</div>
+          </section>
+
+          <!-- Action bar -->
+          <div class="pr-actions" id="actionBar"></div>
+
+          <!-- KPI strip -->
+          <section class="pr-kpis" id="kpiStrip"></section>
+
+          <!-- Payslip table -->
+          <section class="pr-table-wrap">
+            <table class="pr-table">
+              <thead><tr>
+                <th>Emp Code</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th class="r">Days</th>
+                <th class="r">LOP</th>
+                <th class="r">Payable</th>
+                <th class="r">Gross</th>
+                <th class="r">Deductions</th>
+                <th class="r">Net Pay</th>
+                <th>Status</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="psTbody"><tr><td colspan="11" class="pr-loading">Loading…</td></tr></tbody>
+            </table>
+          </section>
+
+          <!-- Diag -->
+          <div id="diagBox" class="pr-err" style="display:none;"></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ LOCK MODAL ════════ -->
+  <div class="lens-modal" id="lockModal" hidden>
+    <div class="lens-modal-card">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeLock()">←</button>
+        <span>Lock Payroll Run</span>
+      </div>
+      <p class="pr-meta">Locking freezes all payslips and makes them visible to employees. Use Unlock to revert (only allowed before Mark as Paid).</p>
+      <label class="pr-field">
+        <span>Pay Date</span>
+        <input type="date" id="lkPayDate" />
+      </label>
+      <button class="btn btn-primary btn-wide" type="button" onclick="submitLock()">Lock Run</button>
+      <div class="pr-err" id="lkErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=10"></script>
+  <script src="/shared/common.js?v=10"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/payroll-run.js?v=1"></script>
+</body>
+</html>

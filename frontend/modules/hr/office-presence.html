@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Office Presence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/journey.css?v=1" />
+  <link rel="stylesheet" href="./css/office-presence.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Office Presence</span>
+        <div class="topbar-actions">
+          <span class="op-live"><span class="op-live-dot"></span>Live · refreshes every 60s</span>
+          <button class="op-manage-btn" type="button" onclick="openAssignModal()">⚙ Manage Assignments</button>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="op-shell">
+
+          <!-- Per-office tiles -->
+          <div id="opOfficeTiles" class="op-office-tiles">
+            <div class="holiday-skel" style="height:160px;"></div>
+            <div class="holiday-skel" style="height:160px;"></div>
+            <div class="holiday-skel" style="height:160px;"></div>
+          </div>
+
+          <!-- Unassigned banner -->
+          <div id="opUnassignedBanner" class="op-unassigned" style="display:none;">
+            <span class="ic">⚠</span>
+            <span><b id="opUnassignedCount">0</b> employees not assigned to any office.</span>
+            <button class="op-link" type="button" onclick="openAssignModal()">Assign now →</button>
+          </div>
+
+          <!-- Per-office employee grid (selected branch) -->
+          <div class="op-employee-section">
+            <div class="op-section-head">
+              <h2>Employees · <span id="opSelectedOffice">All offices</span></h2>
+              <div class="op-search-wrap">
+                <input type="text" id="opSearch" placeholder="🔍  Filter by name…" />
+              </div>
+            </div>
+            <div id="opEmpList" class="op-emp-list">
+              <div class="holiday-skel" style="height:60px;margin-bottom:10px;"></div>
+              <div class="holiday-skel" style="height:60px;"></div>
+            </div>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ Assign Employees Modal ═══════ -->
+  <div class="lens-modal" id="assignModal" hidden>
+    <div class="lens-modal-card op-assign-card">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeAssignModal()">←</button>
+        <span>Manage Office Assignments</span>
+        <button class="op-save-btn" type="button" onclick="saveAssignments()" style="margin-left:auto;">Save Changes</button>
+      </div>
+      <div class="op-assign-body" id="opAssignBody">
+        <div class="holiday-skel" style="height:300px;"></div>
+      </div>
+      <div class="sign-error" id="opAssignError" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/office-presence.js?v=1"></script>
+</body>
+</html>

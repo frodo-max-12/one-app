@@ -1,0 +1,154 @@
+/* CompanyBInventory.css – scoped styles for the CompanyB Inventory page */
+
+/* ── Header row layout ── */
+.inv-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inv-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── As-On-Date picker ── */
+.inv-date-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inv-date-label {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text3);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.inv-date-input {
+  width: 148px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color-scheme: dark;
+}
+
+/* ── Toolbar row ── */
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* ── Row number column ── */
+.col-row {
+  width: 42px;
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+/* ── Item No. – mono, amber accent for CompanyB ── */
+.col-item {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--amber);
+  white-space: nowrap;
+}
+
+/* ── Vendor Item No. ── */
+.col-vendor {
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ── Brand badge ── */
+.brand-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 500;
+  background: rgba(240, 162, 46, 0.12);
+  color: var(--amber);
+  border: 1px solid rgba(240, 162, 46, 0.2);
+  white-space: nowrap;
+}
+
+/* ── Item Description ── */
+.col-desc {
+  color: var(--text);
+  text-align: left;
+  min-width: 180px;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Quantity ── */
+.col-qty {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--green);
+  white-space: nowrap;
+}
+
+/* ── Remarks ── */
+.col-remarks {
+  color: var(--text3);
+  font-size: 12px;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── SO No. ── */
+.col-sono {
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ── Unit Value / Total Value ── */
+.col-val {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* ── SO Inventory wider table ── */
+#invTable.so-table {
+  min-width: 1100px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .inv-header-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .inv-date-input {
+    width: 130px;
+  }
+
+  .col-desc {
+    max-width: 180px;
+  }
+}

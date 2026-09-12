@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Leave Granter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/leave.css?v=1" />
+  <link rel="stylesheet" href="./css/leave-granter.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Leave Granter</span>
+        <div class="topbar-actions">
+          <a href="/modules/hr/leave-balance.html" class="op-manage-btn" style="text-decoration:none;">View Balances →</a>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="lg-shell">
+
+          <!-- ═══ Grant form ═══ -->
+          <article class="lg-card">
+            <h2>Issue grant</h2>
+
+            <!-- Step 1: Kind -->
+            <div style="margin-bottom: 14px;">
+              <div style="font-size:12px; color: var(--lens-text-3); margin-bottom:6px;">1. KIND OF GRANT</div>
+              <div class="lg-kind-row" id="kindRow">
+                <button class="lg-kind-pill selected" type="button" data-kind="bonus"        onclick="selectKind('bonus')">🎁 Bonus Leave</button>
+                <button class="lg-kind-pill" type="button" data-kind="comp-off"     onclick="selectKind('comp-off')">🔄 Comp-Off Grant</button>
+                <button class="lg-kind-pill" type="button" data-kind="joiner-adjust" onclick="selectKind('joiner-adjust')">👋 New Joiner Adjustment</button>
+                <button class="lg-kind-pill" type="button" data-kind="correction"   onclick="selectKind('correction')">✏ Correction</button>
+                <button class="lg-kind-pill" type="button" data-kind="year-end-reset" onclick="selectKind('year-end-reset')">🔁 Year-End Reset</button>
+              </div>
+            </div>
+
+            <!-- Step 2: Leave type + days -->
+            <div class="lg-form-grid" style="margin-bottom: 14px;">
+              <div>
+                <div style="font-size:12px; color: var(--lens-text-3); margin-bottom:6px;">2. LEAVE TYPE</div>
+                <select class="lg-input" id="leaveType">
+                  <option value="">Loading…</option>
+                </select>
+              </div>
+              <div>
+                <div style="font-size:12px; color: var(--lens-text-3); margin-bottom:6px;">3. DAYS</div>
+                <input type="number" id="days" class="lg-input lg-days-input" step="0.5" min="-30" max="30" placeholder="+1" />
+                <div class="lg-days-hint">Use negative number to deduct</div>
+              </div>
+            </div>
+
+            <!-- Step 3: Employees -->
+            <div style="margin-bottom: 14px;">
+              <div style="font-size:12px; color: var(--lens-text-3); margin-bottom:6px;">4. EMPLOYEES</div>
+              <input type="text" id="empSearch" class="lg-emp-search" placeholder="🔍  Search by name or email…" oninput="filterEmps()" />
+              <div class="lg-emp-toolbar">
+                <span id="empCount">0 of 0</span>
+                <div>
+                  <a onclick="selectAll()">Select all visible</a> · <a onclick="clearSelection()">Clear</a>
+                </div>
+              </div>
+              <div class="lg-emp-list" id="empList">
+                <div class="holiday-skel" style="height:200px;"></div>
+              </div>
+              <div class="lg-selected-count" id="selectedCount" style="display:none;">
+                <b id="selectedCountNum">0</b> employee(s) selected
+              </div>
+            </div>
+
+            <!-- Step 4: Reason -->
+            <div style="margin-bottom: 14px;">
+              <div style="font-size:12px; color: var(--lens-text-3); margin-bottom:6px;">5. REASON <span style="color:#ef4444;">*</span></div>
+              <textarea class="lg-input lg-textarea" id="reason" placeholder="e.g. Diwali bonus — 1 extra day to all field staff" maxlength="1000"></textarea>
+            </div>
+
+            <button class="lg-grant-btn" id="grantBtn" type="button" onclick="submitGrant()" disabled>Issue Grant</button>
+
+            <div class="sign-error" id="grantError" style="display:none; margin-top:14px;"></div>
+            <div id="grantSuccess" style="display:none; margin-top:14px; background:#dcfce7; color:#166534; padding:14px 16px; border-radius:10px; font-size:13px; border:1px solid #a7f3d0;">
+              ✓ <b id="successMsg">Grant issued.</b>
+            </div>
+          </article>
+
+          <!-- ═══ History ═══ -->
+          <article class="lg-card">
+            <h2>Recent grants</h2>
+            <table class="lg-history-table" id="historyTable">
+              <thead>
+                <tr>
+                  <th>When</th>
+                  <th>Employee</th>
+                  <th>Type</th>
+                  <th>Days</th>
+                  <th>Reason</th>
+                  <th>Granted by</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="historyBody">
+                <tr><td colspan="7" style="text-align:center; padding:20px; color:var(--lens-text-3);">Loading…</td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3><ul id="diagList"></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/leave-granter.js?v=1"></script>
+</body>
+</html>

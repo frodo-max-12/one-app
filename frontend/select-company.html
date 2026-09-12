@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Select Company</title>
+
+  <!-- PWA — same manifest as login page so install prompt works from here too -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0c1a2b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ONE App" />
+  <link rel="apple-touch-icon" href="/images/app-icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="/images/app-icon.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/select-company.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+</head>
+<body>
+  <div class="company-page">
+    <div class="company-header">
+      <div class="logo-mark">
+        <div class="logo-icon">1</div>
+        <div>
+          <div class="logo-text">ONE App</div>
+          <div class="logo-sub">NAV 2016 · Multi-Department Platform</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <span id="userGreeting" class="user-greeting"></span>
+        <button class="logout-pill" onclick="doLogout()">Sign out ⎋</button>
+      </div>
+    </div>
+
+    <div class="company-content fade-up">
+      <div class="company-heading">
+        <h1>Select Company</h1>
+        <p>Choose which company you want to work with</p>
+      </div>
+
+      <div class="company-grid">
+        <div class="company-card company-card-companya" onclick="selectCompany('COMPANYA')">
+          <div class="company-card-inner">
+            <div class="company-logo-wrap company-logo-wrap-companya">
+              <img src="/images/company-a-logo.png" alt="Company A" class="company-logo-img" />
+            </div>
+            <div class="company-info">
+              <div class="company-name">Company A</div>
+              <div class="company-full">Pvt. Ltd.</div>
+              <div class="company-location">🇮🇳 India · INR ₹</div>
+            </div>
+            <div class="company-modules">
+              <span class="module-pill">Dashboard</span>
+              <span class="module-pill">Outstanding</span>
+              <span class="module-pill">Customers</span>
+              <span class="module-pill">Inventory</span>
+              <span class="module-pill">SO Backlog</span>
+              <span class="module-pill">Billing</span>
+              <span class="module-pill">Visit Plan</span>
+              <span class="module-pill">Reminders</span>
+            </div>
+            <div class="company-enter">
+              Enter <span class="enter-arrow">→</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="company-card company-card-companyb" onclick="selectCompany('COMPANYB')">
+          <div class="company-card-inner">
+            <div class="company-logo-wrap company-logo-wrap-companyb">
+              <img src="/images/company-b-logo.png" alt="Company B" class="company-logo-img" />
+            </div>
+            <div class="company-info">
+              <div class="company-name">Company B</div>
+              <div class="company-full">International Pte. Ltd.</div>
+              <div class="company-location">🇸🇬 Singapore · USD $</div>
+            </div>
+            <div class="company-modules">
+              <span class="module-pill module-pill-companyb">Dashboard</span>
+              <span class="module-pill module-pill-companyb">Outstanding</span>
+              <span class="module-pill module-pill-companyb">Customers</span>
+              <span class="module-pill module-pill-companyb">Inventory</span>
+              <span class="module-pill module-pill-companyb">SO Backlog</span>
+              <span class="module-pill module-pill-companyb">Billing</span>
+              <span class="module-pill module-pill-companyb">Reminders</span>
+            </div>
+            <div class="company-enter company-enter-companyb">
+              Enter <span class="enter-arrow">→</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/select-company.js"></script>
+</body>
+</html>

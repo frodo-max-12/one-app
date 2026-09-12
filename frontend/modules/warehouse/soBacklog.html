@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Warehouse · SO Backlog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <!-- Reuse the Sales SO Backlog stylesheet (table, cards, filters) -->
+  <link rel="stylesheet" href="/modules/sales/css/soBacklog.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Warehouse · SO Backlog</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <div class="chip">
+            <span class="chip-dot" style="background: var(--green);"></span>
+            <span>Company B Pte Ltd</span>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <!-- Hidden placeholder kept for backwards-compat with JS that may
+             still try to write Total SO Lines somewhere. Safe-guarded by
+             if-element checks in JS so absence wouldn't error. -->
+        <div id="summaryCards" style="display:none;">
+          <span id="statTotalLines"></span>
+        </div>
+        <!-- All 6 cards in ONE row: Total Bal. Value + 5 clickable category
+             cards. Grid wraps to 3-up below 1400px, single column below 700px.
+             Total SO Lines removed 2026-06-15 (was occupying its own row). -->
+        <div class="grid-6 category-cards" id="categoryCards" style="display:none;">
+          <div class="card stat-card" id="balValueCard" style="border-left:4px solid #a855f7;">
+            <div class="card-title">Total Bal. Value</div>
+            <div class="card-value accent-purple" id="statBalValue">—</div>
+            <div class="card-sub">active category sum</div>
+          </div>
+          <div class="card stat-card cat-card" id="pfpCard" data-cat="pfp" style="cursor:pointer;border-left:4px solid #d97706;">
+            <div class="card-title">Pending for Post</div>
+            <div class="card-value accent-amber" id="statPfpValue">—</div>
+            <div class="card-sub"><span id="statPfpSub">— lines</span> <span id="pfpActiveBadge" style="font-weight:600;color:#d97706;"> · active</span></div>
+          </div>
+          <div class="card stat-card cat-card" id="wffCard" data-cat="pfp-waiting-ff" style="cursor:pointer;border-left:4px solid #3b82f6;">
+            <div class="card-title">PFP-WAITING-FF</div>
+            <div class="card-value" style="color:#3b82f6;" id="statWffValue">—</div>
+            <div class="card-sub"><span id="statWffSub">— lines</span> <span id="wffActiveBadge" style="display:none;font-weight:600;color:#3b82f6;"> · active</span></div>
+          </div>
+          <div class="card stat-card cat-card" id="dropCard" data-cat="pfp-drop" style="cursor:pointer;border-left:4px solid #a855f7;">
+            <div class="card-title">PFP-DROP</div>
+            <div class="card-value" style="color:#a855f7;" id="statDropValue">—</div>
+            <div class="card-sub"><span id="statDropSub">— lines</span> <span id="dropActiveBadge" style="display:none;font-weight:600;color:#a855f7;"> · active</span></div>
+          </div>
+          <div class="card stat-card cat-card" id="pickPackCard" data-cat="pfp-pick-pack" style="cursor:pointer;border-left:4px solid #16a34a;">
+            <div class="card-title">PFP-PICK-PACK</div>
+            <div class="card-value accent-green" id="statPpValue">—</div>
+            <div class="card-sub"><span id="statPpSub">— lines</span> <span id="ppActiveBadge" style="display:none;font-weight:600;color:#16a34a;"> · active</span></div>
+          </div>
+          <div class="card stat-card cat-card" id="transitCard" data-cat="intransit" style="cursor:pointer;border-left:4px solid #64748b;">
+            <div class="card-title">In Transit material</div>
+            <div class="card-value" style="color:#64748b;" id="statTransitValue">—</div>
+            <div class="card-sub"><span id="statTransitSub">PWV-T · PWPR-INT · PWPR-VPD INT</span> <span id="transitActiveBadge" style="display:none;font-weight:600;color:#64748b;"> · active</span></div>
+          </div>
+        </div>
+        <style>
+          .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 14px; }
+          @media (max-width: 1400px) { .grid-6 { grid-template-columns: repeat(3, 1fr); } }
+          @media (max-width:  700px) { .grid-6 { grid-template-columns: 1fr; } }
+          .grid-6 .stat-card { padding: 10px 12px; }
+          .grid-6 .card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+          .grid-6 .card-value { font-size: 18px; font-weight: 700; }
+          .grid-6 .card-sub   { font-size: 11px; }
+          .cat-card { transition: background .15s, box-shadow .15s; }
+          .cat-card.active { box-shadow: 0 0 0 2px currentColor inset; }
+        </style>
+        <div class="card">
+          <div class="section-head so-header">
+            <div class="so-header-left">
+              <h2>SO Backlog</h2>
+              <span class="chip"><span class="chip-dot" style="background:var(--purple);"></span><span id="soTotalText">— records</span></span>
+            </div>
+            <div class="so-header-right">
+              <button id="soExportBtn" class="btn btn-export">⬇ Export Excel</button>
+              <button id="soRefreshBtn" class="btn btn-ghost btn-sm">⟳ Refresh</button>
+            </div>
+          </div>
+          <div class="so-filters">
+            <div class="so-date-group">
+              <div class="inv-date-wrap"><label class="inv-date-label" for="startDateInput">From</label><input type="date" id="startDateInput" class="form-input inv-date-input" /></div>
+              <div class="inv-date-wrap"><label class="inv-date-label" for="endDateInput">To</label><input type="date" id="endDateInput" class="form-input inv-date-input" /></div>
+              <button id="soApplyDate" class="btn btn-ghost btn-sm">Apply</button>
+            </div>
+            <div class="input-wrap so-search-wrap"><span class="input-icon">⌕</span><input id="soSearchInput" class="search-input" placeholder="Search SO No., Customer, Customer PO No.…" /></div>
+            <button id="soClearBtn" class="btn btn-ghost btn-sm" style="display:none;">✕ Clear search</button>
+            <button id="soResetAllBtn" class="wh-clear-btn" title="Reset to default (PFP, full date range, no search)">✕ Clear All Filters</button>
+          </div>
+          <div style="font-size:12px;color:#64748b;margin:6px 2px 0;">
+            💡 Click any category card above to filter — PFP, PFP-WAITING-FF, PFP-DROP, PFP-PICK-PACK, or In Transit.
+            <b>Clear All Filters</b> deselects everything (shows all PFP-prefix + In-Transit combined).
+          </div>
+          <div id="soLoading" class="loading-center"><div class="spinner"></div><span>Loading backlog…</span></div>
+          <div class="table-wrap so-table-wrap" id="soTableWrap" style="display:none;">
+            <table id="soTable">
+              <thead><tr>
+                <th class="col-freeze">#</th>
+                <th>SO No.</th>
+                <th>SO Date</th>
+                <th>Customer</th>
+                <th>Customer PO No.</th>
+                <th>Promise Delivery Date</th>
+                <th>Revised Promise Delivery Date</th>
+                <th>MPN</th>
+                <th>Make</th>
+                <th style="text-align:right;">Unit Price</th>
+                <th style="text-align:right;">PO Qty.</th>
+                <th>UOM</th>
+                <th style="text-align:right;">PO Value</th>
+                <th style="text-align:right;">Bal. Qty.</th>
+                <th style="text-align:right;">Bal. Value</th>
+                <th>Remarks</th>
+                <th>Posting No</th>
+              </tr></thead>
+              <tbody id="soBody"></tbody>
+            </table>
+          </div>
+          <div id="soEmpty" class="empty" style="display:none;"><div class="empty-icon">📋</div><div class="empty-text">No SO Backlog records found</div></div>
+          <div id="soError" class="empty" style="display:none;"><div class="empty-icon">⚠</div><div class="empty-text" id="soErrorText">Failed to load SO Backlog.</div></div>
+          <div class="pagination" id="soPagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/mobile-menu.js"></script>
+  <script src="./js/soBacklog.js?v=111"></script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+/* ============================================================================
+   ONE App Lens — Day Journey page
+============================================================================ */
+
+.journey-shell {
+  padding: 18px;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 30px;
+}
+
+/* ── KPI strip ─────────────────────────────────────────────────────────── */
+.journey-kpi {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 920px) {
+  .journey-kpi { grid-template-columns: repeat(3, 1fr); }
+}
+.kpi-tile {
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: var(--lens-shadow);
+}
+.kpi-lbl { font-size: 11px; color: var(--lens-text-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+.kpi-val { font-size: 18px; font-weight: 700; color: var(--lens-text); margin-top: 2px; font-family: var(--mono), monospace; }
+
+/* ── Map ───────────────────────────────────────────────────────────────── */
+.journey-map {
+  height: 520px;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--lens-border);
+  box-shadow: var(--lens-shadow);
+  overflow: hidden;
+  z-index: 1;        /* keep below modals/sidebar */
+}
+@media (max-width: 720px) {
+  .journey-map { height: 60vh; }
+}
+
+/* ── Replay slider bar ─────────────────────────────────────────────────── */
+.replay-bar {
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: var(--lens-shadow);
+}
+.replay-row {
+  display: flex; align-items: center; gap: 14px;
+}
+.play-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.25);
+  flex-shrink: 0;
+}
+.play-btn:hover { transform: scale(1.06); }
+.play-btn.playing { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+
+.scrub-time {
+  font-family: var(--mono), monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lens-text);
+  min-width: 88px;
+  text-align: center;
+  padding: 4px 10px;
+  background: var(--lens-card-soft);
+  border-radius: 8px;
+}
+.scrub {
+  flex: 1;
+  appearance: none;
+  height: 6px;
+  background: linear-gradient(to right, #22c55e var(--p, 0%), var(--lens-border) var(--p, 0%));
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+.scrub::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #16a34a;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.4);
+  cursor: pointer;
+}
+.scrub::-moz-range-thumb {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #16a34a;
+  border: 2px solid #fff;
+  cursor: pointer;
+}
+.speed-group {
+  display: flex; gap: 4px;
+  background: var(--lens-card-soft);
+  border-radius: 22px;
+  padding: 3px;
+}
+.speed-btn {
+  border: none;
+  background: transparent;
+  color: var(--lens-text-2);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 18px;
+  cursor: pointer;
+  font-family: var(--mono), monospace;
+}
+.speed-btn.active {
+  background: var(--lens-card);
+  color: var(--lens-text);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
+}
+
+/* ── Empty / loading ───────────────────────────────────────────────────── */
+.journey-empty {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--lens-text-3);
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-radius: 16px;
+}
+.journey-empty .ic { font-size: 56px; margin-bottom: 14px; }
+.journey-empty .t  { font-size: 18px; font-weight: 600; color: var(--lens-text); }
+.journey-empty .s  { font-size: 13px; margin-top: 4px; }
+
+/* ── Custom marker styles (rendered by Leaflet via divIcon) ────────────── */
+.lens-marker {
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  font-family: var(--font), sans-serif;
+}
+.lens-marker.signin  { width: 32px; height: 32px; background: #22c55e; }
+.lens-marker.signout { width: 32px; height: 32px; background: #ef4444; }
+.lens-marker.visit   { width: 28px; height: 28px; background: #3b82f6; }
+.lens-marker.cursor  { width: 22px; height: 22px; background: #f59e0b; animation: cursorPulse 1.4s ease-out infinite; }
+@keyframes cursorPulse {
+  0%   { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0.6); }
+  100% { box-shadow: 0 0 0 14px rgba(245, 158, 11, 0); }
+}
+
+/* Leaflet popup tweak for dark theme */
+body.lens-body:not(.day-theme) .leaflet-popup-content-wrapper,
+body.lens-body:not(.day-theme) .leaflet-popup-tip {
+  background: #1a2238; color: #f1f5f9;
+}
+body.lens-body:not(.day-theme) .leaflet-popup-content a { color: #60a5fa; }
+
+/* ── Topbar date/employee filter — base styling (this page doesn't load
+   attendance.css, so .att-filter would otherwise be an unstyled browser input) ── */
+.att-filter {
+  background: var(--lens-card, var(--bg3));
+  border: 1px solid var(--lens-border, var(--border));
+  color: var(--lens-text, var(--text));
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ── Mobile: the topbar (title + employee picker + date) is too wide for one
+   narrow row, so the date input got clipped / un-tappable. Let the topbar wrap
+   and give the filters their own full-width row. Scoped to journey.css, which
+   only Day Journey + Visit Tracker load — other pages' topbars are unaffected. ── */
+@media (max-width: 768px) {
+  .topbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 52px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    row-gap: 8px;
+  }
+  .page-title { flex: 1 1 100%; }     /* title on its own line */
+  .topbar-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .topbar-actions .emp-picker-wrap { flex: 1 1 100%; }
+  .topbar-actions .emp-picker { width: 100%; }
+  .att-filter {
+    flex: 1 1 auto;
+    min-width: 150px;       /* enough to show the full date + calendar icon, tappable */
+    min-height: 40px;       /* comfortable touch target */
+  }
+}

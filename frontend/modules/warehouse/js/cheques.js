@@ -1,0 +1,119 @@
+/* warehouse/cheques.js — CRUD page for BN_WhCheque. */
+
+(function () {
+  const ENDPOINT = '/warehouse/cheques';
+  let page = 1, limit = 50, search = '', status = '', editingId = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const u = requireAuth(); if (!u) return;
+    renderSidebar('wh-cheques');
+    const rt = document.getElementById('roleTag');
+    if (rt) rt.textContent = (u.role || '').toUpperCase();
+
+    document.getElementById('whSearch').addEventListener('input', debounce(() => {
+      search = document.getElementById('whSearch').value.trim();
+      page = 1; load();
+    }, 280));
+    document.getElementById('whStatus').addEventListener('change', () => {
+      status = document.getElementById('whStatus').value;
+      page = 1; load();
+    });
+
+    const canWrite = WH.canWrite();
+    const addBtn = document.getElementById('whAdd');
+    if (canWrite) {
+      addBtn.addEventListener('click', () => openEdit(null));
+      WH.wireImport('whImport', 'whFile', ENDPOINT, load);
+    } else {
+      addBtn.style.display = 'none';
+      document.getElementById('whImport').style.display = 'none';
+    }
+    WH.wireExport('whExport', ENDPOINT, () => ({ search, status }));
+
+    document.getElementById('whModalClose').onclick = () => WH.closeModal('whModal');
+    document.getElementById('whCancel').onclick      = () => WH.closeModal('whModal');
+    document.getElementById('whForm').addEventListener('submit', onSave);
+
+    load();
+  });
+
+  async function load() {
+    const tbody = document.getElementById('whTbody');
+    tbody.innerHTML = `<tr><td colspan="13" class="wh-loading">Loading…</td></tr>`;
+    try {
+      const url = ENDPOINT + WH.qs({ search, status, page, limit });
+      const res = await apiRequest(url);
+      const rows = (res && res.data) || [];
+      document.getElementById('whCount').textContent = (res?.total || 0) + ' cheques';
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="13" class="wh-empty">No cheques found.</td></tr>`;
+      } else {
+        tbody.innerHTML = rows.map(rowHtml).join('');
+        tbody.querySelectorAll('button[data-edit]').forEach(b => b.onclick = () => openEdit(Number(b.dataset.edit)));
+        tbody.querySelectorAll('button[data-del]').forEach(b  => b.onclick = () => WH.deleteRow(ENDPOINT, Number(b.dataset.del), load));
+      }
+      WH.renderPaging('whPaging', res?.total || 0, page, limit, (p) => { page = p; load(); });
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="13" class="wh-empty">Failed to load: ${WH.esc(e.message)}</td></tr>`;
+    }
+  }
+
+  function rowHtml(r) {
+    const canWrite = WH.canWrite();
+    return `<tr>
+      <td>${WH.esc(r.SrNo ?? '')}</td>
+      <td>${WH.pill(r.BlankOrIssued)}</td>
+      <td>${WH.fmtDate(r.IssueDate)}</td>
+      <td>${WH.esc(r.BankName || '')}</td>
+      <td><b>${WH.esc(r.ChequeNo || '')}</b></td>
+      <td>${WH.fmtDate(r.ChequeDate)}</td>
+      <td>${WH.esc(r.IssueTo || '')}</td>
+      <td>${WH.esc(r.Currency || '')}</td>
+      <td class="num">${WH.fmt2(r.Amount)}</td>
+      <td>${WH.fmtDate(r.ClearingDate)}</td>
+      <td>${WH.fmtDate(r.ReceivedDate)}</td>
+      <td>${WH.esc(r.Remark || '')}</td>
+      <td class="actions">
+        ${canWrite ? `<button data-edit="${r.Id}">Edit</button>
+                     <button class="btn-del" data-del="${r.Id}">Del</button>` : ''}
+      </td>
+    </tr>`;
+  }
+
+  async function openEdit(id) {
+    editingId = id;
+    const form = document.getElementById('whForm');
+    form.reset();
+    document.getElementById('whModalTitle').textContent = id ? 'Edit Cheque' : 'Add Cheque';
+    if (id) {
+      try {
+        const res = await apiRequest(ENDPOINT + '/' + id);
+        const d = res?.data; if (!d) throw new Error('Cheque not found');
+        for (const k of ['SrNo','BlankOrIssued','BankName','ChequeNo','IssueTo','Currency','Amount','Remark']) {
+          if (form.elements[k]) form.elements[k].value = d[k] ?? '';
+        }
+        for (const k of ['IssueDate','ChequeDate','ClearingDate','ReceivedDate']) {
+          if (form.elements[k]) form.elements[k].value = WH.toInputDate(d[k]);
+        }
+      } catch (e) { WH.toast(e.message, 'error'); return; }
+    }
+    WH.openModal('whModal');
+  }
+
+  async function onSave(e) {
+    e.preventDefault();
+    const form = document.getElementById('whForm');
+    const payload = {};
+    for (const f of form.elements) {
+      if (!f.name) continue;
+      payload[f.name] = WH.formVal(form, f.name);
+    }
+    try {
+      const url = editingId ? ENDPOINT + '/' + editingId : ENDPOINT;
+      const method = editingId ? 'PUT' : 'POST';
+      const r = await apiRequest(url, { method, body: payload });
+      if (r && r.ok) { WH.toast(editingId ? 'Updated' : 'Created', 'success'); WH.closeModal('whModal'); load(); }
+      else WH.toast(r?.message || 'Save failed', 'error');
+    } catch (err) { WH.toast(err.message || 'Save failed', 'error'); }
+  }
+})();

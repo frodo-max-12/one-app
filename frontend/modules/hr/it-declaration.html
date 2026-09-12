@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — IT Declaration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/payroll.css?v=1" />
+  <link rel="stylesheet" href="./css/it.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · IT Declaration</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <label class="pr-year-inline">
+            <span>FY</span>
+            <select id="fySel" onchange="onFyChange()"></select>
+          </label>
+          <!-- Status selector only relevant on Approvals tab -->
+          <label class="pr-year-inline" id="stSelWrap" style="display:none;">
+            <span>Status</span>
+            <select id="stSel" onchange="loadList()">
+              <option value="submitted" selected>Submitted</option>
+              <option value="">All</option>
+              <option value="draft">Draft</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="pr-wrap">
+
+          <section class="pr-runhead" id="head"></section>
+
+          <!-- Top tabs -->
+          <div class="ps-tabs">
+            <button class="tab-btn active" data-mode="dec"       onclick="switchMode('dec')">📋 My Declaration</button>
+            <button class="tab-btn"        data-mode="stmt"      onclick="switchMode('stmt')">🧮 Projected Tax</button>
+            <button class="tab-btn"        data-mode="approvals" onclick="switchMode('approvals')" id="topApprovalsTab" style="display:none;">✓ Approvals</button>
+          </div>
+
+          <!-- ═══ Declaration tab ═══ -->
+          <div id="paneDec">
+            <div class="it-regime-row">
+              <span>Tax Regime:</span>
+              <label><input type="radio" name="regime" value="Old" onchange="saveRegime('Old')" /> Old (with deductions)</label>
+              <label><input type="radio" name="regime" value="New" onchange="saveRegime('New')" /> New (lower slabs, no 80C/80D)</label>
+            </div>
+
+            <div id="itSections"></div>
+
+            <div class="it-submit-bar">
+              <span id="itStatus" class="pr-meta"></span>
+              <button class="btn btn-primary" type="button" id="submitBtn" onclick="submitDec()">Submit for HR Review</button>
+            </div>
+          </div>
+
+          <!-- ═══ Projected Tax tab ═══ -->
+          <div id="paneStmt" style="display:none;">
+            <div class="pr-loading">Loading…</div>
+          </div>
+
+          <!-- ═══ Approvals tab (HR-only) ═══ -->
+          <div id="paneApprovals" style="display:none;">
+            <section class="pr-table-wrap">
+              <table class="pr-table">
+                <thead><tr>
+                  <th>Emp Code</th><th>Name</th><th>Department</th><th>Regime</th>
+                  <th class="r">Items</th><th class="r">Pending</th><th class="r">Declared</th>
+                  <th>Status</th><th>Submitted</th><th></th>
+                </tr></thead>
+                <tbody id="listTbody"><tr><td colspan="10" class="pr-loading">Loading…</td></tr></tbody>
+              </table>
+            </section>
+
+            <section id="detail" class="it-detail" style="display:none;"></section>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ ADD/EDIT ITEM MODAL ════════ -->
+  <div class="lens-modal" id="itemModal" hidden>
+    <div class="lens-modal-card">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeItem()">←</button>
+        <span id="itModalTitle">Add Item</span>
+      </div>
+      <input type="hidden" id="itId" />
+      <input type="hidden" id="itSec" />
+      <label class="pr-field">
+        <span>Section</span>
+        <input type="text" id="itSecLbl" disabled />
+      </label>
+      <label class="pr-field">
+        <span>Sub-Category</span>
+        <select id="itSub"></select>
+      </label>
+      <label class="pr-field">
+        <span>Declared Amount (₹)</span>
+        <input type="number" id="itAmt" min="0" step="1" placeholder="0" />
+      </label>
+      <label class="pr-field">
+        <span>Notes</span>
+        <textarea id="itNotes" rows="2"></textarea>
+      </label>
+      <label class="pr-field">
+        <span>Proof (PDF / image, max 5 MB) — upload after saving</span>
+        <input type="file" id="itProof" disabled />
+      </label>
+      <button class="btn btn-primary btn-wide" type="button" onclick="saveItem()">Save Item</button>
+      <div class="pr-err" id="itErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=4"></script>
+  <script src="/shared/common.js?v=4"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/it-declaration.js?v=2"></script>
+</body>
+</html>

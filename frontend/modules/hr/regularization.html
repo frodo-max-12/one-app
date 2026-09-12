@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Regularization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/leave.css?v=1" />
+  <link rel="stylesheet" href="./css/regularization.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Regularization</span>
+        <div class="topbar-actions">
+          <!-- Approvals sub-tabs (Assigned to me / All) — visible only on Approvals tab -->
+          <div class="req-tabs" id="approvalsSubtabs" style="display:none;">
+            <button class="req-tab active" data-tab="pending-mine" onclick="setTab('pending-mine')">Assigned to me</button>
+            <button class="req-tab" data-tab="all" onclick="setTab('all')" id="tabAll" style="display:none;">All</button>
+          </div>
+          <!-- Apply tab — back link to My Attendance -->
+          <a href="/modules/hr/attendance.html" class="op-manage-btn" id="applyBackLink" style="text-decoration:none;">← My Attendance</a>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+
+        <!-- Top-level page tabs -->
+        <div class="ps-tabs" style="margin-bottom: 14px;">
+          <button class="tab-btn active" data-tab="apply" onclick="showTab('apply')">📝 Apply</button>
+          <button class="tab-btn"        data-tab="approvals" onclick="showTab('approvals')" id="topApprovalsTab" style="display:none;">✓ Approvals</button>
+        </div>
+
+        <!-- ═══ APPLY TAB ═══ -->
+        <section id="paneApply" class="ps-pane">
+          <div class="leave-shell">
+            <div class="apply-card">
+
+              <div class="apply-section">
+                <h3>1. Which day needs fixing?</h3>
+                <div class="date-row" style="grid-template-columns: 1fr;">
+                  <div class="date-block">
+                    <label>Date</label>
+                    <input type="date" id="regDate" onchange="loadCurrent()" />
+                    <div id="regCurrent" class="reg-current-row empty">Pick a date to see current attendance</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="apply-section">
+                <h3>2. What needs to change?</h3>
+                <div class="reg-kind-tiles" id="regKindTiles">
+                  <div class="reg-kind-tile" data-kind="sign-in" onclick="selectKind('sign-in')">
+                    <div class="ic">🌅</div>
+                    <div class="nm">Sign-In missed</div>
+                    <div class="desc">Forgot to sign in this morning</div>
+                  </div>
+                  <div class="reg-kind-tile" data-kind="sign-out" onclick="selectKind('sign-out')">
+                    <div class="ic">🌙</div>
+                    <div class="nm">Sign-Out missed</div>
+                    <div class="desc">Forgot to sign out / app stayed open</div>
+                  </div>
+                  <div class="reg-kind-tile" data-kind="both" onclick="selectKind('both')">
+                    <div class="ic">📝</div>
+                    <div class="nm">Both</div>
+                    <div class="desc">Whole day's punches missing</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="apply-section" id="timeSection" style="display:none;">
+                <h3>3. What were the actual times?</h3>
+                <div class="date-row">
+                  <div class="date-block" id="signInBlock">
+                    <label>Sign-In time</label>
+                    <input type="time" class="time-input" id="signInTime" value="09:45" />
+                  </div>
+                  <div class="date-block" id="signOutBlock">
+                    <label>Sign-Out time</label>
+                    <input type="time" class="time-input" id="signOutTime" value="18:15" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="apply-section">
+                <h3>4. Why?</h3>
+                <textarea class="apply-textarea" id="reason" placeholder="e.g. Drove straight to customer site without signing in. Customer was urgent so I forgot." maxlength="1000"></textarea>
+              </div>
+
+              <div class="apply-section">
+                <h3>5. Approval</h3>
+                <label class="lens-sub" style="display:block; margin-bottom:4px;">Applying to (reviewer)</label>
+                <select class="apply-select" id="appliedTo">
+                  <option value="">Loading reviewers…</option>
+                </select>
+              </div>
+
+              <button class="apply-submit" id="submitBtn" type="button" onclick="submitReg()" disabled>Submit Regularization</button>
+
+              <div class="sign-error" id="applyError" style="display:none; margin-top:14px;"></div>
+              <div id="applySuccess" style="display:none; margin-top:14px; background:#dcfce7; color:#166534; padding:14px 16px; border-radius:10px; font-size:13px; border:1px solid #a7f3d0;">
+                ✓ Regularization request submitted. <a href="/modules/hr/attendance.html" style="color:#166534; font-weight:600;">View status →</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ APPROVALS TAB ═══ -->
+        <section id="paneApprovals" class="ps-pane" style="display:none;">
+          <div class="leave-shell">
+            <div id="reqList" class="req-list">
+              <div class="holiday-skel" style="height:90px; margin-bottom:10px;"></div>
+              <div class="holiday-skel" style="height:90px;"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="lens-diag" id="lensDiag" style="display:none;">
+          <h3>⚠ Diagnostics</h3><ul id="diagList"></ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Action modal (approve/reject) ═══ -->
+  <div class="lens-modal" id="actionModal" hidden>
+    <div class="lens-modal-card" style="max-width:440px;">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeActionModal()">←</button>
+        <span id="actionTitle">Approve Regularization</span>
+      </div>
+      <div class="kv">
+        <div class="kv-label" id="noteLabel">Approval note (optional)</div>
+        <textarea id="actionNote" placeholder="" maxlength="500"></textarea>
+      </div>
+      <div class="gf-actions">
+        <div style="flex:1;"></div>
+        <button class="selfie-btn" type="button" onclick="closeActionModal()">Cancel</button>
+        <button class="sign-action-btn gf-save-btn" type="button" id="actionConfirm" onclick="confirmAction()">Confirm</button>
+      </div>
+      <div class="sign-error" id="actionError" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=4"></script>
+  <script src="/shared/common.js?v=4"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/regularization.js?v=1"></script>
+</body>
+</html>

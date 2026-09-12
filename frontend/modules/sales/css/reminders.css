@@ -1,0 +1,63 @@
+/* Payment Reminder Log — page-specific styles */
+
+.select-filter {
+  background: var(--bg2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+.select-filter:focus { border-color: var(--accent); }
+
+/* Modal */
+.rl-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.rl-modal-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  max-width: 720px; width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.rl-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.rl-modal-head h3 { margin: 0; color: var(--text); font-size: 16px; font-weight: 600; }
+.rl-modal-close {
+  background: none; border: none; color: var(--text2);
+  cursor: pointer; font-size: 18px; padding: 4px 8px;
+}
+.rl-modal-close:hover { color: var(--text); }
+.rl-modal-body { padding: 20px; color: var(--text); font-size: 13px; }
+
+.rl-detail-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px;
+}
+.rl-detail-grid > div { display: flex; flex-direction: column; gap: 2px; }
+.rl-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+.rl-mail { font-size: 13px; color: var(--text2); }
+.rl-mail div { margin-bottom: 4px; }
+.rl-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(220,53,69,0.08);
+  border: 1px solid rgba(220,53,69,0.3);
+  border-radius: 6px;
+  color: var(--red);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .rl-detail-grid { grid-template-columns: 1fr; }
+}

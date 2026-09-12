@@ -1,0 +1,19 @@
+{
+  "appId": "com.example.oneapp",
+  "appName": "ONE App",
+  "webDir": "www",
+  "server": {
+    "url": "https://app.example.com",
+    "cleartext": false,
+    "androidScheme": "https",
+    "allowNavigation": [
+      "app.example.com",
+      "*.example.com"
+    ]
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Helpdesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/helpdesk.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Helpdesk</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <button class="btn btn-primary" type="button" onclick="openNewTicket()">+ New Ticket</button>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="hd-wrap">
+
+          <!-- Tabs -->
+          <div class="hd-tabs" id="hdTabs">
+            <button class="tab-btn active" data-scope="mine"     onclick="switchScope('mine')">My Tickets</button>
+            <button class="tab-btn"        data-scope="assigned" onclick="switchScope('assigned')">Assigned to Me</button>
+            <button class="tab-btn hr-only" data-scope="all"     onclick="switchScope('all')" style="display:none;">All Tickets</button>
+          </div>
+
+          <!-- Filters -->
+          <div class="hd-filters">
+            <label class="hd-filter">
+              <span>Status</span>
+              <select id="filterStatus" onchange="loadTickets()">
+                <option value="">All</option>
+                <option value="open">Open</option>
+                <option value="in-progress">In progress</option>
+                <option value="on-hold">On hold</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+              </select>
+            </label>
+            <label class="hd-filter">
+              <span>Priority</span>
+              <select id="filterPriority" onchange="loadTickets()">
+                <option value="">All</option>
+                <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
+              </select>
+            </label>
+            <label class="hd-filter">
+              <span>Category</span>
+              <select id="filterCategory" onchange="loadTickets()">
+                <option value="">All</option>
+              </select>
+            </label>
+            <span class="hd-count" id="hdCount"></span>
+          </div>
+
+          <!-- Ticket list -->
+          <div class="hd-list" id="hdList">
+            <div class="hd-empty">Loading…</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ NEW TICKET MODAL ════════ -->
+  <div class="lens-modal" id="newModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeNewTicket()" aria-label="Close">←</button>
+        <span>New Ticket</span>
+      </div>
+
+      <div class="hd-form">
+        <label class="hd-field">
+          <span>Category *</span>
+          <select id="ntCategory"></select>
+        </label>
+        <label class="hd-field">
+          <span>Priority *</span>
+          <select id="ntPriority">
+            <option>Low</option>
+            <option selected>Medium</option>
+            <option>High</option>
+            <option>Critical</option>
+          </select>
+        </label>
+        <label class="hd-field hd-full">
+          <span>Subject *</span>
+          <input type="text" id="ntSubject" maxlength="200" placeholder="One-line summary of your issue" />
+        </label>
+        <label class="hd-field hd-full">
+          <span>Description</span>
+          <textarea id="ntDescription" rows="6" placeholder="Add as much detail as you can: dates, employee codes, steps you've tried, etc."></textarea>
+        </label>
+      </div>
+
+      <button class="btn btn-primary btn-wide" type="button" onclick="submitNewTicket()">Submit Ticket</button>
+      <div class="hd-err" id="ntErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=6"></script>
+  <script src="/shared/common.js?v=6"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/helpdesk.js?v=1"></script>
+</body>
+</html>

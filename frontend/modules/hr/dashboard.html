@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — HR Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/dashboard.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · HR Dashboard</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span id="dashFyTag" class="role-tag" style="background:rgba(79,142,247,0.12); color:#4f8ef7;">FY—</span>
+          <button class="chip-btn" type="button" onclick="loadDashboard()" title="Refresh">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="dash-wrap">
+
+          <!-- ═════════════ KPI strip ═════════════ -->
+          <section class="kpi-strip">
+            <div class="kpi-card kpi-blue">
+              <div class="kpi-icon">👥</div>
+              <div class="kpi-num" id="kpiTotal">—</div>
+              <div class="kpi-lbl">Total Employees</div>
+            </div>
+            <div class="kpi-card kpi-green">
+              <div class="kpi-icon">📍</div>
+              <div class="kpi-num" id="kpiActiveNow">—</div>
+              <div class="kpi-lbl">Active Field Staff Now</div>
+            </div>
+            <div class="kpi-card kpi-teal">
+              <div class="kpi-icon">✨</div>
+              <div class="kpi-num" id="kpiNewJoiners">—</div>
+              <div class="kpi-lbl">New Joiners This Month</div>
+            </div>
+            <div class="kpi-card kpi-pink">
+              <div class="kpi-icon">🎂</div>
+              <div class="kpi-num" id="kpiBirthdays">—</div>
+              <div class="kpi-lbl">Birthdays This Month</div>
+            </div>
+            <div class="kpi-card kpi-amber">
+              <div class="kpi-icon">🎉</div>
+              <div class="kpi-num" id="kpiAnniversaries">—</div>
+              <div class="kpi-lbl">Joining Anniversaries</div>
+            </div>
+            <div class="kpi-card kpi-purple">
+              <div class="kpi-icon">📋</div>
+              <div class="kpi-num" id="kpiConfirmation">—</div>
+              <div class="kpi-lbl">Confirmation Due (30d)</div>
+            </div>
+            <div class="kpi-card kpi-red">
+              <div class="kpi-icon">🚪</div>
+              <div class="kpi-num" id="kpiResign">—</div>
+              <div class="kpi-lbl">Resignations Pending</div>
+            </div>
+          </section>
+
+          <!-- ═════════════ Additions & Attrition ═════════════ -->
+          <section class="dash-card dash-card-wide">
+            <div class="dash-card-head">
+              <h2>Additions &amp; Attrition</h2>
+              <span class="dash-sub">Last 12 months</span>
+            </div>
+            <div class="chart-frame chart-tall"><canvas id="aaChart"></canvas></div>
+          </section>
+
+          <!-- ═════════════ 2-col chart grid ═════════════ -->
+          <section class="dash-grid">
+
+            <article class="dash-card">
+              <div class="dash-card-head"><h2>Years In Service</h2><span class="dash-sub">Active employees</span></div>
+              <div class="chart-frame"><canvas id="yisChart"></canvas></div>
+            </article>
+
+            <article class="dash-card">
+              <div class="dash-card-head"><h2>Age Distribution</h2><span class="dash-sub">Active employees</span></div>
+              <div class="chart-frame"><canvas id="ageChart"></canvas></div>
+            </article>
+
+            <article class="dash-card">
+              <div class="dash-card-head"><h2>Gender Distribution</h2><span class="dash-sub">Active employees</span></div>
+              <div class="chart-frame"><canvas id="genderChart"></canvas></div>
+            </article>
+
+            <article class="dash-card">
+              <div class="dash-card-head"><h2>By Location</h2><span class="dash-sub">Headcount</span></div>
+              <div class="chart-frame"><canvas id="locChart"></canvas></div>
+            </article>
+
+            <article class="dash-card">
+              <div class="dash-card-head"><h2>By Department</h2><span class="dash-sub">Headcount</span></div>
+              <div class="chart-frame"><canvas id="deptChart"></canvas></div>
+            </article>
+
+            <article class="dash-card">
+              <div class="dash-card-head"><h2>Top 5 Leave Takers</h2><span class="dash-sub" id="ltFyTag">—</span></div>
+              <div class="lt-list" id="leaveTakersList">
+                <div class="lt-empty">Loading…</div>
+              </div>
+            </article>
+
+          </section>
+
+          <section class="dash-diag" id="dashDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="/shared/modules.js?v=4"></script>
+  <script src="/shared/common.js?v=4"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/dashboard.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Notifications</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <style>
+    .nc-wrap{max-width:820px;margin:0 auto;padding:8px 0 40px}
+    .nc-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .nc-tabs{display:inline-flex;background:var(--bg2,#1b2130);border:1px solid var(--border,#2a3346);border-radius:10px;overflow:hidden}
+    .nc-tab{background:transparent;border:none;color:inherit;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;opacity:.7}
+    .nc-tab.active{background:#4f8ef7;color:#fff;opacity:1}
+    .nc-list{display:flex;flex-direction:column;gap:8px}
+    .nc-card{display:flex;gap:12px;padding:14px 16px;background:var(--bg2,#1b2130);border:1px solid var(--border,#2a3346);border-radius:12px;cursor:pointer;transition:border-color .15s}
+    .nc-card:hover{border-color:#4f8ef7}
+    .nc-card.unread{border-left:3px solid #4f8ef7}
+    .nc-ic{flex:0 0 34px;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(79,142,247,.12)}
+    .nc-bd{flex:1;min-width:0}
+    .nc-row1{display:flex;align-items:baseline;gap:8px}
+    .nc-ti{font-size:14px;font-weight:600;margin:0}
+    .nc-cat{font-size:10px;text-transform:uppercase;letter-spacing:.04em;opacity:.55;font-weight:700}
+    .nc-tx{font-size:13px;opacity:.82;margin:3px 0 0}
+    .nc-tm{font-size:11px;opacity:.5;margin-top:5px}
+    .nc-x{flex:0 0 auto;background:transparent;border:none;color:inherit;opacity:.4;cursor:pointer;font-size:16px;padding:2px 6px;border-radius:6px}
+    .nc-x:hover{opacity:1;background:rgba(229,72,77,.15);color:#e5484d}
+    .nc-sev-warning .nc-ic{background:rgba(245,158,11,.15)}
+    .nc-sev-critical .nc-ic{background:rgba(229,72,77,.15)}
+    .nc-sev-success .nc-ic{background:rgba(34,197,94,.15)}
+    .nc-empty{text-align:center;padding:60px 20px;opacity:.6}
+  </style>
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App · Notifications</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="nc-wrap">
+          <div class="nc-toolbar">
+            <div class="nc-tabs">
+              <button class="nc-tab active" data-f="all">All</button>
+              <button class="nc-tab" data-f="unread">Unread</button>
+            </div>
+            <div style="flex:1"></div>
+            <button class="btn btn-ghost btn-sm" id="ncMarkAll">Mark all read</button>
+          </div>
+          <div id="ncList" class="nc-list"><div class="nc-empty">Loading…</div></div>
+          <div style="text-align:center;padding:16px">
+            <button class="btn btn-sm" id="ncMore" style="display:none">Load more</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="./js/notifications.js?v=1"></script>
+</body>
+</html>

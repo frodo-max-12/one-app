@@ -1,0 +1,9 @@
+/* responsive.css — additional responsive overrides */
+/* Main responsive rules are in common.css */
+
+@media (max-width: 768px) {
+  /* Ensure topbar has space for hamburger on all pages */
+  .topbar {
+    padding-left: 58px !important;
+  }
+}

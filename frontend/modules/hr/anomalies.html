@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Anomalies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/journey.css?v=1" />
+  <link rel="stylesheet" href="./css/stops.css?v=1" />
+  <link rel="stylesheet" href="./css/anomalies.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Anomalies</span>
+        <div class="topbar-actions">
+          <input type="date" id="dateFrom" class="att-filter" />
+          <span class="lens-sub">to</span>
+          <input type="date" id="dateTo" class="att-filter" />
+          <select id="kindFilter" class="att-filter">
+            <option value="">All kinds</option>
+            <option value="office_exit">Office Exit</option>
+            <option value="stale_session">Stale Session</option>
+            <option value="no_show">No Show</option>
+            <option value="mock_gps">Mock GPS</option>
+            <option value="prolonged_absence">Prolonged Absence</option>
+          </select>
+          <label class="anom-toggle">
+            <input type="checkbox" id="onlyOpen" checked /> Only open
+          </label>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="stops-shell">
+
+          <div class="anom-summary" id="anomSummary">
+            <div class="sum-pill"><span class="lbl">Total</span><span class="val" id="sumTotal">—</span></div>
+            <div class="sum-pill"><span class="lbl">Open</span><span class="val" id="sumOpen">—</span></div>
+            <div class="sum-pill"><span class="lbl">Critical</span><span class="val" id="sumCritical">—</span></div>
+          </div>
+
+          <div id="anomList" class="stops-list">
+            <div class="holiday-skel" style="height:110px;margin-bottom:10px;"></div>
+            <div class="holiday-skel" style="height:110px;"></div>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ Resolve modal ═══════ -->
+  <div class="lens-modal" id="resolveModal" hidden>
+    <div class="lens-modal-card" style="max-width:440px;">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeResolveModal()">←</button>
+        <span>Resolve Anomaly</span>
+      </div>
+      <div class="kv">
+        <div class="kv-label">Resolution note</div>
+        <textarea id="resolveNote" placeholder="e.g. Approved by manager — went for client meeting" maxlength="500"></textarea>
+      </div>
+      <div class="gf-actions">
+        <div style="flex:1;"></div>
+        <button class="selfie-btn" type="button" onclick="closeResolveModal()">Cancel</button>
+        <button class="sign-action-btn gf-save-btn" type="button" onclick="confirmResolve()">Mark Resolved</button>
+      </div>
+      <div class="sign-error" id="resolveError" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/anomalies.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Beat Plan (Electrical)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/beatPlan.css?v=1" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Beat Plan — Electrical Vertical</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+        </div>
+      </div>
+      <div class="content">
+        <!-- Planned vs Completed summary (beat-generated visits) -->
+        <div class="card" id="bpSummaryCard" style="margin-bottom:14px;">
+          <div class="section-head">
+            <h2>This Month — Planned vs Completed <span id="bpSumSub" style="font-weight:400; color:var(--text3); font-size:13px;"></span></h2>
+            <input type="month" id="bpSumMonth" class="select-filter" title="Month" />
+          </div>
+          <div id="bpSumStats" class="bp-sum-stats"></div>
+          <div class="table-wrap">
+            <table id="bpSumTable">
+              <thead><tr>
+                <th>Salesperson</th>
+                <th style="text-align:right;">Planned</th>
+                <th style="text-align:right;">Completed</th>
+                <th style="text-align:right;">Pending</th>
+                <th style="text-align:right;">% Done</th>
+              </tr></thead>
+              <tbody id="bpSumBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-head">
+            <h2>Weekly Beat <span id="bpTotal" style="font-weight:400; color:var(--text3); font-size:13px;"></span></h2>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <select id="repFilter" class="select-filter" title="Salesperson"></select>
+              <button id="addBtn" class="btn btn-primary btn-sm" style="display:none;">+ Add Outlet</button>
+              <button id="importBtn" class="btn btn-ghost btn-sm" style="display:none;">⬆ Import</button>
+              <button id="exportBtn" class="btn btn-ghost btn-sm">⬇ Export</button>
+              <button id="genBtn" class="btn btn-primary btn-sm" style="display:none; background:#7c3aed; border-color:#6d28d9;">⟳ Generate This Month</button>
+              <button id="refreshBtn" class="btn btn-ghost btn-sm">Refresh</button>
+            </div>
+          </div>
+
+          <div id="dayTabs" class="bp-tabs"></div>
+
+          <div id="loadingDiv" class="loading-center"><div class="spinner"></div></div>
+          <div class="table-wrap">
+            <table id="bpTable" style="display:none;">
+              <thead>
+                <tr>
+                  <th style="width:36px;">#</th><th>Outlet</th><th>Route</th>
+                  <th>Phone</th><th>Map</th><th id="bpActionsTh" style="display:none;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bpBody"></tbody>
+            </table>
+          </div>
+          <div id="emptyDiv" class="empty" style="display:none;">
+            <div class="empty-icon">🗺️</div>
+            <div class="empty-text">No beat plan assigned</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Outlet modal -->
+  <div id="addModal" class="bp-modal" style="display:none;">
+    <div class="bp-modal-card">
+      <div class="bp-modal-head">
+        <h3>Add Outlet to Beat</h3>
+        <button class="bp-modal-close" onclick="closeAddModal()">✕</button>
+      </div>
+      <div class="bp-modal-body">
+        <label>Salesperson *</label>
+        <select id="amRep" class="select-filter" style="width:100%;"></select>
+        <label>Weekday *</label>
+        <select id="amDay" class="select-filter" style="width:100%;">
+          <option value="1">Monday</option><option value="2">Tuesday</option>
+          <option value="3">Wednesday</option><option value="4">Thursday</option>
+          <option value="5">Friday</option><option value="6">Saturday</option>
+        </select>
+        <label>Outlet name *</label>
+        <input id="amName" class="search-input" placeholder="e.g. VINAY ELECTRICALS - KHARADI" />
+        <label>Phone</label>
+        <input id="amPhone" class="search-input" placeholder="10-digit mobile" />
+        <label>Route / Area</label>
+        <input id="amRoute" class="search-input" placeholder="e.g. Kharadi 1" />
+        <div style="margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn btn-ghost btn-sm" onclick="closeAddModal()">Cancel</button>
+          <button id="amSave" class="btn btn-primary btn-sm" onclick="saveOutlet()">Add Outlet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import modal -->
+  <div id="importModal" class="bp-modal" style="display:none;">
+    <div class="bp-modal-card">
+      <div class="bp-modal-head">
+        <h3>Import Beat Plan (Excel)</h3>
+        <button class="bp-modal-close" onclick="closeImportModal()">✕</button>
+      </div>
+      <div class="bp-modal-body">
+        <div class="bp-import-note">
+          Use the <strong>Export</strong> file as your template. Edit rows, then upload here.<br>
+          • <strong>BeatId</strong> filled → updates that outlet · blank → adds a new one<br>
+          • <strong>Weekday</strong> = Monday…Saturday · <strong>Active</strong> = 0 removes the outlet<br>
+          • Heads can only change their own team's rows.
+        </div>
+        <label>Excel file (.xlsx / .xls)</label>
+        <input id="impFile" type="file" accept=".xlsx,.xls" class="search-input" style="padding:7px 10px;" />
+        <label style="display:flex; align-items:center; gap:8px; margin-top:12px; cursor:pointer;">
+          <input id="impDryRun" type="checkbox" checked /> Preview first (don't write yet)
+        </label>
+        <div id="impResult" class="bp-import-note" style="display:none;"></div>
+        <div style="margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn btn-ghost btn-sm" onclick="closeImportModal()">Close</button>
+          <button id="impRun" class="btn btn-primary btn-sm" onclick="runImport()">Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/mobile-menu.js"></script>
+  <script src="./js/beatPlan.js?v=3"></script>
+</body>
+</html>

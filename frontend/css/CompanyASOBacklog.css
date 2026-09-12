@@ -1,0 +1,216 @@
+/* CompanyASOBacklog.css */
+
+/* ── Stat cards ── */
+.backlog-summary {
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  border-top: 2px solid var(--border2);
+}
+
+.stat-card .card-value {
+  font-size: 22px;
+  font-weight: 600;
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.accent-purple { color: var(--purple) !important; }
+.accent-green  { color: var(--green)  !important; }
+.accent-amber  { color: var(--amber)  !important; }
+
+/* ── Section header ── */
+.so-header {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.so-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.so-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Export button ── */
+.btn-export {
+  background: linear-gradient(135deg, #1a6e3c, #21a053);
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.15s;
+}
+
+.btn-export:hover {
+  opacity: 0.88;
+}
+
+.btn-export:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Filters row ── */
+.so-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.so-date-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.inv-date-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inv-date-label {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text3);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.inv-date-input {
+  width: 142px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color-scheme: dark;
+}
+
+.so-search-wrap {
+  flex: 1;
+  min-width: 240px;
+}
+
+/* ── Wide horizontal-scroll table ── */
+.so-table-wrap {
+  overflow-x: auto;
+  margin-top: 4px;
+}
+
+#soTable {
+  min-width: 3200px;   /* wide enough for all 50 columns */
+  table-layout: auto;
+}
+
+/* Freeze first column (#) */
+#soTable th.col-freeze,
+#soTable td.col-freeze {
+  position: sticky;
+  left: 0;
+  background: var(--bg2);
+  z-index: 2;
+  border-right: 1px solid var(--border2);
+}
+
+#soTable tr:hover td.col-freeze {
+  background: var(--bg3);
+}
+
+/* Column width hints */
+#soTable th { white-space: nowrap; }
+
+/* Row number */
+#soTable td:first-child {
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 11px;
+  width: 44px;
+}
+
+/* SO No. – accent */
+.so-no {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--purple);
+  white-space: nowrap;
+}
+
+/* Customer ID */
+.cust-id {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* Make badge */
+.make-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-family: var(--mono);
+  background: rgba(46, 196, 182, 0.12);
+  color: var(--teal);
+  border: 1px solid rgba(46, 196, 182, 0.2);
+  white-space: nowrap;
+}
+
+/* Numeric cells */
+.num-cell {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.num-green  { color: var(--green); }
+.num-amber  { color: var(--amber); }
+.num-purple { color: var(--purple); }
+.num-red    { color: var(--red); }
+
+/* Long-text truncate */
+.td-truncate {
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.td-truncate-sm {
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Date cells */
+.td-date {
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .so-header     { flex-direction: column; align-items: flex-start; }
+  .so-filters    { flex-direction: column; align-items: flex-start; }
+  .so-date-group { flex-wrap: wrap; }
+  .so-search-wrap { min-width: 100%; }
+  .grid-4        { grid-template-columns: 1fr 1fr; }
+}

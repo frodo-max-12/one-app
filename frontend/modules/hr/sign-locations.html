@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Sign-In/Out Locations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <style>
+    .sl-shell { padding: 6px 2px 40px; }
+    .sl-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+    .sl-filter { padding: 7px 9px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg2); color: var(--text); font-size: 13px; }
+    .sl-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+    .sl-stats .stat-card { flex: 1 1 160px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+    .sl-stats .stat-lbl { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+    .sl-stats .stat-num { font-size: 20px; font-weight: 700; font-family: var(--mono, monospace); color: var(--text); }
+    .sl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+    table.sl { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 920px; }
+    table.sl thead th { position: sticky; top: 0; background: var(--bg2); color: var(--text2); text-align: left; font-weight: 600; padding: 9px 10px; white-space: nowrap; border-bottom: 1px solid var(--border); font-size: 11.5px; text-transform: uppercase; letter-spacing: .02em; }
+    table.sl tbody td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    table.sl tbody tr:hover { background: rgba(127, 145, 180, .06); }
+    table.sl .r { text-align: right; }
+    .sl-emp { font-weight: 600; }
+    .sl-sub { color: var(--text3); font-size: 11px; }
+    .sl-time { font-family: var(--mono, monospace); white-space: nowrap; }
+    .sl-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; white-space: nowrap; }
+    .sl-badge.office { background: rgba(34, 197, 94, .14); color: #22c55e; }
+    .sl-badge.wfh { background: rgba(224, 168, 0, .16); color: #e0a800; }
+    .sl-badge.site { background: rgba(79, 142, 247, .14); color: var(--accent, #4f8ef7); }
+    .sl-map { color: var(--accent, #4f8ef7); text-decoration: none; font-size: 12px; margin-left: 4px; }
+    .sl-loading { text-align: center; color: var(--text3); padding: 36px; }
+  </style>
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App · Sign-In / Out Locations</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip"><span class="chip-dot" style="background:#22c55e"></span><span id="slCount">0</span></span>
+        </div>
+      </div>
+      <div class="content lens-scroll">
+        <div class="sl-shell">
+          <div class="sl-toolbar">
+            <input type="date" id="slDate" class="sl-filter" title="Date" onchange="load()" />
+            <select id="slCompany" class="sl-filter" onchange="load()">
+              <option value="">All companies</option><option value="COMPANYA">COMPANYA</option><option value="COMPANYB">Company B</option>
+            </select>
+            <input type="text" id="slSearch" class="sl-filter" placeholder="Search employee / code…" style="flex:1 1 220px;" />
+            <button class="btn btn-ghost btn-sm" onclick="load()">Apply</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearFilters()">✕ Clear</button>
+          </div>
+          <div class="sl-stats">
+            <div class="stat-card"><div class="stat-lbl">🧑‍💼 Sessions</div><div class="stat-num" id="slTotal">—</div></div>
+            <div class="stat-card"><div class="stat-lbl">🏠 WFH / Outside office (sign-in)</div><div class="stat-num" id="slWfh">—</div></div>
+          </div>
+          <div class="sl-wrap">
+            <table class="sl">
+              <thead><tr>
+                <th>Employee</th><th>Sign-In</th><th>Where (in)</th><th>Sign-Out</th><th>Where (out)</th><th class="r">Work</th>
+              </tr></thead>
+              <tbody id="slBody"><tr><td colspan="6" class="sl-loading">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/shared/modules.js?v=5"></script>
+  <script src="/shared/common.js?v=5"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/sign-locations.js?v=2"></script>
+</body>
+</html>

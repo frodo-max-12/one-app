@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Cheques</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/warehouse.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Warehouse · Cheques (Singapore)</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip"><span class="chip-dot" style="background:#3b82f6"></span><span id="whCount">0 cheques</span></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="wh-shell">
+          <div class="wh-toolbar">
+            <div class="wh-search-wrap">
+              <span class="wh-search-ic">🔍</span>
+              <input type="text" id="whSearch" placeholder="Search cheque no, payee, bank, remark…" />
+            </div>
+            <select id="whStatus" title="Status filter">
+              <option value="">All</option>
+              <option value="Blank">Blank</option>
+              <option value="Issued">Issued</option>
+              <option value="Cleared">Cleared</option>
+              <option value="Cancelled">Cancelled</option>
+              <option value="Bounced">Bounced</option>
+            </select>
+            <div style="flex:1"></div>
+            <button class="btn btn-sm" id="whImport">⇧ Import Excel</button>
+            <input type="file" id="whFile" accept=".xlsx,.xls" hidden />
+            <button class="btn btn-sm" id="whExport">⇩ Export Excel</button>
+            <button class="btn btn-primary btn-sm" id="whAdd">+ Add Cheque</button>
+          </div>
+
+          <div class="wh-table-wrap">
+            <table class="wh-table">
+              <thead>
+                <tr>
+                  <th>Sr</th><th>Status</th><th>Issue Date</th><th>Bank</th><th>Cheque No</th>
+                  <th>Cheque Date</th><th>Issue To</th><th>Cur</th>
+                  <th class="num">Amount</th><th>Clearing</th><th>Received</th><th>Remark</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="whTbody"><tr><td colspan="13" class="wh-loading">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="whPaging" class="wh-paging"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit / Add modal -->
+  <div class="wh-modal-backdrop" id="whModal">
+    <div class="wh-modal">
+      <div class="wh-modal-head">
+        <h3 id="whModalTitle">Add Cheque</h3>
+        <button class="wh-modal-close" id="whModalClose">×</button>
+      </div>
+      <form id="whForm">
+        <div class="wh-modal-body">
+          <div class="wh-modal-grid">
+            <div class="wh-field"><label>Sr No</label><input name="SrNo" type="number" /></div>
+            <div class="wh-field"><label>Status *</label>
+              <select name="BlankOrIssued" required>
+                <option>Blank</option><option>Issued</option><option>Cleared</option>
+                <option>Cancelled</option><option>Bounced</option>
+              </select>
+            </div>
+            <div class="wh-field"><label>Issue Date</label><input name="IssueDate" type="date" /></div>
+            <div class="wh-field"><label>Bank Name</label>
+              <select name="BankName">
+                <option value="">—</option><option>Bank B</option><option>UOB</option>
+                <option>DBS</option><option>Citibank</option><option>Other</option>
+              </select>
+            </div>
+            <div class="wh-field"><label>Cheque No</label><input name="ChequeNo" /></div>
+            <div class="wh-field"><label>Cheque Date</label><input name="ChequeDate" type="date" /></div>
+            <div class="wh-field wide"><label>Issue To (Payee)</label><input name="IssueTo" /></div>
+            <div class="wh-field"><label>Currency</label>
+              <select name="Currency"><option>SGD</option><option>USD</option><option>INR</option></select>
+            </div>
+            <div class="wh-field"><label>Amount</label><input name="Amount" type="number" step="0.01" /></div>
+            <div class="wh-field"><label>Clearing Date</label><input name="ClearingDate" type="date" /></div>
+            <div class="wh-field"><label>Received Date</label><input name="ReceivedDate" type="date" /></div>
+            <div class="wh-field wide"><label>Remark</label><textarea name="Remark" rows="2"></textarea></div>
+          </div>
+        </div>
+        <div class="wh-modal-foot">
+          <button type="button" class="btn btn-ghost btn-sm" id="whCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="whSave">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/shared/common.js"></script>
+  <script src="/shared/modules.js"></script>
+  <script src="./js/warehouse-common.js?v=81"></script>
+  <script src="./js/cheques.js?v=81"></script>
+</body>
+</html>

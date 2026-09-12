@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Expenses</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/warehouse.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Warehouse · Expenses (Singapore)</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip"><span class="chip-dot" style="background:#f59e0b"></span><span id="whCount">0 expenses · 0</span></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="wh-shell">
+          <div class="wh-toolbar">
+            <div class="wh-search-wrap">
+              <span class="wh-search-ic">🔍</span>
+              <input type="text" id="whSearch" placeholder="Search explanation, remark…" />
+            </div>
+            <input type="date" id="whFrom" />
+            <input type="date" id="whTo" />
+            <button class="btn btn-ghost btn-sm" id="whApply">Apply</button>
+            <div style="flex:1"></div>
+            <button class="btn btn-sm" id="whImport">⇧ Import Excel</button>
+            <input type="file" id="whFile" accept=".xlsx,.xls" hidden />
+            <button class="btn btn-sm" id="whExport">⇩ Export Excel</button>
+            <button class="btn btn-primary btn-sm" id="whAdd">+ Add Expense</button>
+          </div>
+
+          <div class="wh-table-wrap">
+            <table class="wh-table">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Explanation</th>
+                  <th class="num">Amount</th><th>Cur</th><th>Remark</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="whTbody"><tr><td colspan="6" class="wh-loading">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="whPaging" class="wh-paging"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wh-modal-backdrop" id="whModal">
+    <div class="wh-modal">
+      <div class="wh-modal-head">
+        <h3 id="whModalTitle">Add Expense</h3>
+        <button class="wh-modal-close" id="whModalClose">×</button>
+      </div>
+      <form id="whForm">
+        <div class="wh-modal-body">
+          <div class="wh-modal-grid">
+            <div class="wh-field"><label>Date *</label><input name="ExpenseDate" type="date" required /></div>
+            <div class="wh-field"><label>Amount *</label><input name="Amount" type="number" step="0.01" required /></div>
+            <div class="wh-field"><label>Currency</label>
+              <select name="Currency"><option>SGD</option><option>USD</option><option>INR</option></select>
+            </div>
+            <div class="wh-field wide"><label>Explanation *</label><input name="Explanation" required /></div>
+            <div class="wh-field wide"><label>Remark</label><textarea name="Remark" rows="2"></textarea></div>
+          </div>
+        </div>
+        <div class="wh-modal-foot">
+          <button type="button" class="btn btn-ghost btn-sm" id="whCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/shared/common.js"></script>
+  <script src="/shared/modules.js"></script>
+  <script src="./js/warehouse-common.js?v=81"></script>
+  <script src="./js/expenses.js?v=81"></script>
+</body>
+</html>

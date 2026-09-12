@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Unknown Stops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/journey.css?v=1" />
+  <link rel="stylesheet" href="./css/geofence.css?v=1" />
+  <link rel="stylesheet" href="./css/stops.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Unknown Stops</span>
+        <div class="topbar-actions">
+          <input type="date" id="dateFrom" class="att-filter" />
+          <span class="lens-sub">to</span>
+          <input type="date" id="dateTo" class="att-filter" />
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="stops-shell">
+
+          <div class="stops-info">
+            <p>Stops your team made for <b>15 minutes or more</b> outside any registered geofence. Each one is either an unrecognised customer (promote → geofence), a non-work stop (label as personal / lunch / skip), or a future customer to track.</p>
+          </div>
+
+          <div id="stopsList" class="stops-list">
+            <div class="holiday-skel" style="height:110px;margin-bottom:10px;"></div>
+            <div class="holiday-skel" style="height:110px;"></div>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ Promote-to-geofence modal ═══════════ -->
+  <div class="lens-modal" id="promoteModal" hidden>
+    <div class="lens-modal-card gf-modal-card">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closePromote()">←</button>
+        <span>Promote to Geofence</span>
+      </div>
+      <div class="gf-form">
+        <p class="lens-sub" style="margin-bottom:14px;">
+          This will create a new geofence anchored at the stop's coordinates, then re-label this stop as a confirmed visit to that location. Future visits to the same spot will be auto-detected.
+        </p>
+
+        <div class="kv">
+          <div class="kv-label">Name *</div>
+          <input type="text" id="pmName" placeholder="e.g. ABC Industries — Hinjewadi" />
+        </div>
+
+        <div class="kv-row">
+          <div class="kv">
+            <div class="kv-label">Kind</div>
+            <select id="pmKind">
+              <option value="customer">🏢 Customer</option>
+              <option value="office">🏛️ Office</option>
+              <option value="warehouse">📦 Warehouse</option>
+              <option value="site">🚧 Site</option>
+            </select>
+          </div>
+          <div class="kv">
+            <div class="kv-label">Company</div>
+            <select id="pmCompany">
+              <option value="">Both</option>
+              <option value="COMPANYA">COMPANYA</option>
+              <option value="CompanyB">Company B</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="kv">
+          <div class="kv-label">Customer (search NAV)</div>
+          <div class="gf-autocomplete">
+            <input type="text" id="pmCustSearch" placeholder="Start typing customer name…" autocomplete="off" />
+            <div id="pmCustList" class="gf-suggest-list" hidden></div>
+          </div>
+        </div>
+        <div class="kv-row">
+          <div class="kv">
+            <div class="kv-label">Customer Code</div>
+            <input type="text" id="pmCustCode" placeholder="—" />
+          </div>
+          <div class="kv">
+            <div class="kv-label">City</div>
+            <input type="text" id="pmCity" placeholder="—" />
+          </div>
+        </div>
+
+        <div class="kv">
+          <div class="kv-label">Address</div>
+          <input type="text" id="pmAddress" placeholder="Street, building, area" />
+        </div>
+
+        <div class="kv-row">
+          <div class="kv">
+            <div class="kv-label">Stop location</div>
+            <div class="kv-value coord-display" id="pmCoord">—</div>
+          </div>
+          <div class="kv right">
+            <div class="kv-label">Radius</div>
+            <input type="number" id="pmRadius" min="20" max="2000" value="100" />
+          </div>
+        </div>
+
+        <div class="gf-actions">
+          <div style="flex:1;"></div>
+          <button class="selfie-btn" type="button" onclick="closePromote()">Cancel</button>
+          <button class="sign-action-btn gf-save-btn" type="button" onclick="savePromote()">Create Geofence</button>
+        </div>
+        <div class="sign-error" id="pmError" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/stops.js?v=1"></script>
+</body>
+</html>

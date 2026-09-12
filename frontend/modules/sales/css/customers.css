@@ -1,0 +1,271 @@
+/* PDC "cheque in hand" pseudo-rows in the customer ledger (All tab) */
+.ledger-pdc-row { background: rgba(245, 158, 11, 0.05); }
+
+/* Credit Note status badges (CN tab): Approved = green (NAV-posted), Yet to Approve = amber (imported) */
+.badge.cn-approved { background: rgba(34, 197, 94, 0.16); color: #166534; }
+.badge.cn-pending  { background: rgba(245, 158, 11, 0.18); color: #b45309; }
+
+.list-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* ── Customer Modal ──────────────────────────────────────────────────────── */
+.cust-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.cust-modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow);
+}
+
+.cust-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.cust-modal-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cust-modal-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Split layout ────────────────────────────────────────────────────────── */
+.cust-modal-split {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cust-detail-col {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.cust-ledger-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Customer info ───────────────────────────────────────────────────────── */
+.cust-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cust-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.cust-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.cust-code {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+.cust-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cust-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.cust-info-label {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.cust-info-val {
+  font-size: 13px;
+  color: var(--text);
+  text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.cust-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
+}
+
+.cust-contact-row {
+  font-size: 12px;
+  color: var(--text2);
+  padding: 4px 0;
+  line-height: 1.5;
+}
+
+/* ── Ledger ──────────────────────────────────────────────────────────────── */
+.cust-ledger-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.cust-ledger-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.cust-tab {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: var(--text3);
+  font-size: 12px;
+  font-family: var(--mono);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cust-tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.cust-tab:hover:not(.active) {
+  color: var(--text);
+}
+
+.cust-ledger-table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 0;
+}
+
+.cust-ledger-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.cust-ledger-tbl th {
+  position: sticky;
+  top: 0;
+  background: var(--bg2);
+  z-index: 1;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text3);
+  text-transform: uppercase;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.cust-ledger-tbl td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.cust-ledger-tbl tr:hover td {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+/* ── Keep old layout for backwards compat ────────────────────────────────── */
+.customers-layout {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+.customers-list-panel { flex: 1; min-width: 0; }
+
+.customers-detail-panel {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ledger-card {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .cust-modal-split { flex-direction: column; }
+  .cust-detail-col { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: 250px; }
+}

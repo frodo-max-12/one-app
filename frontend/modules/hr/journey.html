@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Day Journey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet (open-source map library; works with OSM tiles or Ola Maps tiles) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/journey.css?v=2" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Day Journey</span>
+        <div class="topbar-actions">
+          <div class="emp-picker-wrap" id="empPickerWrap" style="display:none;">
+            <label class="emp-picker-label" for="userPicker">👤 Employee</label>
+            <select id="userPicker" class="emp-picker">
+              <option value="">Loading…</option>
+            </select>
+          </div>
+          <input type="date" id="dateFilter" class="att-filter" />
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="journey-shell">
+
+          <!-- KPI strip -->
+          <div class="journey-kpi" id="journeyKpi">
+            <div class="kpi-tile">
+              <div class="kpi-lbl">Employee</div>
+              <div class="kpi-val" id="kpiName">—</div>
+            </div>
+            <div class="kpi-tile"><div class="kpi-lbl">First In</div><div class="kpi-val" id="kpiFirstIn">—</div></div>
+            <div class="kpi-tile"><div class="kpi-lbl">Last Out</div><div class="kpi-val" id="kpiLastOut">—</div></div>
+            <div class="kpi-tile"><div class="kpi-lbl">Sessions</div><div class="kpi-val" id="kpiSessions">—</div></div>
+            <div class="kpi-tile"><div class="kpi-lbl">Pings</div><div class="kpi-val" id="kpiPings">—</div></div>
+            <div class="kpi-tile"><div class="kpi-lbl">Distance</div><div class="kpi-val" id="kpiDistance">—</div></div>
+          </div>
+
+          <!-- Map -->
+          <div id="journeyMap" class="journey-map"></div>
+
+          <!-- Replay slider -->
+          <div class="replay-bar">
+            <div class="replay-row">
+              <button class="play-btn" id="playBtn" type="button" onclick="togglePlay()">▶</button>
+              <span class="scrub-time" id="scrubTime">--:--:--</span>
+              <input type="range" id="scrub" class="scrub" min="0" max="0" step="1" value="0" oninput="onScrub()" />
+              <div class="speed-group">
+                <button class="speed-btn active" data-speed="1"  onclick="setSpeed(1)">1×</button>
+                <button class="speed-btn" data-speed="4"  onclick="setSpeed(4)">4×</button>
+                <button class="speed-btn" data-speed="16" onclick="setSpeed(16)">16×</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty / loading state -->
+          <div id="journeyEmpty" class="journey-empty" style="display:none;">
+            <div class="ic">🗺️</div>
+            <div class="t">No journey to show</div>
+            <div class="s" id="emptyHint">Sign in to start tracking your route.</div>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/journey.js?v=2"></script>
+</body>
+</html>

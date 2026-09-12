@@ -1,0 +1,15 @@
+{
+  "name": "ONE App",
+  "short_name": "ONE App",
+  "description": "Company A & Company B — multi-department platform (NAV 2016 ERP)",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c1a2b",
+  "theme_color": "#0c1a2b",
+  "lang": "en",
+  "icons": [
+    { "src": "/images/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,184 @@
+/* Product — DC File page. Uses the shared theme variables (common.css / theme.css). */
+
+.dc-shell { padding: 6px 2px 40px; }
+
+/* Toolbar */
+.dc-toolbar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 14px;
+}
+.dc-search-wrap { position: relative; flex: 1 1 280px; min-width: 220px; }
+.dc-search-wrap input {
+  width: 100%; padding: 8px 30px 8px 32px; border-radius: 8px;
+  border: 1px solid var(--border, #2a2f3a); background: var(--bg2, #161a22); color: var(--text, #e8eaf0);
+  font-size: 13px;
+}
+.dc-search-ic { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); opacity: .6; font-size: 13px; }
+.dc-clear-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text3, #8b93a7); cursor: pointer; font-size: 13px; }
+.dc-filter {
+  padding: 7px 9px; border-radius: 8px; border: 1px solid var(--border, #2a2f3a);
+  background: var(--bg2, #161a22); color: var(--text, #e8eaf0); font-size: 13px; max-width: 180px;
+}
+
+/* Stats */
+.dc-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.dc-stats .stat-card {
+  flex: 1 1 150px; background: var(--bg2, #161a22); border: 1px solid var(--border, #2a2f3a);
+  border-radius: 10px; padding: 10px 14px;
+}
+.dc-stats .stat-lbl { font-size: 12px; color: var(--text2, #aab2c5); margin-bottom: 4px; }
+.dc-stats .stat-num { font-size: 20px; font-weight: 700; font-family: var(--mono, 'DM Mono', monospace); color: var(--text, #e8eaf0); }
+
+/* Selection bar */
+.dc-sel-bar {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin-bottom: 10px;
+  background: rgba(79, 142, 247, 0.10); border: 1px solid var(--accent, #4f8ef7); border-radius: 8px; font-size: 13px;
+}
+
+/* Fail banner */
+.dc-fail-banner {
+  background: rgba(239, 68, 68, 0.10); border: 1px solid var(--red, #ef4444); color: var(--red, #ef4444);
+  border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; font-size: 13px;
+}
+
+/* Table */
+.dc-table-wrap { overflow-x: auto; border: 1px solid var(--border, #2a2f3a); border-radius: 10px; }
+.dc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 1500px; }
+.dc-table thead th {
+  position: sticky; top: 0; background: var(--bg2, #11151c); color: var(--text2, #aab2c5);
+  text-align: left; font-weight: 600; padding: 9px 10px; white-space: nowrap;
+  border-bottom: 1px solid var(--border, #2a2f3a); font-size: 11.5px; text-transform: uppercase; letter-spacing: .02em;
+}
+.dc-table tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border, #20252f); color: var(--text, #e8eaf0); vertical-align: top; }
+.dc-table tbody tr:hover { background: rgba(127, 145, 180, 0.06); }
+.dc-table .r { text-align: right; }
+.dc-table .mono { font-family: var(--mono, 'DM Mono', monospace); font-size: 12px; }
+.dc-table .dc-sub { color: var(--text3, #8b93a7); font-size: 11px; }
+.dc-table .dc-remark { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text2, #aab2c5); }
+.dc-loading { text-align: center; color: var(--text3, #8b93a7); padding: 36px; }
+.dc-pill {
+  display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+  background: rgba(79, 142, 247, 0.14); color: var(--accent, #4f8ef7); white-space: nowrap;
+}
+.dc-pagination { display: flex; align-items: center; justify-content: center; }
+
+/* Modal form grid */
+.dc-form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px 10px; margin-bottom: 8px; }
+.dc-form-textarea { margin-bottom: 10px; }
+.dc-form-textarea label { display: block; font-size: 12px; color: var(--text2, #aab2c5); margin-bottom: 4px; }
+.dc-form-textarea textarea {
+  width: 100%; border-radius: 8px; border: 1px solid var(--border, #2a2f3a);
+  background: var(--bg2, #161a22); color: var(--text, #e8eaf0); padding: 8px; font-size: 13px; resize: vertical;
+}
+.dc-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.dc-import-result {
+  background: var(--bg2, #161a22); border: 1px solid var(--border, #2a2f3a);
+  border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--text, #e8eaf0);
+}
+/* Import progress bar */
+.dc-prog { height: 12px; border-radius: 999px; background: var(--bg3, #0f1218); border: 1px solid var(--border, #2a2f3a); overflow: hidden; margin-bottom: 6px; }
+.dc-prog-bar { height: 100%; width: 0; background: linear-gradient(90deg, #4f8ef7, #22c55e); transition: width .3s ease; }
+.dc-prog-txt { font-size: 12.5px; color: var(--text2, #aab2c5); font-family: var(--mono, 'DM Mono', monospace); }
+
+/* ── Add/Edit form — consistent, aligned value boxes ───────────────────── */
+.dc-form-grid .kv { display: flex; flex-direction: column; min-width: 0; }
+.dc-form-grid .kv-label { font-size: 12px; color: var(--text2, #aab2c5); margin-bottom: 4px; white-space: nowrap; }
+.dc-form-grid .kv input,
+.dc-form-grid .kv select {
+  width: 100%; box-sizing: border-box; height: 32px; padding: 5px 8px;
+  border-radius: 7px; border: 1px solid var(--border, #2a2f3a);
+  background: var(--bg2, #161a22); color: var(--text, #e8eaf0); font-size: 12.5px;
+}
+.dc-form-grid .kv input:focus,
+.dc-form-grid .kv select:focus { outline: none; border-color: var(--accent, #4f8ef7); }
+
+/* ── NAV customer typeahead ─────────────────────────────────────────────── */
+.dc-suggest-wrap { position: relative; }
+.dc-suggest {
+  position: absolute; z-index: 50; top: calc(100% + 2px); left: 0; right: 0;
+  max-height: 260px; overflow-y: auto;
+  background: var(--bg2, #161a22); border: 1px solid var(--border, #2a2f3a);
+  border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.28);
+}
+.dc-suggest-row { padding: 7px 10px; cursor: pointer; border-bottom: 1px solid var(--border, #20252f); }
+.dc-suggest-row:last-child { border-bottom: none; }
+.dc-suggest-row:hover { background: rgba(79, 142, 247, 0.12); }
+.dc-suggest-row .name { font-size: 13px; color: var(--text, #e8eaf0); }
+.dc-suggest-row .meta { font-size: 11px; color: var(--text3, #8b93a7); margin-top: 1px; }
+.dc-suggest-empty { padding: 9px 10px; font-size: 12px; color: var(--text3, #8b93a7); }
+
+/* ── Potential card — per-currency chips (never summed across) ───────────── */
+.dc-pot-card { flex: 1.6 1 240px; }
+.dc-pot-hint { font-size: 10.5px; font-weight: 400; color: var(--text3, #8b93a7); }
+.dc-pot-wrap { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 2px; }
+.dc-pot-chip {
+  font-family: var(--mono, 'DM Mono', monospace); font-weight: 700; font-size: 15px;
+  padding: 2px 8px; border-radius: 8px; white-space: nowrap;
+}
+.dc-pot-chip.cur-INR    { color: #22c55e; background: rgba(34,197,94,.12); }
+.dc-pot-chip.cur-USD    { color: #4f8ef7; background: rgba(79,142,247,.12); }
+.dc-pot-chip.cur-EUR    { color: #e0a800; background: rgba(224,168,0,.14); }
+.dc-pot-chip.cur-UNSPEC { color: #ef4444; background: rgba(239,68,68,.12); font-size: 12px; font-weight: 600; }
+
+/* ── Funnel — Potential by Project Status ───────────────────────────────── */
+.dc-funnel { margin-bottom: 14px; }
+.dc-funnel-title { font-size: 12px; color: var(--text2, #aab2c5); margin-bottom: 7px; font-weight: 600; }
+.dc-funnel-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.dc-funnel-card {
+  flex: 1 1 96px; min-width: 88px; background: var(--bg2, #161a22);
+  border: 1px solid var(--border, #2a2f3a); border-left: 3px solid var(--text3, #8b93a7);
+  border-radius: 8px; padding: 6px 9px;
+  cursor: pointer; transition: transform .07s ease, box-shadow .07s ease, border-color .07s ease;
+}
+.dc-funnel-card:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+.dc-funnel-card.active { border-color: var(--accent, #4f8ef7); box-shadow: 0 0 0 1px var(--accent, #4f8ef7) inset; background: var(--bg3, #1c212b); }
+.dc-funnel-card.fb-NBO  { border-left-color: #4f8ef7; }
+.dc-funnel-card.fb-DIN  { border-left-color: #a855f7; }
+.dc-funnel-card.fb-PWIN { border-left-color: #f59e0b; }
+.dc-funnel-card.fb-DWIN { border-left-color: #22c55e; }
+.dc-funnel-card.fb-MWIN { border-left-color: #14b8a6; }
+.dc-funnel-card.fb-LOSS { border-left-color: #ef4444; }
+.dc-funnel-clear { margin-left: 8px; font-weight: 600; color: var(--accent, #4f8ef7); cursor: pointer; font-size: 11px; }
+.dc-funnel-clear:hover { text-decoration: underline; }
+
+/* Append-log history block (Sales/FAE remark edit — read-only past entries) */
+.dc-remark-log {
+  max-height: 150px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+  background: var(--bg3, #1c212b); border: 1px solid var(--border, #2a2f3a); border-radius: 6px;
+  padding: 8px 10px; margin: 0 0 6px; font-size: 12px; line-height: 1.55; color: var(--text2, #aab2c5);
+  font-family: var(--mono, 'DM Mono', monospace);
+}
+.dc-funnel-name  { font-size: 12px; font-weight: 700; color: var(--text, #e8eaf0); }
+.dc-funnel-lines { font-size: 10.5px; color: var(--text3, #8b93a7); margin: 1px 0 4px; }
+.dc-funnel-money { font-family: var(--mono, 'DM Mono', monospace); font-size: 12px; font-weight: 600; line-height: 1.4; }
+.dc-funnel-money.cur-INR { color: #22c55e; }
+.dc-funnel-money.cur-USD { color: #4f8ef7; }
+.dc-funnel-money.cur-EUR { color: #e0a800; }
+.dc-funnel-money.muted   { color: var(--text3, #8b93a7); font-weight: 400; }
+
+@media (max-width: 720px) {
+  .dc-form-grid { grid-template-columns: 1fr; }
+  .dc-filter { max-width: none; flex: 1 1 120px; }
+}
+
+/* Multi-line Add — stacked part-lines under one shared header */
+.dc-line-head {
+  font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase;
+  color: var(--text3); margin: 12px 2px 6px; display: flex; align-items: center; gap: 8px;
+}
+.dc-line-block.dc-line-extra {
+  border: 1px dashed var(--border); border-radius: 8px; padding: 8px 10px; margin-top: 6px;
+  background: var(--bg2);
+}
+.dc-line-remove {
+  margin-left: auto; border: none; background: transparent; color: var(--red, #dc2626);
+  cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 6px; border-radius: 4px;
+}
+.dc-line-remove:hover { background: rgba(220, 38, 38, .1); }
+
+/* Sales/FAE edit modal: the few typed fields this role may change (besides their remark)
+   are highlighted so they stand out from the locked read-only context fields. */
+.dc-editable-field input, .dc-editable-field select, .dc-editable-field textarea {
+  border: 1px solid #4f8ef7 !important; background: rgba(79, 142, 247, .06);
+}
+.dc-editable-field .kv-label::after { content: " ✎ editable"; color: #4f8ef7; font-size: 10px; font-weight: 600; }

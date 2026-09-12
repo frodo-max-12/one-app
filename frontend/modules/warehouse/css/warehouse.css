@@ -1,0 +1,370 @@
+/* ==========================================================================
+   warehouse.css — shared styles for the Warehouse module (Company B SG)
+   Single sheet for home + 5 sub-modules. Mirrors the PDC look-and-feel
+   so a salesperson opening this module recognises the controls instantly.
+   ========================================================================== */
+
+.wh-shell { padding: 12px 16px 24px; }
+
+.wh-toolbar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 12px;
+}
+.wh-toolbar .wh-search-wrap {
+  position: relative; flex: 1 1 280px; max-width: 460px;
+}
+.wh-toolbar .wh-search-wrap input {
+  width: 100%; padding: 8px 32px 8px 32px;
+  border: 1px solid var(--c-border, #d8dce3); border-radius: 8px;
+  font: 14px/1.2 'DM Sans', sans-serif; background: #fff;
+}
+.wh-toolbar .wh-search-ic {
+  position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; opacity: .55;
+}
+.wh-toolbar .wh-search-clear {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; opacity: .55;
+}
+.wh-toolbar select,
+.wh-toolbar input[type="date"] {
+  height: 34px; padding: 0 8px; border-radius: 8px;
+  border: 1px solid var(--c-border, #d8dce3); background: #fff;
+  font: 13px 'DM Sans', sans-serif;
+}
+
+/* Stat cards — used on Purchase / Stocks / Sales / Expenses pages. */
+.wh-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px; margin-bottom: 12px;
+}
+
+/* Sales-page coloured stat cards (PFP mode) */
+.wh-stat-cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px; margin-bottom: 14px;
+}
+.wh-stat-card {
+  border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 12px 14px; background: #fff;
+  border-left-width: 4px;
+}
+.wh-stat-card.amber  { border-left-color: #f59e0b; }
+.wh-stat-card.purple { border-left-color: #a855f7; }
+.wh-stat-card.green  { border-left-color: #16a34a; }
+.wh-stat-card.slate  { border-left-color: #64748b; }
+.wh-stat-card.blue   { border-left-color: #3b82f6; }
+.wh-stat-card.clickable { cursor: pointer; transition: background .15s, box-shadow .15s; user-select: none; }
+.wh-stat-card.clickable:hover { background: #f1f5f9; }
+.wh-stat-card.clickable.active.amber  { background: #fef3c7; box-shadow: 0 0 0 2px #f59e0b inset; }
+.wh-stat-card.clickable.active.purple { background: #f5e9ff; box-shadow: 0 0 0 2px #a855f7 inset; }
+.wh-stat-card.clickable.active.green  { background: #dcfce7; box-shadow: 0 0 0 2px #16a34a inset; }
+.wh-stat-card.clickable.active.blue   { background: #dbeafe; box-shadow: 0 0 0 2px #3b82f6 inset; }
+.wh-stat-card.clickable.active.slate  { background: #e2e8f0; box-shadow: 0 0 0 2px #64748b inset; }
+.wh-stat-card .wh-stat-title { font: 600 12px 'DM Sans', sans-serif; color: #475569; text-transform: uppercase; letter-spacing: 0.4px; }
+.wh-stat-card .wh-stat-value { font: 700 24px 'DM Sans', sans-serif; color: #0f172a; margin: 4px 0 2px; }
+.wh-stat-card .wh-stat-sub   { font: 12px 'DM Sans', sans-serif; color: #64748b; }
+
+/* Clear-filters button — visually distinct so Amit always sees a way back */
+.wh-clear-btn {
+  background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
+  padding: 7px 12px; border-radius: 8px; font: 500 13px 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+.wh-clear-btn:hover { background: #fee2e2; }
+.wh-clear-btn.has-active { background: #fee2e2; border-color: #f87171; }
+.wh-stat-card {
+  background: #fff; border: 1px solid var(--c-border, #e4e7ec);
+  border-radius: 12px; padding: 10px 14px; cursor: default;
+  transition: box-shadow .15s;
+}
+.wh-stat-card.clickable { cursor: pointer; }
+.wh-stat-card.clickable:hover { box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+.wh-stat-card .stat-lbl { font-size: 12px; color: #64748b; }
+.wh-stat-card .stat-num { font: 600 22px 'DM Sans', sans-serif; color: #0f172a; }
+.wh-stat-card .stat-amt { font-size: 12px; color: #475569; }
+
+/* Table */
+.wh-table-wrap {
+  background: #fff; border: 1px solid var(--c-border, #e4e7ec);
+  border-radius: 12px; overflow: auto;
+}
+.wh-table { width: 100%; border-collapse: collapse; font: 13px/1.4 'DM Sans', sans-serif; }
+.wh-table th, .wh-table td {
+  padding: 8px 10px; text-align: left;
+  border-bottom: 1px solid #eef0f3; white-space: nowrap;
+}
+.wh-table thead th {
+  background: #f7f9fc; color: #1e293b; font-weight: 600;
+  position: sticky; top: 0; z-index: 1;
+}
+.wh-table tbody tr:hover { background: #f8fafc; }
+
+/* NAV-sourced columns — light-blue tint so Amit instantly sees what's
+   auto-fetched from NAV (read-only) vs what's his to edit. */
+.wh-table thead th.nav-col {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+.wh-table thead th.nav-col::before {
+  content: 'NAV · ';
+  font-size: 9px;
+  font-weight: 700;
+  color: #2563eb;
+  letter-spacing: 0.04em;
+}
+.wh-table tbody td.nav-col {
+  background: #f0f7ff;
+  color: #1e293b;
+}
+.wh-table tbody tr:hover td.nav-col { background: #e0ecff; }
+
+/* Legend / hint badge */
+.wh-source-legend {
+  display: flex; gap: 14px; align-items: center;
+  font-size: 11px; color: #64748b;
+  padding: 4px 0 8px;
+}
+.wh-source-legend .swatch {
+  display: inline-block; width: 14px; height: 14px;
+  border: 1px solid #cbd5e1; border-radius: 3px; vertical-align: middle;
+  margin-right: 4px;
+}
+.wh-source-legend .swatch.nav { background: #dbeafe; border-color: #93c5fd; }
+.wh-source-legend .swatch.manual { background: #fff; }
+.wh-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.wh-table .actions {
+  display: inline-flex; gap: 4px; white-space: nowrap;
+}
+.wh-table .actions button {
+  border: 1px solid #d8dce3; background: #fff; border-radius: 6px;
+  padding: 3px 8px; cursor: pointer; font-size: 12px;
+}
+.wh-table .actions button:hover { background: #f1f5f9; }
+.wh-table .actions .btn-del { color: #b91c1c; border-color: #fecaca; }
+.wh-table .actions .btn-del:hover { background: #fee2e2; }
+.wh-table .actions .btn-add {
+  color: #047857; border-color: #a7f3d0; background: #ecfdf5;
+  font-weight: 600;
+}
+.wh-table .actions .btn-add:hover { background: #d1fae5; }
+
+/* Rows that come from NAV but Amit hasn't added tracking yet —
+   slightly muted so tracked rows stand out. */
+.wh-table tbody tr.untracked td:not(.nav-col):not(.actions-col) {
+  background: #fafbfc;
+}
+.wh-table tbody tr.tracked td:not(.nav-col):not(.actions-col) {
+  background: #f0fdf4;   /* very light green tint */
+}
+
+/* ── Inline-edit rows ────────────────────────────────────────────────
+   Manual cells contain <input>/<select>/<textarea>. `field-sizing:content`
+   (Chrome/Edge 123+, Firefox 124+, Safari 18+) makes the input auto-grow
+   to fit the value so typed text never gets clipped. We also keep a
+   sensible min-width so empty inputs don't collapse to a dot. */
+.wh-inline-edit tbody td > input,
+.wh-inline-edit tbody td > select,
+.wh-inline-edit tbody td > textarea {
+  field-sizing: content;          /* native auto-grow per content */
+  min-width: 120px;
+  max-width: 360px;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  font: 500 13px/1.4 'DM Sans', sans-serif;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 5px;
+}
+.wh-inline-edit tbody td > input:hover,
+.wh-inline-edit tbody td > select:hover,
+.wh-inline-edit tbody td > textarea:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
+}
+.wh-inline-edit tbody td > input:focus,
+.wh-inline-edit tbody td > select:focus,
+.wh-inline-edit tbody td > textarea:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, .18);
+}
+.wh-inline-edit tbody td > input::placeholder { color: #94a3b8; font-weight: 400; }
+.wh-inline-edit tbody td.num > input {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  min-width: 100px;
+  max-width: 160px;
+}
+.wh-inline-edit tbody td > input[type="date"] {
+  min-width: 150px;
+  max-width: 170px;
+}
+.wh-inline-edit tbody td > textarea {
+  min-height: 28px;
+  min-width: 180px;
+  max-width: 480px;
+  resize: both;
+}
+/* Cells holding an editable input should not collapse */
+.wh-inline-edit tbody td:has(> input),
+.wh-inline-edit tbody td:has(> select),
+.wh-inline-edit tbody td:has(> textarea) {
+  padding: 4px 6px;
+  min-width: 130px;
+}
+.wh-inline-edit tbody td.num:has(> input) { min-width: 110px; }
+
+/* Header columns minimum too so headers don't squish */
+.wh-inline-edit thead th { min-width: 110px; padding: 8px 10px; }
+.wh-inline-edit thead th.actions-col { min-width: 56px; }
+.wh-inline-edit thead th.nav-col { min-width: 100px; }
+
+/* The Save column — sticky-right would be nice but adds complexity. Keep
+   simple for now; just style the button. */
+.wh-table th.actions-col, .wh-table td.actions-col {
+  text-align: center;
+  width: 56px;
+  position: sticky;
+  right: 0;
+  background: #fff;
+  border-left: 1px solid #e4e7ec;
+  z-index: 1;
+}
+.wh-table thead th.actions-col { background: #f7f9fc; }
+.wh-table tbody tr.tracked td.actions-col { background: #f0fdf4; }
+.wh-table tbody tr.untracked td.actions-col { background: #fafbfc; }
+button.row-save, button.row-split, button.row-delete {
+  border: 1px solid #d8dce3;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  margin-left: 2px;
+}
+button.row-save:hover   { background: #f0f9ff; border-color: #93c5fd; }
+button.row-split:hover  { background: #fffbeb; border-color: #fcd34d; }
+button.row-delete       { color: #b91c1c; }
+button.row-delete:hover { background: #fef2f2; border-color: #fca5a5; }
+button.row-save:disabled, button.row-split:disabled, button.row-delete:disabled { opacity: .6; cursor: wait; }
+
+/* Lineage badge under the Cartoon No input — shows "↳ from C-XXXX" so
+   Amit instantly sees which physical carton this row was split out of. */
+.split-lineage {
+  font-size: 10px;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin-top: 3px;
+  display: inline-block;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Small "of NAV total" annotation under the editable QtyPcs input so
+   Amit sees his carton qty AND the parent NAV total at once. */
+.qty-of-nav {
+  font-size: 10px;
+  color: #64748b;
+  text-align: right;
+  margin-top: 2px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+
+/* Status pills */
+.wh-pill {
+  display: inline-block; padding: 2px 8px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; line-height: 1.6;
+}
+.wh-pill.pending { background: #fef3c7; color: #92400e; }
+.wh-pill.paid,
+.wh-pill.cleared,
+.wh-pill.dispatched { background: #d1fae5; color: #065f46; }
+.wh-pill.received,
+.wh-pill.stock { background: #dbeafe; color: #1e40af; }
+.wh-pill.reserved { background: #ede9fe; color: #6d28d9; }
+.wh-pill.blank { background: #f1f5f9; color: #475569; }
+.wh-pill.issued { background: #fff7ed; color: #c2410c; }
+.wh-pill.cancelled,
+.wh-pill.bounced { background: #fee2e2; color: #b91c1c; }
+
+/* Empty state + loading */
+.wh-empty {
+  text-align: center; color: #64748b; padding: 36px 12px; font-size: 14px;
+}
+.wh-loading { text-align: center; padding: 24px; color: #64748b; }
+
+/* Pagination */
+.wh-paging {
+  display: flex; gap: 6px; align-items: center; justify-content: flex-end;
+  padding: 10px 4px; font-size: 13px; color: #475569;
+}
+.wh-paging button {
+  border: 1px solid #d8dce3; background: #fff; padding: 4px 10px;
+  border-radius: 6px; cursor: pointer;
+}
+.wh-paging button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Modal */
+.wh-modal-backdrop {
+  position: fixed; inset: 0; background: rgba(15,23,42,.45);
+  display: none; align-items: center; justify-content: center;
+  z-index: 1000; padding: 20px;
+}
+.wh-modal-backdrop.open { display: flex; }
+.wh-modal {
+  background: #fff; border-radius: 12px; max-width: 720px; width: 100%;
+  max-height: 92vh; overflow: auto;
+  box-shadow: 0 20px 50px rgba(0,0,0,.18);
+}
+.wh-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid #e4e7ec;
+}
+.wh-modal-head h3 { margin: 0; font: 600 16px 'DM Sans', sans-serif; }
+.wh-modal-close {
+  background: none; border: none; font-size: 22px; cursor: pointer;
+  color: #64748b;
+}
+.wh-modal-body { padding: 16px 18px; }
+.wh-modal-grid {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.wh-field { display: flex; flex-direction: column; gap: 4px; }
+.wh-field label { font-size: 12px; color: #475569; font-weight: 500; }
+.wh-field input, .wh-field select, .wh-field textarea {
+  border: 1px solid #d8dce3; border-radius: 6px; padding: 7px 9px;
+  font: 13px 'DM Sans', sans-serif; background: #fff;
+}
+.wh-field input[readonly], .wh-field .ro {
+  background: #f8fafc; color: #475569;
+}
+.wh-field.wide { grid-column: 1 / -1; }
+.wh-modal-foot {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 12px 18px; border-top: 1px solid #e4e7ec;
+}
+
+/* Home tiles */
+.wh-home-tiles {
+  display: grid; gap: 14px; padding: 18px 0;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.wh-tile {
+  background: #fff; border: 1px solid #e4e7ec; border-radius: 14px;
+  padding: 22px; text-decoration: none; color: inherit;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: transform .12s, box-shadow .12s;
+}
+.wh-tile:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.06); }
+.wh-tile .wh-tile-ic { font-size: 32px; }
+.wh-tile .wh-tile-title { font: 600 16px 'DM Sans', sans-serif; }
+.wh-tile .wh-tile-desc { font-size: 12px; color: #64748b; line-height: 1.5; }

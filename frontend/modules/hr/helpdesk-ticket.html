@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Ticket</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/helpdesk.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Helpdesk · <span id="topTicketNo">—</span></span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <a class="btn" href="/modules/hr/helpdesk.html">← Back to list</a>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="hdt-wrap">
+
+          <!-- Top header card -->
+          <section class="hdt-head">
+            <div class="hdt-head-left">
+              <div class="hdt-tno" id="ticketNo">—</div>
+              <h1 id="ticketSubj">Loading…</h1>
+              <div class="hdt-pillrow">
+                <span class="prio" id="ticketPrio">—</span>
+                <span class="status" id="ticketStatus">—</span>
+                <span class="cat" id="ticketCat">—</span>
+              </div>
+            </div>
+            <div class="hdt-head-right" id="hdtActions"></div>
+          </section>
+
+          <div class="hdt-grid">
+
+            <!-- LEFT: conversation + comment box + attachments -->
+            <div class="hdt-main">
+
+              <section class="hdt-card hdt-desc">
+                <div class="hdt-card-head"><h2>Description</h2></div>
+                <div class="hdt-desc-body" id="ticketDesc">—</div>
+              </section>
+
+              <section class="hdt-card hdt-thread">
+                <div class="hdt-card-head"><h2>Conversation</h2><span class="hd-meta" id="threadCount">0 messages</span></div>
+                <div class="hdt-thread-list" id="threadList">
+                  <div class="hd-empty">Loading…</div>
+                </div>
+                <div class="hdt-comment-box">
+                  <textarea id="newComment" rows="3" placeholder="Write a reply…"></textarea>
+                  <div class="hdt-comment-actions">
+                    <label class="hdt-internal hr-only" style="display:none;">
+                      <input type="checkbox" id="cmtInternal" /> Internal note (HR-only)
+                    </label>
+                    <button class="btn btn-primary" type="button" onclick="postComment()">Send</button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="hdt-card hdt-attach">
+                <div class="hdt-card-head">
+                  <h2>Attachments</h2>
+                  <label class="btn btn-sm">
+                    + Upload
+                    <input type="file" id="fileUpload" multiple onchange="uploadFiles()" style="display:none;" />
+                  </label>
+                </div>
+                <div class="hdt-attach-list" id="attachList">
+                  <div class="hd-empty hd-empty-sm">No files attached.</div>
+                </div>
+              </section>
+
+            </div>
+
+            <!-- RIGHT: meta + HR actions -->
+            <aside class="hdt-side">
+
+              <section class="hdt-card hdt-meta">
+                <div class="hdt-card-head"><h2>Ticket Details</h2></div>
+                <div class="meta-row"><span>Status</span><b><span class="status" id="metaStatus">—</span></b></div>
+                <div class="meta-row"><span>Priority</span><b><span class="prio" id="metaPrio">—</span></b></div>
+                <div class="meta-row"><span>Category</span><b id="metaCat">—</b></div>
+                <div class="meta-row"><span>Raiser</span><b id="metaRaiser">—</b></div>
+                <div class="meta-row"><span>Assignee</span><b id="metaAssignee">—</b></div>
+                <div class="meta-row"><span>Created</span><b id="metaCreated">—</b></div>
+                <div class="meta-row"><span>Updated</span><b id="metaUpdated">—</b></div>
+                <div class="meta-row" id="rowResolved" style="display:none;"><span>Resolved</span><b id="metaResolved">—</b></div>
+                <div class="meta-row" id="rowClosed"   style="display:none;"><span>Closed</span><b id="metaClosed">—</b></div>
+              </section>
+
+              <section class="hdt-card hr-only" id="hrPanel" style="display:none;">
+                <div class="hdt-card-head"><h2>HR Actions</h2></div>
+
+                <label class="hdt-field">
+                  <span>Status</span>
+                  <select id="hrStatus" onchange="hrUpdate({status:this.value})">
+                    <option value="open">Open</option>
+                    <option value="in-progress">In progress</option>
+                    <option value="on-hold">On hold</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </label>
+
+                <label class="hdt-field">
+                  <span>Priority</span>
+                  <select id="hrPriority" onchange="hrUpdate({priority:this.value})">
+                    <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
+                  </select>
+                </label>
+
+                <label class="hdt-field">
+                  <span>Assignee</span>
+                  <select id="hrAssignee" onchange="hrUpdate({assignedToUserId:this.value})">
+                    <option value="">— Unassigned —</option>
+                  </select>
+                </label>
+
+                <div class="hdt-resolution" id="hrResolutionWrap" style="display:none;">
+                  <span>Resolution</span>
+                  <textarea id="hrResolution" rows="3" placeholder="Closing summary…"></textarea>
+                  <button class="btn btn-sm" type="button" onclick="hrUpdate({resolution: document.getElementById('hrResolution').value})">Save resolution</button>
+                </div>
+              </section>
+
+            </aside>
+
+          </div>
+
+          <div class="hdt-diag" id="hdtDiag" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=6"></script>
+  <script src="/shared/common.js?v=6"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/helpdesk-ticket.js?v=1"></script>
+</body>
+</html>

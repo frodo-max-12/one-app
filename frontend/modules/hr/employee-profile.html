@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Employee Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/leave.css?v=1" />
+  <link rel="stylesheet" href="./css/employee.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Employee Profile</span>
+        <div class="topbar-actions">
+          <a href="/modules/hr/employees.html" class="op-manage-btn" style="text-decoration:none;">← Back to list</a>
+          <button class="emp-add-btn" id="editBtn" onclick="toggleEdit()" style="display:none;">✎ Edit</button>
+          <button class="emp-add-btn" id="saveBtn" onclick="saveAll()" style="display:none;">✓ Save</button>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="emp-shell">
+
+          <!-- Hero card -->
+          <div class="profile-hero" id="profileHero">
+            <div class="profile-avatar" id="avatar">—</div>
+            <div class="profile-info">
+              <div class="name" id="profileName">Loading…</div>
+              <div class="meta" id="profileMeta">—</div>
+              <div class="profile-meta-pills" id="profilePills"></div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="tabs" style="flex-wrap:wrap; width:max-content; max-width:100%;">
+            <button class="tab-btn active" data-tab="profile"   onclick="showTab('profile')">Profile</button>
+            <button class="tab-btn"        data-tab="bank"      onclick="showTab('bank')">Bank / PF / ESI</button>
+            <button class="tab-btn"        data-tab="family"    onclick="showTab('family')">Family</button>
+            <button class="tab-btn"        data-tab="passport"  onclick="showTab('passport')">Passport & Visa</button>
+            <button class="tab-btn"        data-tab="position"  onclick="showTab('position')">Position History</button>
+            <button class="tab-btn"        data-tab="prev"      onclick="showTab('prev')">Previous Employment</button>
+            <button class="tab-btn"        data-tab="nominate"  onclick="showTab('nominate')">Nomination</button>
+            <button class="tab-btn"        data-tab="separate"  onclick="showTab('separate')">Separation</button>
+            <button class="tab-btn"        data-tab="docs"      onclick="showTab('docs')">Documents</button>
+          </div>
+
+          <!-- ═══ Profile tab ═══ -->
+          <div class="tab-panel active" id="tab-profile">
+            <div class="section-header"><h3>Employee Information</h3></div>
+            <div class="kv-grid" id="kv-employee"></div>
+
+            <div class="section-header"><h3>Personal Information</h3></div>
+            <div class="kv-grid" id="kv-personal"></div>
+
+            <div class="section-header"><h3>Contact</h3></div>
+            <div class="kv-grid" id="kv-contact"></div>
+
+            <div class="section-header"><h3>Emergency Contact</h3></div>
+            <div class="kv-grid" id="kv-emergency"></div>
+          </div>
+
+          <!-- ═══ Bank / PF / ESI tab ═══ -->
+          <div class="tab-panel" id="tab-bank">
+            <div class="section-header"><h3>Bank Account</h3></div>
+            <div class="kv-grid" id="kv-bank"></div>
+
+            <div class="section-header"><h3>Provident Fund / ESI / LWF</h3></div>
+            <div class="kv-grid" id="kv-statutory"></div>
+          </div>
+
+          <!-- ═══ Family tab ═══ -->
+          <div class="tab-panel" id="tab-family">
+            <div class="section-header">
+              <h3>Family Members</h3>
+              <button class="add-row-btn" onclick="showAddFamily()">+ Add member</button>
+            </div>
+            <div id="familyList"></div>
+            <div id="familyForm" style="display:none;" class="wiz-card" style="margin-top:14px;">
+              <h2>Add family member</h2>
+              <div class="field-row">
+                <div class="field"><label>Name <span class="required">*</span></label><input type="text" id="famName" /></div>
+                <div class="field"><label>Relationship <span class="required">*</span></label>
+                  <select id="famRel">
+                    <option>Father</option><option>Mother</option><option>Spouse</option>
+                    <option>Son</option><option>Daughter</option>
+                    <option>Brother</option><option>Sister</option><option>Other</option>
+                  </select></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Gender</label>
+                  <select id="famGender"><option value="">—</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+                <div class="field"><label>Date of Birth</label><input type="date" id="famDob" /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Occupation</label><input type="text" id="famOcc" /></div>
+                <div class="field"><label>Mobile</label><input type="tel" id="famMob" /></div>
+              </div>
+              <div class="field-row">
+                <div class="toggle-row"><input type="checkbox" id="famDep" /><label for="famDep">Dependent</label></div>
+                <div class="toggle-row"><input type="checkbox" id="famEmg" /><label for="famEmg">Emergency contact</label></div>
+              </div>
+              <div class="wiz-actions">
+                <button class="wiz-back-btn" onclick="hideAddFamily()">Cancel</button>
+                <button class="wiz-next-btn" onclick="saveFamily()">+ Add member</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ Passport & Visa tab ═══ -->
+          <div class="tab-panel" id="tab-passport">
+            <div class="section-header"><h3>Passport</h3></div>
+            <div class="kv-grid" id="kv-passport"></div>
+            <div class="section-header" style="margin-top:18px;"><h3>Visa</h3></div>
+            <div class="kv-grid" id="kv-visa"></div>
+          </div>
+
+          <!-- ═══ Position History tab ═══ -->
+          <div class="tab-panel" id="tab-position">
+            <div class="section-header">
+              <h3>Position History</h3>
+              <button class="add-row-btn" id="addPosBtn" onclick="showAddPosition()">+ Add change</button>
+            </div>
+            <div id="positionList"></div>
+            <div id="positionForm" style="display:none;" class="wiz-card" style="margin-top:14px;">
+              <h2>Add position change</h2>
+              <div class="field-row">
+                <div class="field"><label>Designation <span class="required">*</span></label><input type="text" id="posDes" /></div>
+                <div class="field"><label>Department</label>
+                  <select id="posDep">
+                    <option value="">—</option>
+                    <option>SALES</option><option>FAE</option><option>CSR</option><option>STORE</option>
+                    <option>PURCHASE</option><option>ACCOUNT</option><option>PRODUCT</option><option>HR</option><option>ADMIN</option>
+                  </select></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Location</label>
+                  <select id="posLoc"><option value="">—</option><option>Pune</option><option>Bangalore</option><option>Noida</option><option>Mumbai</option></select></div>
+                <div class="field"><label>Employee Type</label>
+                  <select id="posET"><option value="">—</option><option>Permanent</option><option>Probation</option><option>Contract</option><option>Intern</option></select></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Effective From <span class="required">*</span></label><input type="date" id="posEF" /></div>
+                <div class="field"><label>Reason</label>
+                  <select id="posRFC">
+                    <option value="role-change">Role change</option>
+                    <option value="promotion">Promotion</option>
+                    <option value="transfer">Transfer</option>
+                    <option value="initial">Initial position (on joining)</option>
+                    <option value="reorg">Reorganisation</option>
+                  </select></div>
+              </div>
+              <div class="field-row full">
+                <div class="field"><label>Notes</label><textarea id="posNotes" rows="2"></textarea></div>
+              </div>
+              <div class="wiz-actions">
+                <button class="wiz-back-btn" onclick="hideAddPosition()">Cancel</button>
+                <button class="wiz-next-btn" onclick="savePosition()">+ Add change</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ Previous Employment tab ═══ -->
+          <div class="tab-panel" id="tab-prev">
+            <div class="section-header">
+              <h3>Previous Employment</h3>
+              <button class="add-row-btn" onclick="showAddPrev()">+ Add job</button>
+            </div>
+            <div id="prevList"></div>
+            <div id="prevForm" style="display:none;" class="wiz-card" style="margin-top:14px;">
+              <h2>Add previous employment</h2>
+              <div class="field-row">
+                <div class="field"><label>Company Name <span class="required">*</span></label><input type="text" id="prevCo" /></div>
+                <div class="field"><label>Designation</label><input type="text" id="prevDes" /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>From</label><input type="date" id="prevFD" /></div>
+                <div class="field"><label>To</label><input type="date" id="prevTD" /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Last Salary (₹/yr)</label><input type="number" id="prevSal" step="1000" /></div>
+                <div class="field"><label>Reason for Leaving</label><input type="text" id="prevRFL" /></div>
+              </div>
+              <div class="field-row full">
+                <div class="field"><label>Notes</label><textarea id="prevNotes" rows="2"></textarea></div>
+              </div>
+              <div class="wiz-actions">
+                <button class="wiz-back-btn" onclick="hideAddPrev()">Cancel</button>
+                <button class="wiz-next-btn" onclick="savePrev()">+ Add job</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ Nomination tab ═══ -->
+          <div class="tab-panel" id="tab-nominate">
+            <div class="section-header">
+              <h3>Nomination Details</h3>
+              <button class="add-row-btn" onclick="showAddNom()">+ Add nominee</button>
+            </div>
+            <p class="lens-sub" style="margin: -8px 0 12px;">Required by statute (PF Form-11, gratuity, insurance). Multiple nominees per scheme allowed — shares must sum to 100%.</p>
+            <div id="nomList"></div>
+            <div id="nomForm" style="display:none;" class="wiz-card" style="margin-top:14px;">
+              <h2>Add nominee</h2>
+              <div class="field-row">
+                <div class="field"><label>Scheme <span class="required">*</span></label>
+                  <select id="nomScheme">
+                    <option value="PF">Provident Fund</option>
+                    <option value="Gratuity">Gratuity</option>
+                    <option value="Insurance">Insurance</option>
+                    <option value="Bonus">Bonus</option>
+                    <option value="Other">Other</option>
+                  </select></div>
+                <div class="field"><label>Nominee Name <span class="required">*</span></label><input type="text" id="nomName" /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Relationship <span class="required">*</span></label>
+                  <select id="nomRel"><option>Spouse</option><option>Father</option><option>Mother</option><option>Son</option><option>Daughter</option><option>Brother</option><option>Sister</option><option>Other</option></select></div>
+                <div class="field"><label>Date of Birth</label><input type="date" id="nomDob" /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Share (%)</label><input type="number" id="nomShare" min="1" max="100" value="100" /></div>
+                <div class="field"><label>Address</label><input type="text" id="nomAddr" /></div>
+              </div>
+              <div class="wiz-actions">
+                <button class="wiz-back-btn" onclick="hideAddNom()">Cancel</button>
+                <button class="wiz-next-btn" onclick="saveNom()">+ Add nominee</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ Separation tab ═══ -->
+          <div class="tab-panel" id="tab-separate">
+            <div id="separationContent"></div>
+          </div>
+
+          <!-- ═══ Documents tab ═══ -->
+          <div class="tab-panel" id="tab-docs">
+            <div class="section-header">
+              <h3>Documents</h3>
+              <div>
+                <input type="file" id="docFile" style="display:none;" onchange="uploadDoc()" />
+                <select id="docType" style="background:var(--lens-card); border:1px solid var(--lens-border); color:var(--lens-text); padding:6px 10px; border-radius:14px; font-size:12px; margin-right:6px;">
+                  <option value="aadhaar">Aadhaar</option>
+                  <option value="pan">PAN</option>
+                  <option value="passport">Passport</option>
+                  <option value="resume">Resume</option>
+                  <option value="offer-letter">Offer Letter</option>
+                  <option value="experience-letter">Experience Letter</option>
+                  <option value="other">Other</option>
+                </select>
+                <button class="upload-btn" onclick="document.getElementById('docFile').click()">⬆ Upload</button>
+              </div>
+            </div>
+            <div id="docsList"></div>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3><ul id="diagList"></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/employee-profile.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Live Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/live-map.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Live Map</span>
+        <div class="topbar-actions">
+          <span id="lmSummary" class="lm-summary"></span>
+          <span id="roleTag" class="role-tag"></span>
+        </div>
+      </div>
+      <div class="content lm-content">
+        <div class="lm-wrap">
+          <!-- Side list -->
+          <div class="lm-side">
+            <div class="lm-side-head">
+              <input id="lmSearch" class="search-input" placeholder="Search employee…" style="padding-left:12px;" />
+              <div class="lm-legend">
+                <span><i class="lm-dot lm-live"></i>Live</span>
+                <span><i class="lm-dot lm-idle"></i>Idle</span>
+                <span><i class="lm-dot lm-stale"></i>Stale</span>
+                <span><i class="lm-dot lm-off"></i>Not tracking</span>
+              </div>
+              <div class="lm-refresh">Auto-refresh <span id="lmCountdown">25</span>s · <a href="javascript:void(0)" onclick="lmRefresh()">now</a></div>
+            </div>
+            <div id="lmList" class="lm-list"></div>
+          </div>
+          <!-- Map -->
+          <div id="lmMap" class="lm-map"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/mobile-menu.js"></script>
+  <script src="./js/live-map.js?v=1"></script>
+</body>
+</html>

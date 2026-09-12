@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Customers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/customers.css?v=3" />
+  <link rel="stylesheet" href="./css/pdc.css?v=6" /><!-- for .pdc-status-pill in PDC tab inside the customer detail modal -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside id="sidebar"></aside>
+  <div class="main">
+    <div class="topbar">
+      <span class="page-title">Customers</span>
+      <div class="topbar-actions">
+        <span id="roleTag" class="role-tag"></span>
+        <div class="chip">
+          <span class="chip-dot" style="background:var(--green);"></span>
+          <span>API Connected</span>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="section-head">
+          <h2>Customer List</h2>
+          <span class="chip">
+            <span class="chip-dot" style="background:var(--green);"></span>
+            <span id="customerTotalText">0 total</span>
+          </span>
+        </div>
+        <div class="list-toolbar">
+          <div class="input-wrap search-flex">
+            <span class="input-icon">⌕</span>
+            <input id="customerSearchInput" class="search-input" placeholder="Search name, code, city, salesperson…" />
+          </div>
+          <button id="customerRefreshBtn" class="btn btn-ghost btn-sm">Refresh</button>
+          <button id="customerImportCnBtn" class="btn btn-primary btn-sm" style="display:none;" onclick="openCnImport()" title="Bulk-import credit notes — assigned to customers by name">🧾 Import CN</button>
+        </div>
+        <div id="customersLoading" class="loading-center"><div class="spinner"></div></div>
+        <div class="table-wrap">
+          <table id="customersTable" style="display:none;">
+            <thead><tr>
+              <th>Code</th><th>Name</th><th>City / State</th>
+              <th style="text-align:right;">Balance Due</th>
+              <th style="text-align:right;">Total AR</th>
+              <th>Payment Terms</th>
+            </tr></thead>
+            <tbody id="customersBody"></tbody>
+          </table>
+        </div>
+        <div id="customersEmpty" class="empty" style="display:none;">
+          <div class="empty-icon">👥</div>
+          <div class="empty-text">No customers found</div>
+        </div>
+        <div class="pagination" id="customersPagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="custModalOverlay" class="cust-modal-overlay" style="display:none;">
+  <div class="cust-modal">
+    <div class="cust-modal-header">
+      <span class="cust-modal-title">Customer Detail</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="custExportBtn" class="btn btn-sm" style="background:var(--green);color:#fff;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;">⬇ Export Excel</button>
+        <button id="custExportPdfBtn" class="btn btn-sm" style="background:var(--red);color:#fff;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;">⬇ Export PDF</button>
+        <button id="custModalClose" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:6px;">✕</button>
+      </div>
+    </div>
+    <div id="custModalBody" class="cust-modal-body"></div>
+  </div>
+</div>
+
+<!-- ═══ Import CN modal (admin/accounts) ═══ -->
+<div id="cnImportModal" class="cust-modal-overlay" style="display:none;z-index:1100;">
+  <div class="cust-modal" style="max-width:520px;width:92%;">
+    <div class="cust-modal-header">
+      <span class="cust-modal-title">🧾 Import Credit Notes (Yet to Approve)</span>
+      <button onclick="closeCnImport()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:6px;">✕</button>
+    </div>
+    <div class="cust-modal-body" style="padding:16px 18px;">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">
+        Excel columns (any order): <b>Name</b>, <b>Bill Date</b>, <b>Bill No</b>, <b>Amount</b>, <b>Reason</b>, <b>Remark</b> (CD / FOC).
+        Customers are matched to NAV by name; merged cells (one customer / bill spanning several amount lines) are handled.
+        Re-importing the same file <b>updates</b> in place (no duplicates).
+      </div>
+      <input type="file" id="cnImportFile" accept=".xlsx,.xls" style="width:100%;font-size:13px;margin-bottom:12px;" />
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn btn-ghost btn-sm" onclick="closeCnImport()">Cancel</button>
+        <button class="btn btn-sm" onclick="doCnImport(true)">👁 Preview</button>
+        <button class="btn btn-primary btn-sm" onclick="doCnImport(false)">⇧ Import</button>
+      </div>
+      <div id="cnImportResult" style="margin-top:12px;font-size:13px;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/shared/modules.js"></script>
+<script src="/shared/common.js"></script>
+<script src="/shared/mobile-menu.js"></script>
+<script src="./js/customers.js?v=10"></script>
+</body>
+</html>

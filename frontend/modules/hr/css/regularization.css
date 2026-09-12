@@ -1,0 +1,51 @@
+/* ============================================================================
+   ONE App Lens — Regularization (apply / approvals)
+============================================================================ */
+
+/* Reuse most leave.css patterns. Only diffs below. */
+
+.reg-kind-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 640px) { .reg-kind-tiles { grid-template-columns: 1fr; } }
+
+.reg-kind-tile {
+  background: var(--lens-card-soft);
+  border: 2px solid var(--lens-border);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+.reg-kind-tile:hover { transform: translateY(-2px); }
+.reg-kind-tile.selected { border-color: #2563eb; background: rgba(37, 99, 235, 0.06); }
+body.lens-body:not(.day-theme) .reg-kind-tile.selected { background: rgba(37, 99, 235, 0.18); }
+.reg-kind-tile .ic { font-size: 28px; margin-bottom: 4px; }
+.reg-kind-tile .nm { font-size: 13px; font-weight: 600; color: var(--lens-text); }
+.reg-kind-tile .desc { font-size: 11px; color: var(--lens-text-3); margin-top: 3px; }
+
+.time-input {
+  background: var(--lens-card-soft);
+  border: 1px solid var(--lens-border);
+  color: var(--lens-text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-family: var(--font), sans-serif;
+  font-size: 14px;
+  width: 100%;
+}
+.time-input:focus { outline: none; border-color: #2563eb; }
+
+.reg-current-row {
+  background: var(--lens-card-soft);
+  border-left: 3px solid #94a3b8;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--lens-text-2);
+  margin-top: 6px;
+}
+.reg-current-row b { color: var(--lens-text); font-family: var(--mono), monospace; }
+.reg-current-row.empty { color: var(--lens-text-3); font-style: italic; }

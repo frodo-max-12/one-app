@@ -1,0 +1,156 @@
+/* ============================================================================
+   ONE App Lens — My Attendance page
+============================================================================ */
+
+.att-filter {
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  color: var(--lens-text);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.att-summary {
+  display: flex; gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.sum-pill {
+  display: flex; flex-direction: column;
+  padding: 12px 18px;
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-radius: 14px;
+  box-shadow: var(--lens-shadow);
+  min-width: 130px;
+}
+.sum-pill .lbl { font-size: 11px; color: var(--lens-text-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+.sum-pill .val { font-size: 22px; font-weight: 700; color: var(--lens-text); margin-top: 2px; }
+
+.att-list { display: flex; flex-direction: column; gap: 14px; }
+
+.att-day-card {
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: var(--lens-shadow);
+}
+.att-day-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--lens-border);
+}
+.att-day-name { font-size: 16px; font-weight: 600; color: var(--lens-text); }
+.att-day-date { font-size: 12px; color: var(--lens-text-3); margin-top: 2px; }
+.att-day-summary {
+  display: flex; gap: 8px; align-items: center;
+  font-size: 12px; color: var(--lens-text-2);
+}
+.att-day-summary .badge {
+  background: #ecfdf5; color: #166534;
+  border: 1px solid #a7f3d0;
+  padding: 3px 8px; border-radius: 12px; font-weight: 600;
+}
+body.lens-body:not(.day-theme) .att-day-summary .badge { background: rgba(16, 185, 129, 0.10); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+
+.att-session {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px dotted var(--lens-border);
+}
+.att-session:first-of-type { border-top: none; padding-top: 0; }
+@media (max-width: 720px) {
+  .att-session { grid-template-columns: 1fr; }
+}
+
+.sess-badge {
+  background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+  color: #78350f;
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.25);
+  flex-shrink: 0;
+}
+
+.event-box {
+  background: var(--lens-card-soft);
+  border: 1px solid var(--lens-border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex; gap: 12px;
+}
+.event-box.signin { border-left: 3px solid #22c55e; }
+.event-box.signout { border-left: 3px solid #3b82f6; }
+.event-box.pending { border-left: 3px solid #f59e0b; background: rgba(245, 158, 11, 0.05); }
+
+.event-selfie {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--lens-border);
+  flex-shrink: 0;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid var(--lens-card);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+}
+.event-selfie img { width: 100%; height: 100%; object-fit: cover; }
+.event-selfie.empty {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: var(--lens-text-3);
+}
+
+.event-detail { flex: 1; min-width: 0; }
+.event-kind {
+  font-size: 11px; color: var(--lens-text-3);
+  text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
+}
+.event-time {
+  font-size: 18px; font-weight: 700; color: var(--lens-text);
+  margin-top: 2px;
+  font-family: var(--mono), monospace;
+}
+.event-coord {
+  font-size: 11px; color: var(--lens-text-3);
+  margin-top: 4px;
+  font-family: var(--mono), monospace;
+  word-break: break-all;
+}
+.event-remarks {
+  font-size: 12px; color: var(--lens-text-2);
+  margin-top: 4px;
+  font-style: italic;
+}
+.event-map-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px;
+  color: #2563eb;
+  text-decoration: none;
+  margin-top: 6px;
+  font-weight: 500;
+}
+.event-map-link:hover { text-decoration: underline; }
+body.lens-body:not(.day-theme) .event-map-link { color: #60a5fa; }
+
+.att-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--lens-text-3);
+}
+.att-empty .ic { font-size: 48px; margin-bottom: 12px; }
+.att-empty .t { font-size: 16px; font-weight: 600; color: var(--lens-text); }
+.att-empty .s { font-size: 13px; margin-top: 4px; }
+
+/* Selfie lightbox */
+.lightbox-img {
+  max-width: 80vmin; max-height: 80vmin;
+  border-radius: 12px;
+  margin: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}

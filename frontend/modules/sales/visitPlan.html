@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Visit Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/visitPlan.css?v=2" />
+</head>
+<body>
+<div class="app-shell">
+  <aside id="sidebar"></aside>
+  <div class="main">
+    <div class="topbar">
+      <span class="page-title">Visit Plan</span>
+      <div class="topbar-actions">
+        <span id="roleTag" class="role-tag"></span>
+        <button class="btn btn-primary btn-sm" id="newVisitBtn">+ New Visit</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-4" id="dashCards"></div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="section-head">
+          <h2>Month-wise visits (last 6 months)</h2>
+          <span id="chartLoading" class="spinner" style="display:none;"></span>
+        </div>
+        <div id="chartWrap" class="chart-wrap">
+          <canvas id="visitChart"></canvas>
+        </div>
+      </div>
+      <div class="card" id="spBreakCard" style="margin-bottom:20px;display:none;">
+        <div class="section-head"><h2>This month — by salesperson</h2></div>
+        <div class="table-wrap">
+          <table id="spBreakTable">
+            <thead><tr>
+              <th>Salesperson</th><th>Name</th>
+              <th style="text-align:right;">Planned</th>
+              <th style="text-align:right;">Done</th>
+              <th style="text-align:right;">Pending</th>
+            </tr></thead>
+            <tbody id="spBreakBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head">
+          <h2>Visit records</h2>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <label style="font-size:12px;color:var(--text3);">Month</label>
+            <input type="month" id="monthFilter" class="form-input" style="width:150px;" title="Filter by entire month" />
+            <label style="font-size:12px;color:var(--text3);">Date</label>
+            <input type="date"  id="dateFilter"  class="form-input" style="width:155px;" title="Filter by a single day (overrides Month)" />
+            <select id="salesPersonFilter" class="form-input" style="width:160px;display:none;" title="Filter by Salesperson"><option value="">All Salespersons</option></select>
+            <select id="faePersonFilter" class="form-input" style="width:140px;display:none;" title="Filter by FAE"><option value="">All FAE</option></select>
+            <button id="clearFiltersBtn" class="btn btn-ghost btn-sm" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;" title="Reset all filters">✕ Clear Filter</button>
+            <button id="importBtn" class="btn btn-ghost btn-sm">Import Excel</button>
+            <input type="file" id="importFileInput" accept=".xlsx,.xls" style="display:none;" />
+            <button id="exportBtn" class="btn btn-ghost btn-sm">Export Excel</button>
+            <button id="refreshBtn" class="btn btn-ghost btn-sm">Refresh</button>
+          </div>
+        </div>
+        <div class="filters-row">
+          <div class="input-wrap search-flex">
+            <span class="input-icon">⌕</span>
+            <input id="searchInput" class="search-input" placeholder="Search customer, FSR, location…" />
+          </div>
+          <div class="filter-tabs">
+            <div class="filter-tab active" data-status="all">All</div>
+            <div class="filter-tab" data-status="pending">Pending</div>
+            <div class="filter-tab" data-status="done">Visited</div>
+          </div>
+        </div>
+        <div id="listLoading" class="loading-center"><div class="spinner"></div></div>
+        <div class="table-wrap">
+          <table id="visitTable" style="display:none;">
+            <thead><tr>
+              <th>Week</th><th>FSR</th><th>FAE</th><th>Visit Date</th>
+              <th>Customer</th><th>Application</th><th>Type</th><th>Agenda</th>
+              <th>Location</th><th>Contact Person</th><th>Contact Details</th>
+              <th>Visited?</th><th>Remark</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="visitBody"></tbody>
+          </table>
+        </div>
+        <div id="visitEmpty" class="empty" style="display:none;">
+          <div class="empty-icon">📅</div>
+          <div class="empty-text">No visit records found</div>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modalOverlay" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modalTitle">New Visit Plan</span>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Week <span style="color:var(--text3);font-weight:400;">(auto from date)</span></label><input type="text" id="fWeek" class="form-input" placeholder="e.g. Week 15" /></div>
+        <div class="form-group"><label>Visit Date <span class="req">*</span></label><input type="date" id="fVisitDate" class="form-input" /></div>
+        <div class="form-group"><label>FSR (Field Sales Rep) <span class="req" id="fsrReq" style="display:none;">*</span></label><input type="text" id="fFSR" class="form-input" placeholder="Name" /></div>
+        <div class="form-group"><label>FAE (Field Application Eng.) <span class="req" id="faeReq" style="display:none;">*</span></label><input type="text" id="fFAE" class="form-input" placeholder="Name" /></div>
+        <div class="form-group form-full" style="position:relative;">
+          <label>Customer Name <span class="req">*</span></label>
+          <input type="text" id="fCustomerName" class="form-input" placeholder="Type to search NAV customers, or enter a new name" autocomplete="off" />
+          <input type="hidden" id="fCustomerCode" />
+          <div id="vpCustList" class="vp-suggest" hidden></div>
+        </div>
+        <div class="form-group"><label>Application</label><input type="text" id="fApplication" class="form-input" placeholder="e.g. IoT, Automotive" /></div>
+        <div class="form-group">
+          <label>Customer Type</label>
+          <select id="fCustomerType" class="form-input">
+            <option value="">-- select --</option>
+            <option>OEM</option><option>EMS</option>
+            <option>Distributor</option><option>End User</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group form-full"><label>Visit Agenda <span class="req">*</span></label><textarea id="fVisitAgenda" class="form-input form-textarea" placeholder="Purpose of visit…"></textarea></div>
+        <div class="form-group form-full" style="position:relative;">
+          <label>Location <span style="color:var(--text3);font-weight:400;">(pick exact place — sets the geofence)</span></label>
+          <input type="text" id="fLocation" class="form-input" placeholder="Type a place / address and pick from suggestions" autocomplete="off" />
+          <div id="vpPlaceList" class="vp-suggest" hidden></div>
+          <div id="vpPlaceSet" class="vp-place-set" hidden>📍 Location set — geofence will be created/reused for this customer.</div>
+          <input type="hidden" id="fVisitLat" /><input type="hidden" id="fVisitLng" />
+          <input type="hidden" id="fPlaceId" /><input type="hidden" id="fAddr" />
+          <input type="hidden" id="fCity" /><input type="hidden" id="fState" /><input type="hidden" id="fPincode" />
+        </div>
+        <div class="form-group"><label>Contact Person <span class="form-required">*</span></label><input type="text" id="fContactPerson" class="form-input" placeholder="Name (required — head will verify)" required /></div>
+        <div class="form-group form-full"><label>Contact Details</label><input type="text" id="fContactDetails" class="form-input" placeholder="Phone / Email (optional)" /></div>
+        <div class="form-group form-full">
+          <label class="toggle-label">
+            <span>Visit Done?</span>
+            <label class="toggle-switch"><input type="checkbox" id="fVisitDone" /><span class="toggle-slider"></span></label>
+          </label>
+        </div>
+        <div class="form-group form-full"><label>Remark</label><textarea id="fMOM" class="form-input form-textarea form-textarea-lg" placeholder="Remarks, follow-up notes, action items…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="modalCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="modalSaveBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="momOverlay" class="modal-overlay" style="display:none;">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span>Remark</span>
+      <button class="modal-close" id="momClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="momText" style="white-space:pre-wrap;color:var(--text2);line-height:1.7;font-size:13.5px;"></p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="/shared/modules.js"></script>
+<script src="/shared/common.js"></script>
+<script src="/shared/mobile-menu.js"></script>
+<script src="./js/visitPlan.js?v=5"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Geofences</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/journey.css?v=1" />
+  <link rel="stylesheet" href="./css/geofence.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Geofences</span>
+        <div class="topbar-actions">
+          <span class="chip"><span class="chip-dot" style="background:#22c55e"></span><span id="gfCount">0 fences</span></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="gf-shell">
+
+          <!-- Top toolbar -->
+          <div class="gf-toolbar">
+            <div class="gf-search">
+              <span class="gf-search-ic">🔍</span>
+              <input type="text" id="gfSearch" placeholder="Search by name, customer code or city…" />
+            </div>
+            <select id="gfKindFilter" class="att-filter">
+              <option value="">All kinds</option>
+              <option value="customer">Customer</option>
+              <option value="office">Office</option>
+              <option value="warehouse">Warehouse</option>
+              <option value="site">Site</option>
+            </select>
+            <button class="gf-add-btn" id="gfAddBtn" type="button" onclick="startAddMode()">+ Add Geofence</button>
+          </div>
+
+          <!-- Place-mode hint -->
+          <div class="gf-hint" id="gfHint" style="display:none;">
+            <span class="hint-icon">📍</span>
+            Click anywhere on the map to set the geofence center.
+            <button class="gf-cancel" onclick="cancelAddMode()">Cancel</button>
+          </div>
+
+          <!-- Map -->
+          <div id="gfMap" class="journey-map"></div>
+
+          <!-- Fence cards grid -->
+          <div class="gf-grid" id="gfGrid">
+            <div class="holiday-skel" style="height:120px"></div>
+            <div class="holiday-skel" style="height:120px"></div>
+            <div class="holiday-skel" style="height:120px"></div>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ Add / Edit modal ═══════════════ -->
+  <div class="lens-modal" id="gfModal" hidden>
+    <div class="lens-modal-card gf-modal-card">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeGfModal()" aria-label="Close">←</button>
+        <span id="gfModalTitle">New Geofence</span>
+      </div>
+
+      <div class="gf-form">
+
+        <!-- ─── PRIMARY: address search via Google Places (works for any customer — new OR existing) ─── -->
+        <div class="kv">
+          <div class="kv-label">📍 Search address / place <span class="lens-sub">— works for new + existing customers</span></div>
+          <div class="gf-autocomplete">
+            <input type="text" id="gfAddrSearch" placeholder="e.g. Atomberg Technologies Hinjawadi, or RETAILER Electricals Pune" autocomplete="off" />
+            <div id="gfAddrList" class="gf-suggest-list" hidden></div>
+          </div>
+          <div class="lens-sub" id="gfAddrHint" style="margin-top:4px;">Google Places autocomplete. Type at least 2 letters → pick a suggestion → lat/lng + name + city + pincode auto-fill.</div>
+        </div>
+
+        <div class="kv">
+          <div class="kv-label">Name *</div>
+          <input type="text" id="gfName" placeholder="e.g. RETAILER Industries — Pune Plant" />
+        </div>
+
+        <div class="kv-row">
+          <div class="kv">
+            <div class="kv-label">Kind</div>
+            <select id="gfKind">
+              <option value="customer">🏢 Customer</option>
+              <option value="office">🏛️ Office</option>
+              <option value="warehouse">📦 Warehouse</option>
+              <option value="site">🚧 Site</option>
+            </select>
+          </div>
+          <div class="kv">
+            <div class="kv-label">Company</div>
+            <select id="gfCompany">
+              <option value="">Both</option>
+              <option value="COMPANYA">COMPANYA</option>
+              <option value="CompanyB">Company B</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="kv-row">
+          <div class="kv">
+            <div class="kv-label">City</div>
+            <input type="text" id="gfCity" placeholder="—" />
+          </div>
+          <div class="kv">
+            <div class="kv-label">Pincode</div>
+            <input type="text" id="gfPincode" placeholder="—" />
+          </div>
+        </div>
+
+        <div class="kv">
+          <div class="kv-label">Address</div>
+          <input type="text" id="gfAddress" placeholder="Street, building, area" />
+        </div>
+
+        <!-- ─── OPTIONAL: link to existing NAV customer (skip for new customers / prospects) ─── -->
+        <details class="gf-nav-link" style="margin: 14px 0 6px; padding: 8px 0; border-top: 1px dashed var(--border);">
+          <summary style="cursor:pointer; font-size:12px; color:var(--text2); font-weight:500; padding:6px 0;">
+            🔗 Link to existing NAV customer <span class="lens-sub">(optional — skip for new customers / prospects)</span>
+          </summary>
+          <div class="kv" style="margin-top:8px;">
+            <div class="kv-label">Search NAV Customer master</div>
+            <div class="gf-autocomplete">
+              <input type="text" id="gfCustSearch" placeholder="Start typing customer name or code…" autocomplete="off" />
+              <div id="gfCustList" class="gf-suggest-list" hidden></div>
+            </div>
+            <div class="lens-sub" style="margin-top:4px;">Pick a NAV customer to auto-fill its Customer Code. Visit auto-confirmation matches on EITHER Customer Code OR Name, so leave this blank for new customers.</div>
+          </div>
+          <div class="kv">
+            <div class="kv-label">Customer Code</div>
+            <input type="text" id="gfCustCode" placeholder="(auto-filled from NAV search above, or leave blank)" />
+          </div>
+        </details>
+
+        <div class="kv">
+          <div class="kv-label">Center (lat, lng) <span class="lens-sub">— from Google Places or map click</span></div>
+          <div class="kv-value coord-display" id="gfCoord">—</div>
+        </div>
+
+        <div class="kv">
+          <div class="kv-label">Radius <span class="lens-sub" id="gfRadLabel">(100 m)</span></div>
+          <input type="range" id="gfRadius" min="20" max="1000" step="10" value="100" oninput="onRadiusChange()" class="scrub" />
+          <div class="rad-marks"><span>20m</span><span>250m</span><span>500m</span><span>750m</span><span>1km</span></div>
+        </div>
+
+        <div class="kv">
+          <div class="kv-label">Auto-confirm visit after <span class="lens-sub">(minutes of dwell)</span></div>
+          <input type="number" id="gfDwell" min="1" max="240" value="10" />
+        </div>
+
+        <div class="gf-actions">
+          <button class="gf-delete-btn" id="gfDeleteBtn" type="button" onclick="deleteFence()" style="display:none;">🗑 Delete</button>
+          <div style="flex:1;"></div>
+          <button class="selfie-btn" type="button" onclick="closeGfModal()">Cancel</button>
+          <button class="sign-action-btn gf-save-btn" type="button" onclick="saveFence()">Save</button>
+        </div>
+
+        <div class="sign-error" id="gfError" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/geofence.js?v=4"></script>
+</body>
+</html>

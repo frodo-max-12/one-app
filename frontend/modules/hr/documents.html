@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Documents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/documents.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Documents</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <button class="btn btn-primary hr-only" type="button" onclick="openUpload()" style="display:none;">+ Upload Document</button>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="docs-wrap">
+
+          <!-- Search + Filter -->
+          <div class="docs-toolbar">
+            <input type="search" id="docSearch" placeholder="Search title, description, file name…" oninput="loadDocs()" />
+            <div class="docs-chips" id="catChips">
+              <button class="chip active" data-cat=""             onclick="setCategory('')">All</button>
+              <button class="chip"        data-cat="policy"       onclick="setCategory('policy')">📜 Policies</button>
+              <button class="chip"        data-cat="form"         onclick="setCategory('form')">📋 Forms</button>
+              <button class="chip"        data-cat="handbook"     onclick="setCategory('handbook')">📘 Handbooks</button>
+              <button class="chip"        data-cat="announcement" onclick="setCategory('announcement')">📢 Announcements</button>
+              <button class="chip"        data-cat="other"        onclick="setCategory('other')">📄 Other</button>
+              <label class="chip hr-only chip-toggle" style="display:none;">
+                <input type="checkbox" id="showArchived" onchange="loadDocs()" />
+                Show archived
+              </label>
+            </div>
+          </div>
+
+          <!-- Card grid -->
+          <div class="docs-grid" id="docsGrid">
+            <div class="docs-empty">Loading…</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ UPLOAD MODAL ════════ -->
+  <div class="lens-modal" id="uploadModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeUpload()" aria-label="Close">←</button>
+        <span id="uploadModalTitle">Upload Document</span>
+      </div>
+
+      <form id="uploadForm" onsubmit="event.preventDefault(); submitUpload();">
+        <label class="docs-field">
+          <span>Title *</span>
+          <input type="text" id="upTitle" maxlength="200" placeholder="e.g. Leave Policy 2026" required />
+        </label>
+        <label class="docs-field">
+          <span>Description</span>
+          <textarea id="upDescription" rows="3" placeholder="Short summary shown on the card (optional)"></textarea>
+        </label>
+        <div class="docs-row">
+          <label class="docs-field">
+            <span>Category *</span>
+            <select id="upCategory">
+              <option value="policy">Policy</option>
+              <option value="form">Form</option>
+              <option value="handbook">Handbook</option>
+              <option value="announcement">Announcement</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label class="docs-field docs-checkbox">
+            <input type="checkbox" id="upPinned" /> <span>Pin to top</span>
+          </label>
+        </div>
+        <label class="docs-field docs-fileslot">
+          <span id="upFileLabel">Choose file… (max 25 MB)</span>
+          <input type="file" id="upFile" onchange="onFilePick()" required />
+        </label>
+
+        <button class="btn btn-primary btn-wide" type="submit">Upload</button>
+        <div class="docs-err" id="upErr" style="display:none;"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ════════ EDIT MODAL ════════ -->
+  <div class="lens-modal" id="editModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeEdit()" aria-label="Close">←</button>
+        <span>Edit Document</span>
+      </div>
+
+      <input type="hidden" id="edId" />
+      <label class="docs-field">
+        <span>Title</span>
+        <input type="text" id="edTitle" maxlength="200" />
+      </label>
+      <label class="docs-field">
+        <span>Description</span>
+        <textarea id="edDescription" rows="3"></textarea>
+      </label>
+      <div class="docs-row">
+        <label class="docs-field">
+          <span>Category</span>
+          <select id="edCategory">
+            <option value="policy">Policy</option>
+            <option value="form">Form</option>
+            <option value="handbook">Handbook</option>
+            <option value="announcement">Announcement</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label class="docs-field docs-checkbox">
+          <input type="checkbox" id="edPinned" /> <span>Pin to top</span>
+        </label>
+      </div>
+      <button class="btn btn-primary btn-wide" type="button" onclick="submitEdit()">Save Changes</button>
+      <div class="docs-err" id="edErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=8"></script>
+  <script src="/shared/common.js?v=8"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/documents.js?v=1"></script>
+</body>
+</html>

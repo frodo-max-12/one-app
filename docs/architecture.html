@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ONE App — System Architecture</title>
+<style>
+  :root {
+    --ink:#1f2a24; --muted:#5f6b64; --line:#e2dccf; --bg:#fbf8f2; --card:#fffdf9;
+    --green:#1b5e20; --green-2:#2e7d32; --green-soft:#e7f0e4;
+    --orange:#b7410e; --plum:#6b21a8; --slate:#334e68; --slate-soft:#e6ecf1; --gold:#8a5a00;
+  }
+  * { box-sizing:border-box; margin:0; }
+  body { font:14px/1.5 "Avenir Next","Helvetica Neue",Arial,sans-serif; background:var(--bg); color:var(--ink); padding-bottom:60px; }
+  h1, h2, h3 { font-family:Charter,"Iowan Old Style",Georgia,"Times New Roman",serif; }
+  header { padding:28px 36px 18px; background:var(--card); border-bottom:3px double var(--green); }
+  header h1 { font-size:30px; line-height:1; } header h1 span { color:var(--green); font-style:italic; font-weight:400; }
+  header p.sub { color:var(--muted); margin-top:8px; max-width:900px; }
+  .contract { margin-top:12px; max-width:780px; font-size:13px; background:var(--bg); border:1px solid var(--line);
+      border-left:5px solid var(--green); padding:9px 14px; }
+  .contract b { font-family:Charter,Georgia,serif; color:var(--green); }
+  main { max-width:1500px; margin:0 auto; padding:22px 36px; }
+  .layout { display:grid; grid-template-columns:minmax(0,1fr) 390px; gap:20px; align-items:start; }
+  @media (max-width:1100px) { .layout { grid-template-columns:1fr; } }
+  .lane { border:1px solid var(--line); background:var(--card); padding:14px 16px; margin-bottom:14px; }
+  .lanehead { display:flex; align-items:baseline; gap:12px; margin-bottom:12px; }
+  .lanehead h2 { font-size:16px; } .lanehead .rule { flex:1; height:1px; background:var(--line); }
+  .lanehead .sub { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+  .lane.lc h2 { color:var(--slate); } .lane.mo h2 { color:var(--green); } .lane.ra h2 { color:var(--orange); }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:stretch; }
+  .stage { position:relative; flex:1 1 150px; min-width:148px; background:var(--bg); border:1px solid var(--line);
+           border-left:4px solid var(--slate); padding:11px 12px 10px 13px; border-radius:2px; cursor:pointer; transition:all .15s; }
+  .stage:hover { background:#fff; box-shadow:0 4px 16px rgba(31,42,36,.10); transform:translateY(-1px); }
+  .stage.active { background:#fff; box-shadow:0 0 0 3px var(--green-soft); }
+  .stage .num { position:absolute; top:-1px; right:-1px; min-width:22px; height:20px; padding:0 6px; background:var(--slate); color:#fff;
+      font-family:Charter,Georgia,serif; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; border-radius:0 0 0 4px; }
+  .stage h3 { font-size:14.5px; margin-bottom:4px; padding-right:24px; } .stage p { font-size:11.5px; color:var(--muted); }
+  .stage .mod { display:block; font-family:"SF Mono",Menlo,ui-monospace,monospace; font-size:10px; color:var(--slate); margin-top:6px; }
+  .lane.mo .stage { border-left-color:var(--green); } .lane.mo .stage .num { background:var(--green); } .lane.mo .stage .mod { color:var(--green-2); }
+  .lane.ra .stage { border-left-color:var(--gold); } .lane.ra .stage .num { background:var(--gold); } .lane.ra .stage .mod { color:var(--gold); }
+  .lane.ra .stage.notif { border-left-color:var(--plum); } .lane.ra .stage.notif .num { background:var(--plum); } .lane.ra .stage.notif .mod { color:var(--plum); }
+  .lane.ra .stage.safe { border-left-color:var(--orange); } .lane.ra .stage.safe .num { background:var(--orange); } .lane.ra .stage.safe .mod { color:var(--orange); }
+  .between { align-self:center; flex:0 0 auto; width:16px; height:1.5px; background:#c9c1b0; position:relative; }
+  .between::after { content:""; position:absolute; right:-1px; top:-3px; width:7px; height:7px; border-radius:50%; background:#c9c1b0; }
+  .panel { position:sticky; top:16px; border:1px solid var(--line); background:var(--card); padding:18px 20px; min-height:340px; border-top:4px solid var(--green); }
+  .panel h2 { font-size:19px; color:var(--green); margin-bottom:2px; }
+  .panel .role { font-size:12.5px; color:var(--muted); font-style:italic; font-family:Charter,Georgia,serif; margin-bottom:10px; }
+  .panel .mods { font-family:"SF Mono",Menlo,ui-monospace,monospace; font-size:11px; background:var(--bg); border:1px solid var(--line); padding:7px 10px; margin-bottom:12px; white-space:pre-line; }
+  .panel h4 { font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin:12px 0 5px; }
+  .panel ul { padding-left:17px; } .panel li { font-size:12.8px; margin-bottom:5px; } .panel li::marker { color:var(--green); }
+  .strips { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; margin-top:6px; }
+  .strip { border:1px solid var(--line); background:var(--card); padding:14px 18px; }
+  .strip h3 { font-size:14px; margin-bottom:8px; } .strip li { font-size:13px; margin:4px 0 0 16px; } .strip li::marker { color:var(--green); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; } .chip { font-size:11.5px; padding:3px 9px; border-radius:2px; background:var(--slate-soft); color:var(--slate); border:1px solid #d3dce5; }
+  footer { text-align:center; color:var(--muted); font-size:12px; margin-top:22px; font-family:Charter,Georgia,serif; font-style:italic; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ONE <span>App</span></h1>
+  <p class="sub">One platform for every department, layered on the company's ERP. One login, one codebase, two legal entities. Click any box for module-level detail.</p>
+  <div class="contract"><b>The ERP contract.</b> The ERP database is strictly read-only — SELECT with NOLOCK, never a write. Everything the organisation authors itself lives in a writable companion database, with an audit stamp on every row.</div>
+</header>
+<main><div class="layout"><div>
+
+<div class="lane lc"><div class="lanehead"><h2>Request lifecycle</h2><span class="rule"></span><span class="sub">every call</span></div><div class="row">
+  <div class="stage" data-k="login"><div class="num">1</div><h3>JWT login</h3><p>Role + company codes in the token · offline login for field staff</p><span class="mod">auth.js · login.js</span></div>
+  <div class="between"></div>
+  <div class="stage" data-k="company"><div class="num">2</div><h3>Company resolution</h3><p>One route file, two entities, two currencies</p><span class="mod">shared/company.js</span></div>
+  <div class="between"></div>
+  <div class="stage" data-k="scope"><div class="num">3</div><h3>Role + scope</h3><p>Codes become an IN-list · no codes, no rows</p><span class="mod">auth.js · roleScope.js</span></div>
+  <div class="between"></div>
+  <div class="stage" data-k="router"><div class="num">4</div><h3>Module router</h3><p>11 routers · HR fans to 27</p><span class="mod">modules/*/index.js</span></div>
+  <div class="between"></div>
+  <div class="stage" data-k="pools"><div class="num">5</div><h3>Two pools</h3><p>ERP read-only · App read/write + audit</p><span class="mod">db.js · audit.js</span></div>
+  <div class="between"></div>
+  <div class="stage" data-k="response"><div class="num">6</div><h3>Response</h3><p>Totals over the full filtered set</p><span class="mod">res.json</span></div>
+</div></div>
+
+<div class="lane mo"><div class="lanehead"><h2>Modules</h2><span class="rule"></span><span class="sub">by department</span></div><div class="row">
+  <div class="stage" data-k="sales"><div class="num">S</div><h3>Sales</h3><p>AR, billing, inventory, plans, PDC, credit notes, budgets, PDFs</p><span class="mod">modules/sales/</span></div>
+  <div class="stage" data-k="hr"><div class="num">H</div><h3>HR · Lens</h3><p>Geo-attendance, auto-detected visits, payroll, Form 16, letters</p><span class="mod">modules/hr/</span></div>
+  <div class="stage" data-k="warehouse"><div class="num">W</div><h3>Warehouse</h3><p>ASN wizard, carton stock, ledgers, ERP enrichment</p><span class="mod">modules/warehouse/</span></div>
+  <div class="stage" data-k="store"><div class="num">St</div><h3>Store</h3><p>OCR audit scanner against ERP inventory</p><span class="mod">modules/store/</span></div>
+  <div class="stage" data-k="product"><div class="num">P</div><h3>Product</h3><p>DC tracker, PM chart, FAE assignment</p><span class="mod">modules/product/</span></div>
+  <div class="stage" data-k="notif"><div class="num">N</div><h3>Notifications</h3><p>One inbox, bell, push, WhatsApp, ERP poll</p><span class="mod">modules/notifications/</span></div>
+</div></div>
+
+<div class="lane ra"><div class="lanehead"><h2>Rails</h2><span class="rule"></span><span class="sub">shared by every module</span></div><div class="row">
+  <div class="stage" data-k="cron"><div class="num">⏰</div><h3>Cron engine</h3><p>Reminders, payment advice, scans</p><span class="mod">services/reminderCron.js</span></div>
+  <div class="stage notif" data-k="msg"><div class="num">✉</div><h3>Messaging</h3><p>WhatsApp Cloud API + SMTP</p><span class="mod">whatsapp.js · mailer.js</span></div>
+  <div class="stage" data-k="pdf"><div class="num">📄</div><h3>PDF engine</h3><p>Six document types, server-rendered</p><span class="mod">services/*Pdf.js</span></div>
+  <div class="stage" data-k="excel"><div class="num">▦</div><h3>Excel in / out</h3><p>Fuzzy import, styled export</p><span class="mod">xlsx-js-style</span></div>
+  <div class="stage notif" data-k="mobile"><div class="num">📱</div><h3>Mobile shell</h3><p>Capacitor, background GPS, OCR</p><span class="mod">mobile-app/</span></div>
+  <div class="stage safe" data-k="guard"><div class="num">🛡</div><h3>Guard rails</h3><p>ERP never written, audit everywhere</p><span class="mod">auth.js · audit.js</span></div>
+</div></div>
+
+<div class="strips">
+  <div class="strip"><h3>The human's whole job, by role</h3><ul>
+    <li><b>Field rep:</b> sign in once; visits are detected, punches are selfies, tomorrow is planned.</li>
+    <li><b>Sales head:</b> dashboard → outstanding → one-click reminder → payment advice arrives on its own.</li>
+    <li><b>HR:</b> review anomalies, approve leave, run payroll, issue the letter.</li>
+    <li><b>Warehouse:</b> ASN wizard → mark received → stock updates itself.</li></ul></div>
+  <div class="strip"><h3>Stack</h3><div class="chips">
+    <span class="chip">Node.js</span><span class="chip">Express 5</span><span class="chip">SQL Server · 2 pools</span><span class="chip">JWT</span>
+    <span class="chip">node-cron</span><span class="chip">pdfkit</span><span class="chip">xlsx</span><span class="chip">WhatsApp Cloud API</span>
+    <span class="chip">Nodemailer</span><span class="chip">FCM</span><span class="chip">Capacitor 6</span><span class="chip">Vanilla JS PWA</span></div></div>
+</div>
+</div>
+
+<aside class="panel" id="panel">
+  <h2>ONE App</h2><div class="role">Click any box on the left.</div>
+  <h4>What this is</h4>
+  <ul><li>A read-mostly business platform over a NAV-style ERP, with a writable companion database for everything the organisation authors itself.</li>
+  <li>Six live departments share one login, one role model, one company switcher and one set of rails.</li>
+  <li>Field staff run it inside a thin Android shell that loads the live site, so UI changes ship without an APK rebuild.</li></ul>
+</aside>
+</div>
+<footer>ONE App · static hero image: docs/architecture.png · source: docs/architecture-static.html</footer>
+</main>
+
+<script>
+const D = {
+login:{t:"JWT login",r:"Who you are, and which company codes you carry",m:"backend/auth.js\nfrontend/shared/login.js · common.js",p:[
+ "login() reads the app-DB user table and signs {id, username, role, name, company codes, email}. Role is lowercased and trimmed at login and in every helper, so checks are case-insensitive.",
+ "Remember-me issues a 30-day token; otherwise 8 hours.",
+ "The frontend sends the raw token in Authorization and the company twice (query param + X-Company header). Both 401 and 403 clear auth and redirect to the login page.",
+ "Offline login caches PBKDF2(password, username) plus the JWT so a field rep with no signal can still sign in and start tracking."]},
+company:{t:"Company resolution",r:"One codebase, two legal entities",m:"backend/shared/company.js",p:[
+ "A COMPANIES map holds {code, label, ERP table prefix, currency, locale, symbol, from-name} per entity.",
+ "getCompany(req) resolves ?company= → X-Company → default, guards an array query value, and throws 400 on an unknown code.",
+ "The prefix is spliced verbatim into ERP table names. That single trick is what lets one route file serve both companies instead of two.",
+ "getCompanyByCode exists for cron jobs and services that have no request object."]},
+scope:{t:"Role + scope",r:"Attribute-based row visibility",m:"backend/auth.js\nbackend/shared/roleScope.js",p:[
+ "Role buckets: full access, heads, sales, HR, FAE, warehouse, store — plus is* helpers. isAnyHead() matches \\bhead\\b in the role and requires company codes, so multi-word titles are caught.",
+ "Team scoping is by codes, not role strings. buildScopeClause splits a user's codes on '/' into an IN (@sp0…) list. Full access → no clause. No codes → AND 1=0, sees nothing.",
+ "A head's stored codes already carry the team union, so heads see team rows without special-casing.",
+ "authenticate rejects any token with no codes unless the role is privileged, which retires stale tokens automatically."]},
+router:{t:"Module router",r:"Express 5, mounted per department",m:"backend/server.js\nbackend/modules/*/index.js",p:[
+ "Pipeline: CORS allowlist → JSON body up to 8 MB (selfie data-URIs) → no-cache on assets → /health → /api/auth/login → 11 routers → static + /uploads → page routes → error handler.",
+ "Live modules: sales, hr, warehouse, store, product, notifications. Placeholders: csr, account, purchase, workflow, common, fae.",
+ "Express 5 rule enforced everywhere: /:id routes are guarded with /^\\d+$/ and literal paths (/suggest, /import, /export, /bulk-*) are declared first, or they get hijacked."]},
+pools:{t:"Two pools",r:"Read the ERP, write the app database",m:"backend/db.js\nbackend/core/middleware/audit.js",p:[
+ "Two lazy-singleton mssql pools. The ERP pool wraps every query with SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED so the app never blocks ERP users posting, and is never blocked by them.",
+ "useUTC:false because the server's GETDATE() is local time; without it every datetime re-offsets.",
+ "The app pool is read/write; audit.stampCreate / stampUpdate set CreatedBy, UpdatedBy and timestamps on every write.",
+ "Cross-database joins need explicit COLLATE clauses because the two databases use different collations. The pool promise resets to null on failure so the next call retries."]},
+response:{t:"Response",r:"Numbers that survive pagination",m:"res.json({rows, totals, currency, symbol, company})",p:[
+ "Paged lists carry COUNT(*) OVER() and SUM(...) OVER() so stat cards reflect the full filtered set, not the visible 15–50 rows.",
+ "A stat card and its click-through use the same CASE expression (?bucket=) so counts never drift from filters.",
+ "Dates use a three-part round trip (CONVERT in SELECT, string-first parsing on POST) to avoid ±1-day shifts across time zones.",
+ "PDF downloads send Authorization and X-Company directly via fetch. The error handler returns 500 {detail}."]},
+sales:{t:"Sales",r:"ERP reporting plus everything sales authors itself",m:"backend/modules/sales/ — 13 sub-routers\nfrontend/modules/sales/",p:[
+ "ERP reads: dashboard (outstanding + aging, top debtors, SO KPI, 30-day billing), customers with a live detailed ledger, billing with FIFO cost, inventory by mode, SO backlog.",
+ "App writes: visit plans (with Excel import and auto-geofence), beat plans with a month generator, PDC cheque tracker with 8 stat cards, credit notes, MOM action points, budget vs actual.",
+ "AR is always computed as SUM(Amount) over open detailed ledger entries, never read from a 'remaining' column. Applied invoices come from a forward + reverse ledger union because the apply link sits on whichever side initiated.",
+ "Tax invoice, credit memo and payment advice PDFs stream straight from the customer ledger modal."]},
+hr:{t:"HR · Lens",r:"An in-house replacement for geo-attendance and HRMS tools",m:"backend/modules/hr/ — 27 sub-routers, 4 services\nfrontend/modules/hr/ · lens-tracker.js",p:[
+ "The mobile shell posts battery-adaptive GPS pings while a session is open; offline pings burst to /location/batch (≤500).",
+ "Every ping inserts a row and fire-and-forgets three detectors: visitDetector (geofence dwell opens, closes and confirms visits; 15-minute unknown stops), attendanceCompliance (lunch window, auto sign-out outside the office geofence past expected sign-out), anomalyDetector.",
+ "Journeys are road-snapped and cached per day. Visibility follows a scope ladder: self → team head → any head by codes → lens admin.",
+ "HRMS: multi-session attendance, leave and regularisation workflows, 9-tab employee profiles, payroll runs with payslips and YTD, IT declaration with proofs, Form 16, letters with an issued-PDF audit, helpdesk, engage feed, document library."]},
+warehouse:{t:"Warehouse",r:"Inbound, stock and outbound with ERP enrichment",m:"backend/modules/warehouse/\nfrontend/modules/warehouse/ · _excel.js",p:[
+ "Purchase list is app-first, then one batched ERP enrichment attaches supplier, item, make, quantity and rate — falling back to posted receipts when the ERP has closed the PO.",
+ "The 2-step ASN wizard keys a cart by PoNo::LineNumber, assigns carton numbers, and tracks split cartons via SplitSeq on a composite key. Received date is status-gated.",
+ "Marking Received mirrors rows into stock idempotently. Stock view = tracked cartons UNION untracked on-hand from the ERP, with aging.",
+ "Cheque and expense ledgers are pure app-DB. Excel import auto-detects the header row, fuzzy-matches columns and supports ?wipe=1."]},
+store:{t:"Store",r:"Camera audit for a retail store's stock room",m:"backend/modules/store/routes/\nfrontend/modules/store/app.js",p:[
+ "Role-gated scanner. On-device ML Kit OCR is primary, a cloud OCR is the fallback; it parses model, code, quantity per box and brand.",
+ "Lookup resolves the full code, then a digits-only fallback, against ERP items and remaining quantity.",
+ "Outward scans are stored negative so net per item is a plain sum. Edits re-sign the total; deletes are soft with a remark. Photos land in uploads/store/."]},
+product:{t:"Product",r:"Design-conversion tracking",m:"backend/modules/product/routes/dc.js\nfrontend/modules/product/",p:[
+ "A DC file tracker maps product lines to product managers and regional field engineers, with a PM chart and per-line assignment.",
+ "The product head and admin see every PM's lines and can reassign; assistants are locked to their own.",
+ "Cross-references the ERP inquiry number; bulk feed via an Excel template."]},
+notif:{t:"Notifications",r:"One inbox, every module, every device",m:"backend/modules/notifications/\nbackend/services/notify.js",p:[
+ "Every module writes to a single notification table; a bell with an unread badge sits on every page.",
+ "Push tokens are stored per device; WhatsApp escalation is optional per trigger.",
+ "Three triggers: a daily scan (visits due, overdue AR, lapsed cheques, action points due), a 20-minute ERP poll that baselines silently on first run (invoice created, payment received → the salesperson), and in-app events."]},
+cron:{t:"Cron engine",r:"Two independent schedules, Asia/Kolkata",m:"backend/services/reminderCron.js · node-cron",p:[
+ "Monthly consolidated statement by email; daily stage-based WhatsApp reminders. decideStage() is the per-day trigger (pre-due → due → overdue → follow-up); currentBucket() is grouping only.",
+ "Up to three passes per company per run. The payment-advice pass finds new ERP receipts and acknowledges each with a PDF, idempotent on (company, entry number).",
+ "Per-channel test modes write synthetic TEST- ids that stats exclude, so a dry run never pollutes the numbers."]},
+msg:{t:"Messaging",r:"WhatsApp Cloud API direct, plus SMTP",m:"backend/shared/whatsapp.js\nbackend/services/mailer.js",p:[
+ "sendTemplate, sendTemplateWithDocument, uploadMedia, sendText, plus phone normalisers.",
+ "The CC chain team-scopes any head role to its codes; admin is global. Recipients are deduped by phone, keeping the earliest.",
+ "Mail carries per-company From, an auto-footer injected at send time, and RFC threading headers so replies land in the right thread."]},
+pdf:{t:"PDF engine",r:"Six document types, all server-rendered",m:"backend/services/invoicePdf.js · creditMemoPdf.js · paymentAdvicePdf.js\npayslipPdf.js · form16Pdf.js · letterPdf.js",p:[
+ "Tax invoice, credit memo (matching the ERP's own report layout), payment advice (streamed on request, buffered for the cron), payslip, Form 16 Part A/B, HR letters.",
+ "pdfkit's Helvetica has no rupee glyph, so currency prints as the ISO code and symbols fall back to ASCII."]},
+excel:{t:"Excel in / out",r:"Bulk feeds without a data team",m:"multer · xlsx · xlsx-js-style\nimport-templates/",p:[
+ "Import auto-detects the header row (skipping annotation rows), fuzzy-matches columns, and supports a wipe-then-load mode.",
+ "Export issues a fresh limit=10000 fetch rather than reusing the visible page, and renders merged cells for grouped rows.",
+ "Six ready templates cover the bulk feeds: DC file, sales budget, booking actuals, cheques in, visit plan, beat plan."]},
+mobile:{t:"Mobile shell",r:"Capacitor 6, loading the live site",m:"mobile-app/ · capacitor.config.json",p:[
+ "A thin WebView shell points at the deployed site, so CSS, JS and page changes ship through the web server with no APK rebuild. Rebuild only for plugins, permissions, app id or icon.",
+ "Native plugins: background geolocation as a foreground service (with the legally required persistent notification), geolocation, camera, device, filesystem, share, ML Kit text recognition.",
+ "Frontend code calls native plugins only after detecting window.Capacitor and falls back to browser APIs otherwise."]},
+guard:{t:"Guard rails",r:"The things that never happen",m:"auth.js · audit.js · SQL Files/",p:[
+ "The ERP is never written. Every app write carries audit stamps.",
+ "401 and 403 both log the user out. Every /:id route is guarded. Scoping is by codes, never by role strings.",
+ "Migrations are idempotent and add-only: IF OBJECT_ID IS NULL, IF NOT EXISTS sys.columns, never DROP, run manually. Columns added by later migrations are detected at query time so a partially migrated database does not crash.",
+ "Messaging has per-channel test modes and send caps."]}
+};
+const panel=document.getElementById('panel');
+document.querySelectorAll('.stage').forEach(s=>s.addEventListener('click',()=>{
+  document.querySelectorAll('.stage').forEach(x=>x.classList.remove('active')); s.classList.add('active');
+  const d=D[s.dataset.k]; if(!d) return;
+  panel.innerHTML=`<h2>${d.t}</h2><div class="role">${d.r}</div><div class="mods">${d.m}</div><h4>How it works</h4><ul>${d.p.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  if(window.innerWidth<1100) panel.scrollIntoView({behavior:'smooth',block:'start'});
+}));
+</script>
+</body>
+</html>

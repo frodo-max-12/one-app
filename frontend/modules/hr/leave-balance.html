@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Leave Balance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/leave.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Leave Balance</span>
+        <div class="topbar-actions">
+          <div class="emp-picker-wrap" id="empPickerWrap" style="display:none;">
+            <label class="emp-picker-label" for="userPicker">👤 Employee</label>
+            <select id="userPicker" class="emp-picker">
+              <option value="">Loading…</option>
+            </select>
+          </div>
+          <a href="/modules/hr/leave-apply.html" class="op-manage-btn" style="text-decoration:none;">+ Apply for Leave</a>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="leave-shell">
+          <h2 id="balHeading" style="font-size:15px; color:var(--lens-text-2); font-weight:600;">FY 2026-27 — your leave balance</h2>
+          <div id="balGrid" class="bal-grid">
+            <div class="holiday-skel" style="height:130px;"></div>
+            <div class="holiday-skel" style="height:130px;"></div>
+            <div class="holiday-skel" style="height:130px;"></div>
+            <div class="holiday-skel" style="height:130px;"></div>
+          </div>
+
+          <h2 id="grantsHeading" style="font-size:15px; color:var(--lens-text-2); font-weight:600; margin-top:20px;">Grants & adjustments</h2>
+          <div id="grantsList" class="req-list" style="margin-bottom:20px;">
+            <div class="holiday-skel" style="height:60px;"></div>
+          </div>
+
+          <h2 id="appsHeading" style="font-size:15px; color:var(--lens-text-2); font-weight:600; margin-top:20px;">My recent applications</h2>
+          <div id="reqList" class="req-list">
+            <div class="holiday-skel" style="height:80px;"></div>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/leave-balance.js?v=1"></script>
+</body>
+</html>

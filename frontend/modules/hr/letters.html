@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Letters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/payroll.css?v=1" />
+  <link rel="stylesheet" href="./css/letters.css?v=3" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Letters</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="pr-wrap">
+
+          <div class="ps-tabs">
+            <button class="tab-btn active" data-tab="generate" onclick="switchTab('generate')">📝 Generate</button>
+            <button class="tab-btn"        data-tab="templates" onclick="switchTab('templates')">📋 Templates</button>
+            <button class="tab-btn"        data-tab="issued"   onclick="switchTab('issued')">📚 History</button>
+          </div>
+
+          <!-- ═══ GENERATE ═══ -->
+          <section id="paneGenerate" class="ps-pane">
+            <div class="ltr-gen-grid">
+              <div class="ltr-gen-form">
+                <label class="ps-field">
+                  <span>Template *</span>
+                  <select id="genTemplate" onchange="onTemplateChange()"></select>
+                </label>
+                <label class="ps-field">
+                  <span>Employee *</span>
+                  <input type="text" id="genEmpName" list="empListDL" oninput="debouncePreview()" placeholder="Start typing a name…" autocomplete="off" />
+                  <datalist id="empListDL"></datalist>
+                </label>
+                <!-- Dynamic placeholder inputs — populated when template has user-input fields like {{FromDate}}, {{ToDate}}, {{Reason}}, {{Amount}}, etc. -->
+                <div id="extraFieldsWrap" class="ltr-extra-wrap" style="display:none;">
+                  <div class="ltr-extra-head">Fill in the values below to insert in the letter:</div>
+                  <div id="extraFields"></div>
+                </div>
+                <label class="ps-field">
+                  <span>Notes (internal — not on letter)</span>
+                  <input type="text" id="genNotes" maxlength="500" placeholder="Optional reference for the audit log" />
+                </label>
+                <button class="btn btn-primary btn-wide" type="button" onclick="generateLetter()">⇩ Generate &amp; Download</button>
+                <div class="pr-err" id="genErr" style="display:none;"></div>
+              </div>
+
+              <div class="ltr-preview" id="ltrPreview">
+                <div class="pr-empty">Pick a template + employee to see a preview.</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ TEMPLATES ═══ -->
+          <section id="paneTemplates" class="ps-pane" style="display:none;">
+            <div class="ps-pane-head">
+              <h2>Letter Templates</h2>
+              <button class="btn btn-primary" type="button" onclick="openTemplateEdit(null)">+ New Template</button>
+            </div>
+            <div class="ps-table-wrap">
+              <table class="ps-table">
+                <thead><tr><th>Code</th><th>Name</th><th>Category</th><th class="r">Issued</th><th></th></tr></thead>
+                <tbody id="tmplTbody"><tr><td colspan="5" class="ps-loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- ═══ ISSUED ═══ -->
+          <section id="paneIssued" class="ps-pane" style="display:none;">
+            <div class="ps-pane-head">
+              <h2>Letters Issued</h2>
+            </div>
+            <div class="ps-table-wrap">
+              <table class="ps-table">
+                <thead><tr>
+                  <th>Letter No</th><th>Template</th><th>For Employee</th>
+                  <th>Issued By</th><th>Issued At</th><th></th>
+                </tr></thead>
+                <tbody id="issuedTbody"><tr><td colspan="6" class="ps-loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ TEMPLATE EDIT MODAL ════════ -->
+  <div class="lens-modal" id="tmplModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeTemplateEdit()">←</button>
+        <span id="tmplModalTitle">Template</span>
+      </div>
+      <input type="hidden" id="tmId" />
+
+      <div class="ps-row">
+        <label class="ps-field">
+          <span>Code *</span>
+          <input type="text" id="tmCode" maxlength="40" placeholder="e.g. INCREMENT_LETTER" />
+        </label>
+        <label class="ps-field">
+          <span>Name *</span>
+          <input type="text" id="tmName" maxlength="150" placeholder="e.g. Increment Letter" />
+        </label>
+        <label class="ps-field">
+          <span>Category</span>
+          <select id="tmCategory">
+            <option value="offer">Offer</option>
+            <option value="exit">Exit</option>
+            <option value="salary">Salary</option>
+            <option value="promotion">Promotion</option>
+            <option value="noc">NOC</option>
+            <option value="general">General</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="ps-field">
+        <span>Subject (single line) — supports {{placeholders}}</span>
+        <input type="text" id="tmSubject" maxlength="200" placeholder="e.g. Increment Letter - {{EmpName}}" />
+      </label>
+
+      <label class="ps-field">
+        <span>Body *</span>
+        <textarea id="tmBody" rows="14" placeholder="Date: {{Today}}&#10;&#10;Dear {{Salutation}} {{EmpName}},&#10;&#10;..."></textarea>
+      </label>
+
+      <div class="ltr-placeholders">
+        <span class="pr-meta">Click to insert:</span>
+        <div id="phChips"></div>
+      </div>
+
+      <label class="ps-field">
+        <span>Signature Block</span>
+        <textarea id="tmSig" rows="4" placeholder="_______________________________&#10;Authorised Signatory&#10;HR Department&#10;Company A Pvt Ltd"></textarea>
+      </label>
+
+      <button class="btn btn-primary btn-wide" type="button" onclick="submitTemplate()">Save Template</button>
+      <div class="pr-err" id="tmErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=13"></script>
+  <script src="/shared/common.js?v=13"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/letters.js?v=4"></script>
+</body>
+</html>

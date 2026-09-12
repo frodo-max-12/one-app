@@ -1,0 +1,434 @@
+/* ============================================================================
+   ONE App Lens — Visit Tracker (Plan vs Reality)
+============================================================================ */
+
+.pt-shell {
+  padding: 18px;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 30px;
+}
+
+/* ── Banner ─────────────────────────────────────────────────────────────── */
+.pt-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, #eef2ff 0%, #ede9fe 50%, #fce7f3 100%);
+  border: 1px solid #ddd6fe;
+  border-radius: 16px;
+  padding: 18px 22px;
+  box-shadow: var(--lens-shadow);
+}
+body.lens-body:not(.day-theme) .pt-banner {
+  background: linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(139,92,246,0.18) 50%, rgba(236,72,153,0.18) 100%);
+  border-color: rgba(139, 92, 246, 0.30);
+}
+.pt-greet-name { font-size: 20px; font-weight: 600; color: var(--lens-text); }
+.pt-greet-date { font-size: 13px; color: var(--lens-text-2); margin-top: 2px; }
+
+.pt-score {
+  text-align: center;
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-radius: 14px;
+  padding: 14px 22px;
+  min-width: 120px;
+  box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+}
+.pt-score-num {
+  font-size: 30px;
+  font-weight: 700;
+  color: #16a34a;
+  font-family: var(--mono), monospace;
+  line-height: 1;
+}
+body.lens-body:not(.day-theme) .pt-score-num { color: #4ade80; }
+.pt-score-lbl { font-size: 11px; color: var(--lens-text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+
+/* ── KPI strip ──────────────────────────────────────────────────────────── */
+.pt-kpi {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+@media (max-width: 920px) { .pt-kpi { grid-template-columns: repeat(2, 1fr); } }
+.pt-tile {
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-left: 4px solid transparent;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--lens-shadow);
+}
+.pt-tile-num { font-size: 26px; font-weight: 700; color: var(--lens-text); line-height: 1; font-family: var(--mono), monospace; }
+.pt-tile-lbl { font-size: 11px; color: var(--lens-text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; font-weight: 500; }
+.pt-planned { border-left-color: #2563eb; }
+.pt-done    { border-left-color: #22c55e; }
+.pt-missed  { border-left-color: #ef4444; }
+.pt-adhoc   { border-left-color: #f59e0b; }
+.pt-time    { border-left-color: #8b5cf6; }
+.pt-planned .pt-tile-num { color: #2563eb; }
+.pt-done    .pt-tile-num { color: #16a34a; }
+.pt-missed  .pt-tile-num { color: #dc2626; }
+.pt-adhoc   .pt-tile-num { color: #d97706; }
+.pt-time    .pt-tile-num { color: #7c3aed; }
+body.lens-body:not(.day-theme) .pt-planned .pt-tile-num { color: #60a5fa; }
+body.lens-body:not(.day-theme) .pt-done    .pt-tile-num { color: #4ade80; }
+body.lens-body:not(.day-theme) .pt-missed  .pt-tile-num { color: #f87171; }
+body.lens-body:not(.day-theme) .pt-adhoc   .pt-tile-num { color: #fbbf24; }
+body.lens-body:not(.day-theme) .pt-time    .pt-tile-num { color: #a78bfa; }
+
+/* ── Two-column grid ────────────────────────────────────────────────────── */
+.pt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 16px;
+}
+@media (max-width: 920px) { .pt-grid { grid-template-columns: 1fr; } }
+
+.pt-section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.pt-section-head h2 { font-size: 16px; font-weight: 600; color: var(--lens-text); }
+
+.pt-visit-list { display: flex; flex-direction: column; gap: 10px; }
+
+.pt-visit-card {
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-left: 4px solid transparent;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: var(--lens-shadow);
+  transition: transform 0.12s, box-shadow 0.15s;
+}
+.pt-visit-card:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(15,23,42,0.10); }
+.pt-visit-card.done    { border-left-color: #22c55e; }
+.pt-visit-card.missed  { border-left-color: #ef4444; }
+.pt-visit-card.adhoc   { border-left-color: #f59e0b; }
+.pt-visit-card.pending { border-left-color: #94a3b8; }
+
+.pt-visit-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.pt-visit-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.pt-visit-card.done    .pt-visit-num { background: #22c55e; }
+.pt-visit-card.missed  .pt-visit-num { background: #ef4444; }
+.pt-visit-card.adhoc   .pt-visit-num { background: #f59e0b; }
+.pt-visit-card.pending .pt-visit-num { background: #94a3b8; }
+.pt-visit-name { font-size: 14px; font-weight: 600; color: var(--lens-text); flex: 1; line-height: 1.3; }
+.pt-visit-status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.pt-visit-card.done    .pt-visit-status { background: #dcfce7; color: #166534; }
+.pt-visit-card.missed  .pt-visit-status { background: #fee2e2; color: #991b1b; }
+.pt-visit-card.adhoc   .pt-visit-status { background: #fed7aa; color: #92400e; }
+.pt-visit-card.pending .pt-visit-status { background: #e2e8f0; color: #475569; }
+body.lens-body:not(.day-theme) .pt-visit-card.done    .pt-visit-status { background: rgba(34,197,94,0.20); color: #6ee7b7; }
+body.lens-body:not(.day-theme) .pt-visit-card.missed  .pt-visit-status { background: rgba(239,68,68,0.20); color: #fca5a5; }
+body.lens-body:not(.day-theme) .pt-visit-card.adhoc   .pt-visit-status { background: rgba(245,158,11,0.20); color: #fbbf24; }
+body.lens-body:not(.day-theme) .pt-visit-card.pending .pt-visit-status { background: rgba(148,163,184,0.20); color: #cbd5e1; }
+
+.pt-visit-meta {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  font-size: 12px; color: var(--lens-text-2);
+  padding-left: 38px;
+  margin-top: 4px;
+}
+.pt-visit-meta .pill {
+  background: var(--lens-card-soft);
+  border: 1px solid var(--lens-border);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: var(--mono), monospace;
+  font-size: 11px;
+}
+.pt-visit-agenda {
+  font-size: 12px;
+  color: var(--lens-text-3);
+  margin-top: 6px;
+  padding-left: 38px;
+  font-style: italic;
+}
+
+/* ── Meeting-with line (planned ContactPerson) ────────────────────────── */
+.pt-visit-contact {
+  margin-top: 6px;
+  padding: 6px 10px;
+  margin-left: 38px;
+  font-size: 12px;
+  color: var(--lens-text-2);
+  background: var(--lens-card-soft);
+  border: 1px solid var(--lens-border);
+  border-left: 3px solid #6366f1;
+  border-radius: 8px;
+  line-height: 1.4;
+}
+.pt-visit-contact strong { color: var(--lens-text); font-weight: 600; }
+.pt-contact-phone {
+  font-family: var(--mono), monospace;
+  font-size: 11px;
+  color: #16a34a;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.pt-contact-phone:hover { text-decoration: underline; }
+body.lens-body:not(.day-theme) .pt-contact-phone { color: #6ee7b7; }
+
+/* ── Punch-In/Out evidence block (v1.8) ─────────────────────────────────
+   Surfaces the team's punch photos + GPS map links inline on each visit card
+   so heads can verify a rep was actually on-site. */
+.pt-visit-card.has-punch { border-left-color: #6366f1; }
+.pt-punch-block {
+  margin-top: 10px;
+  padding: 10px 12px;
+  margin-left: 38px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.06));
+  border: 1px solid rgba(99,102,241,0.22);
+  border-radius: 10px;
+}
+.pt-punch-times {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 8px;
+}
+.pt-punch-times .pill {
+  font-family: var(--mono), monospace;
+  font-size: 11px;
+  padding: 3px 9px;
+}
+.pt-punch-in  { background: #dcfce7; border-color: #86efac; color: #166534; }
+.pt-punch-out { background: #e0e7ff; border-color: #c7d2fe; color: #4338ca; }
+.pt-punch-dur { background: var(--lens-card-soft); }
+.pt-punch-open { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+body.lens-body:not(.day-theme) .pt-punch-in  { background: rgba(34,197,94,0.18);  border-color: rgba(34,197,94,0.45);  color: #6ee7b7; }
+body.lens-body:not(.day-theme) .pt-punch-out { background: rgba(99,102,241,0.18); border-color: rgba(99,102,241,0.45); color: #c4b5fd; }
+body.lens-body:not(.day-theme) .pt-punch-open{ background: rgba(250,204,21,0.18); border-color: rgba(250,204,21,0.45); color: #fde68a; }
+
+.pt-punch-map {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 10px;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  color: #166534;
+  font-family: var(--mono), monospace;
+  font-size: 11px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.pt-punch-map:hover { background: #bbf7d0; }
+body.lens-body:not(.day-theme) .pt-punch-map { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.45); color: #6ee7b7; }
+
+.pt-punch-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 6px;
+}
+.pt-punch-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: zoom-in;
+  border: 1px solid var(--lens-border);
+  transition: transform 80ms, box-shadow 120ms;
+}
+.pt-punch-photo:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
+
+/* "📸 punched" pill on the card meta row — flags cards backed by explicit
+   punches (with photos) vs auto-detected ones. */
+.pill-punch {
+  background: linear-gradient(135deg, #ede9fe, #c4b5fd);
+  border: 1px solid #8b5cf6;
+  color: #4c1d95;
+  font-weight: 700;
+}
+body.lens-body:not(.day-theme) .pill-punch {
+  background: rgba(139,92,246,0.18);
+  border-color: rgba(139,92,246,0.45);
+  color: #c4b5fd;
+}
+
+/* ── Admin/HR correction buttons on punch evidence (v1.8) ───────────────
+   Edit re-links to a different customer without touching photos / GPS.
+   Delete drops the punch entirely + resets the linked plan. */
+.pt-punch-admin {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(99,102,241,0.30);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.pt-punch-edit, .pt-punch-delete {
+  appearance: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: background 120ms, border-color 120ms;
+}
+.pt-punch-edit {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4338ca;
+}
+.pt-punch-edit:hover { background: #e0e7ff; border-color: #818cf8; }
+.pt-punch-delete {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+.pt-punch-delete:hover { background: #fee2e2; border-color: #f87171; }
+body.lens-body:not(.day-theme) .pt-punch-edit {
+  background: rgba(99,102,241,0.18);
+  border-color: rgba(99,102,241,0.45);
+  color: #c4b5fd;
+}
+body.lens-body:not(.day-theme) .pt-punch-edit:hover { background: rgba(99,102,241,0.28); }
+body.lens-body:not(.day-theme) .pt-punch-delete {
+  background: rgba(239,68,68,0.18);
+  border-color: rgba(239,68,68,0.45);
+  color: #fca5a5;
+}
+body.lens-body:not(.day-theme) .pt-punch-delete:hover { background: rgba(239,68,68,0.28); }
+
+/* ── Photo lightbox (full-screen overlay) ─────────────────────────────── */
+.pt-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  cursor: zoom-out;
+}
+.pt-lightbox-inner {
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.pt-lightbox-inner img {
+  max-width: 100%;
+  max-height: 86vh;
+  border-radius: 8px;
+  object-fit: contain;
+  background: #000;
+}
+.pt-lightbox-caption {
+  color: #fff;
+  font-size: 13px;
+  background: rgba(0,0,0,0.55);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+/* ── Mark Done (manual visit confirm) ───────────────────────────────────── */
+.pt-visit-actions {
+  margin-top: 10px;
+  padding-left: 38px;
+  display: flex;
+  gap: 8px;
+}
+.pt-mark-done-btn {
+  appearance: none;
+  border: 1px solid #16a34a;
+  background: #22c55e;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.2px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 120ms ease, transform 80ms ease;
+}
+.pt-mark-done-btn:hover  { background: #16a34a; }
+.pt-mark-done-btn:active { transform: translateY(1px); }
+.pt-mark-done-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* "manual" pill — visible distinguisher for visits closed by Mark Done so heads
+   can spot at a glance which rows leaned on the override vs the auto-detector. */
+.pt-visit-meta .pill.pill-manual {
+  background: #fef3c7;
+  border-color: #fbbf24;
+  color: #92400e;
+  font-style: italic;
+}
+body.lens-body:not(.day-theme) .pt-visit-meta .pill.pill-manual {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.45);
+  color: #fcd34d;
+}
+
+.pt-empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--lens-text-3);
+  background: var(--lens-card);
+  border: 1px dashed var(--lens-border);
+  border-radius: 14px;
+}
+.pt-empty .ic { font-size: 48px; margin-bottom: 10px; }
+.pt-empty .t  { font-size: 16px; color: var(--lens-text); font-weight: 600; }
+.pt-empty .s  { font-size: 13px; margin-top: 4px; }
+
+/* ── Map column ─────────────────────────────────────────────────────────── */
+.pt-map-col { display: flex; flex-direction: column; gap: 10px; }
+.pt-map-col .journey-map { height: 480px; }
+
+.pt-legend {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--lens-text-2);
+}
+.pt-legend .ld { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.pt-legend .dot-done    { background: #22c55e; }
+.pt-legend .dot-missed  { background: #ef4444; }
+.pt-legend .dot-adhoc   { background: #f59e0b; }
+.pt-legend .dot-route   { background: #2563eb; }
+
+/* Custom Leaflet markers for tracker */
+.pt-marker {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+}
+.pt-marker.done    { background: #22c55e; }
+.pt-marker.missed  { background: #ef4444; }
+.pt-marker.adhoc   { background: #f59e0b; }
+.pt-marker.pending { background: #94a3b8; }

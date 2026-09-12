@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Add Employee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/leave.css?v=1" />
+  <link rel="stylesheet" href="./css/employee.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Add Employee</span>
+        <div class="topbar-actions">
+          <a href="/modules/hr/employees.html" class="op-manage-btn" style="text-decoration:none;">← Back to list</a>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="emp-shell">
+
+          <!-- Step indicator -->
+          <div class="wiz-steps" id="wizSteps">
+            <div class="wiz-step active" data-step="1"><span class="wiz-step-num">1</span> Basic Information</div>
+            <div class="wiz-step"        data-step="2"><span class="wiz-step-num">2</span> Position</div>
+            <div class="wiz-step"        data-step="3"><span class="wiz-step-num">3</span> Statutory</div>
+            <div class="wiz-step"        data-step="4"><span class="wiz-step-num">4</span> Payment & Login</div>
+          </div>
+
+          <!-- ═══ Step 1: Basic Information ═══ -->
+          <article class="wiz-card" id="step1">
+            <h2>Step 1 · Basic Information</h2>
+            <div class="field-row">
+              <div class="field"><label>Title</label>
+                <select id="title">
+                  <option value="">—</option>
+                  <option>Mr</option><option>Mrs</option><option>Ms</option><option>Dr</option>
+                </select></div>
+              <div class="field"><label>Gender</label>
+                <select id="gender">
+                  <option value="">—</option>
+                  <option>Male</option><option>Female</option><option>Other</option>
+                </select></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>First Name <span class="required">*</span></label><input type="text" id="firstName" /></div>
+              <div class="field"><label>Last Name <span class="required">*</span></label><input type="text" id="lastName" /></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Middle Name</label><input type="text" id="middleName" /></div>
+              <div class="field"><label>Date of Birth</label><input type="date" id="dob" /></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Mobile</label><input type="tel" id="mobile" placeholder="+91 …" /></div>
+              <div class="field"><label>Personal Email</label><input type="email" id="personalEmail" /></div>
+            </div>
+            <div class="wiz-actions">
+              <button class="wiz-back-btn" disabled>← Back</button>
+              <button class="wiz-next-btn" onclick="next(2)">Next →</button>
+            </div>
+          </article>
+
+          <!-- ═══ Step 2: Position ═══ -->
+          <article class="wiz-card" id="step2" style="display:none;">
+            <h2>Step 2 · Employee Position</h2>
+            <div class="field-row">
+              <div class="field"><label>Date of Joining</label><input type="date" id="dateOfJoining" /></div>
+              <div class="field"><label>Employee Type</label>
+                <select id="employeeType">
+                  <option>Permanent</option><option>Probation</option><option>Contract</option><option>Intern</option>
+                </select></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Designation</label><input type="text" id="designation" placeholder="e.g. Sales Executive" /></div>
+              <div class="field"><label>Department</label>
+                <select id="department">
+                  <option value="">—</option>
+                  <option>SALES</option><option>FAE</option><option>CSR</option><option>STORE</option>
+                  <option>PURCHASE</option><option>ACCOUNT</option><option>PRODUCT</option><option>HR</option><option>ADMIN</option>
+                </select></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Location</label>
+                <select id="location">
+                  <option value="">—</option>
+                  <option>Pune</option><option>Bangalore</option><option>Noida</option><option>Mumbai</option><option>Delhi</option>
+                </select></div>
+              <div class="field"><label>Assigned Office</label>
+                <select id="officeId">
+                  <option value="">— None —</option>
+                </select></div>
+            </div>
+            <div class="wiz-actions">
+              <button class="wiz-back-btn" onclick="next(1)">← Back</button>
+              <button class="wiz-next-btn" onclick="next(3)">Next →</button>
+            </div>
+          </article>
+
+          <!-- ═══ Step 3: Statutory ═══ -->
+          <article class="wiz-card" id="step3" style="display:none;">
+            <h2>Step 3 · Statutory Info</h2>
+            <div class="field-row">
+              <div class="field"><label>PAN Number <span class="required">*</span></label>
+                <input type="text" id="pan" placeholder="ABCDE1234F" maxlength="10" style="text-transform:uppercase;" />
+                <div class="hint">10 chars · format ABCDE1234F</div>
+              </div>
+              <div class="field"><label>Aadhaar Number <span class="required">*</span></label>
+                <input type="text" id="aadhaar" maxlength="12" placeholder="12 digits" inputmode="numeric" />
+                <div class="hint">12-digit Aadhaar number (no spaces)</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="toggle-row"><input type="checkbox" id="includePF" /><label for="includePF">Include in PF (Provident Fund)</label></div>
+              <div class="toggle-row"><input type="checkbox" id="includeESI" /><label for="includeESI">Include in ESI</label></div>
+            </div>
+            <div class="field-row">
+              <div class="toggle-row"><input type="checkbox" id="includeLWF" /><label for="includeLWF">Include in LWF (Labour Welfare Fund)</label></div>
+              <div></div>
+            </div>
+            <div class="field-row">
+              <div class="field gated" id="pfNoField"><label>PF Number</label>
+                <input type="text" id="pfNo" disabled />
+                <div class="hint" id="pfNoHint">Tick <b>Include in PF</b> above to enable</div>
+              </div>
+              <div class="field gated" id="pfUanField"><label>PF UAN</label>
+                <input type="text" id="pfUan" maxlength="12" disabled />
+                <div class="hint" id="pfUanHint">Tick <b>Include in PF</b> above to enable</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field gated" id="esiNoField"><label>ESI Number</label>
+                <input type="text" id="esiNo" disabled />
+                <div class="hint" id="esiNoHint">Tick <b>Include in ESI</b> above to enable</div>
+              </div>
+              <div></div>
+            </div>
+            <div class="wiz-actions">
+              <button class="wiz-back-btn" onclick="next(2)">← Back</button>
+              <button class="wiz-next-btn" onclick="next(4)">Next →</button>
+            </div>
+          </article>
+
+          <!-- ═══ Step 4: Payment + Login ═══ -->
+          <article class="wiz-card" id="step4" style="display:none;">
+            <h2>Step 4 · Payment Mode + Login Account</h2>
+            <div class="field-row">
+              <div class="field"><label>Payment Mode</label>
+                <select id="paymentMode">
+                  <option>Bank Transfer</option><option>Cheque</option><option>Cash</option>
+                </select></div>
+              <div class="field"><label>Bank Name</label><input type="text" id="bankName" /></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Bank Account No</label><input type="text" id="bankAccountNo" /></div>
+              <div class="field"><label>IFSC Code</label><input type="text" id="ifsc" maxlength="11" /></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Bank Branch</label><input type="text" id="bankBranch" /></div>
+              <div></div>
+            </div>
+
+            <h2 style="margin-top:22px;">Login Account</h2>
+            <div class="field-row">
+              <div class="field"><label>Work Email (used as username) <span class="required">*</span></label><input type="email" id="email" /></div>
+              <div class="field"><label>Initial Password <span class="required">*</span></label>
+                <input type="text" id="password" placeholder="≥ 6 chars" />
+                <div class="hint">Share with the new employee; they can change it on first login.</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Role <span class="required">*</span></label>
+                <select id="role">
+                  <option value="">—</option>
+                  <optgroup label="Sales">
+                    <option value="sales">Sales</option>
+                    <option value="sales head">Sales Head</option>
+                    <option value="north sales">North Sales</option>
+                    <option value="north sales head">North Sales Head</option>
+                    <option value="south sales">South Sales</option>
+                    <option value="international sales">International Sales</option>
+                    <option value="sales head electrical">Sales Head Electrical</option>
+                    <option value="electrical head">Electrical Head</option>
+                  </optgroup>
+                  <optgroup label="FAE">
+                    <option value="fae">FAE</option>
+                    <option value="fae head">FAE Head</option>
+                  </optgroup>
+                  <optgroup label="Product">
+                    <option value="product head">Product Head</option>
+                    <option value="product assistant">Product Assistant</option>
+                  </optgroup>
+                  <optgroup label="CSR">
+                    <option value="csr">CSR</option>
+                    <option value="csr head">CSR Head</option>
+                  </optgroup>
+                  <optgroup label="Store / Field (Electrical)">
+                    <option value="store electrical">Store Electrical</option>
+                    <option value="retailer auditor">Retailer Auditor</option>
+                    <option value="retailer delivery">Retailer Delivery</option>
+                    <option value="ar collecting">AR Collecting</option>
+                  </optgroup>
+                  <optgroup label="Warehouse">
+                    <option value="warehouse">Warehouse</option>
+                  </optgroup>
+                  <optgroup label="IT / Account / Purchase / MIS">
+                    <option value="it">IT</option>
+                    <option value="it head">IT Head</option>
+                    <option value="account">Account</option>
+                    <option value="account head">Account Head</option>
+                    <option value="purchase">Purchase</option>
+                    <option value="purchase head">Purchase Head</option>
+                    <option value="mis">MIS</option>
+                  </optgroup>
+                  <optgroup label="HR / Management">
+                    <option value="hr">HR</option>
+                    <option value="hr head">HR Head</option>
+                    <option value="admin">Admin</option>
+                    <option value="operation head">Operation Head</option>
+                    <option value="director">Director</option>
+                  </optgroup>
+                </select></div>
+              <div class="field"><label>COMPANYA Code(s)</label>
+                <input type="text" id="companyaCode" placeholder="EMP0099 or EMP0099/EMP0123" />
+                <div class="hint">From NAV Salesperson master. Multiple codes separated by /</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>CompanyB Code(s)</label><input type="text" id="companybCode" placeholder="EMP0057" /></div>
+              <div></div>
+            </div>
+
+            <div class="wiz-actions">
+              <button class="wiz-back-btn" onclick="next(3)">← Back</button>
+              <button class="wiz-next-btn finish" onclick="submitForm()">✓ Create Employee</button>
+            </div>
+
+            <div class="sign-error" id="formError" style="display:none; margin-top:14px;"></div>
+            <div id="formSuccess" style="display:none; margin-top:14px; background:#dcfce7; color:#166534; padding:14px 16px; border-radius:10px; font-size:13px; border:1px solid #a7f3d0;">
+              ✓ <b id="successMsg">Employee created.</b>
+            </div>
+          </article>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3><ul id="diagList"></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/employee-add.js?v=1"></script>
+</body>
+</html>

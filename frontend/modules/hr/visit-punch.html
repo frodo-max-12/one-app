@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Visit Punch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=4" />
+  <link rel="stylesheet" href="./css/visit-punch.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Visit Punch</span>
+        <div class="topbar-actions">
+          <div class="chip" id="vpNetChip" title="Connection status">
+            <span class="chip-dot" id="vpNetDot"></span>
+            <span id="vpNetLbl">Online</span>
+          </div>
+          <div class="chip vp-queue-chip" id="vpQueueChip" hidden title="Pending punches will sync when online">
+            <span>⏳ <span id="vpQueueCount">0</span> queued</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="vp-shell">
+
+          <!-- ══════ DATE PICKER (filters Planned chips + Today list) ══════ -->
+          <section class="vp-date-bar">
+            <label class="vp-date-label" for="vpDate">View date</label>
+            <input id="vpDate" type="date" class="vp-date-input" />
+            <button id="vpDateToday" type="button" class="vp-date-today" onclick="vpJumpToToday()">Today</button>
+            <span class="vp-date-hint" id="vpDateHint"></span>
+          </section>
+
+          <!-- ══════ PLANNED VISITS QUICK-PICK CHIPS ══════ -->
+          <!-- Populated from /api/hr/visit-punch/planned. Each chip pre-fills
+               the customer + links visitPlanId. Hidden when no plans exist. -->
+          <section class="vp-card vp-planned-card" id="vpPlannedCard" hidden>
+            <div class="vp-planned-head">
+              <h3 class="vp-section-title">
+                Planned visits
+                <span class="vp-today-count" id="vpPlannedCount">0</span>
+              </h3>
+              <span class="vp-planned-hint" id="vpPlannedHint">Tap a customer to punch in.</span>
+            </div>
+            <div class="vp-chips" id="vpPlannedChips"></div>
+          </section>
+
+          <!-- ══════ ACTIVE PUNCH CARD (shown when an open punch exists) ══════ -->
+          <section class="vp-card vp-active" id="vpActiveCard" hidden>
+            <div class="vp-active-head">
+              <div class="vp-active-pulse"></div>
+              <div>
+                <div class="vp-active-label">Punched in at</div>
+                <div class="vp-active-customer" id="vpActiveCustomer">—</div>
+                <!-- Meeting contact recalled from BN_VisitPlan via the linked
+                     VisitPlanId. Visible during the whole visit so the rep can
+                     remember the contact name + tap-to-call the phone. -->
+                <div class="vp-active-contact" id="vpActiveContact" hidden>
+                  <span>👤 Meeting: <strong id="vpActiveContactName">—</strong></span>
+                  <a class="vp-active-phone" id="vpActiveContactPhone" hidden></a>
+                </div>
+              </div>
+            </div>
+            <div class="vp-active-meta">
+              <span class="pill">⏱ <span id="vpActiveSince">—</span></span>
+              <span class="pill" id="vpActiveTimer">00:00</span>
+              <a class="pill pill-gps" id="vpActiveGps" hidden href="#" target="_blank" rel="noopener" title="Open Punch-In location in Google Maps">📍 View on map</a>
+            </div>
+            <div class="vp-active-photos">
+              <div class="vp-photo-thumb">
+                <span class="vp-photo-lbl">Selfie</span>
+                <img id="vpActiveSelfie" alt="" />
+              </div>
+              <div class="vp-photo-thumb">
+                <span class="vp-photo-lbl">Premise</span>
+                <img id="vpActivePremise" alt="" />
+              </div>
+            </div>
+
+            <div class="vp-divider"></div>
+
+            <h3 class="vp-section-title">Punch Out</h3>
+            <p class="vp-help">Take one more premise photo to close this visit.</p>
+
+            <div class="vp-photo-slot" id="vpOutPremiseSlot">
+              <button class="vp-photo-btn" type="button" onclick="vpStartCapture('out-premise', 'environment')">
+                <span class="vp-photo-ic">📷</span>
+                <span class="vp-photo-txt">Take Premise Photo (Out)</span>
+              </button>
+              <img class="vp-photo-preview" id="vpOutPremisePreview" hidden alt="" />
+            </div>
+
+            <button class="vp-primary-btn vp-out-btn" id="vpPunchOutBtn" type="button" onclick="vpPunchOut()" disabled>
+              ✓ PUNCH OUT
+            </button>
+            <div class="vp-error" id="vpOutError" hidden></div>
+          </section>
+
+          <!-- ══════ PUNCH IN FORM (shown when no open punch) ══════ -->
+          <section class="vp-card vp-in-form" id="vpInForm">
+            <h2 class="vp-title">Punch In at Customer</h2>
+            <p class="vp-help">Capture your selfie + a photo of the customer premises, then tap Punch In.</p>
+
+            <!-- Customer picker. Two paths:
+                 1. Tap a chip in the Planned section above → auto-fills (fast)
+                 2. Type free-text below → searches ALL NAV customers (ad-hoc escape) -->
+            <div class="vp-field">
+              <label class="vp-label" for="vpCustomerInput">Customer</label>
+              <div class="vp-suggest-wrap">
+                <input id="vpCustomerInput" class="vp-input" type="text" placeholder="Type any customer name (ad-hoc / prospect / colleague-cover)…" autocomplete="off" />
+                <input type="hidden" id="vpCustomerCode" />
+                <div class="vp-suggest-list" id="vpCustomerList" hidden></div>
+              </div>
+              <div class="vp-customer-confirm" id="vpCustomerConfirm" hidden>
+                <div class="vp-confirm-main">
+                  <span>✓ <strong id="vpCustomerName">—</strong> <span class="vp-confirm-source" id="vpConfirmSource"></span></span>
+                  <button class="vp-link" type="button" onclick="vpClearCustomer()">change</button>
+                </div>
+                <!-- Meeting-with line: planned ContactPerson + Phone from BN_VisitPlan.
+                     Visible nudge so the rep knows who they're there for AND a head
+                     reviewing the punch later can verify the visit was a real meeting. -->
+                <div class="vp-confirm-contact" id="vpConfirmContact" hidden>
+                  <span>👤 Meeting: <strong id="vpConfirmContactName">—</strong></span>
+                  <a class="vp-confirm-phone" id="vpConfirmContactPhone" hidden></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selfie -->
+            <div class="vp-field">
+              <label class="vp-label">Your Selfie</label>
+              <div class="vp-photo-slot" id="vpInSelfieSlot">
+                <button class="vp-photo-btn" type="button" onclick="vpStartCapture('in-selfie', 'user')">
+                  <span class="vp-photo-ic">🤳</span>
+                  <span class="vp-photo-txt">Take Selfie</span>
+                </button>
+                <img class="vp-photo-preview" id="vpInSelfiePreview" hidden alt="" />
+              </div>
+            </div>
+
+            <!-- Premise photo -->
+            <div class="vp-field">
+              <label class="vp-label">Customer Premise Photo</label>
+              <div class="vp-photo-slot" id="vpInPremiseSlot">
+                <button class="vp-photo-btn" type="button" onclick="vpStartCapture('in-premise', 'environment')">
+                  <span class="vp-photo-ic">📷</span>
+                  <span class="vp-photo-txt">Take Premise Photo</span>
+                </button>
+                <img class="vp-photo-preview" id="vpInPremisePreview" hidden alt="" />
+              </div>
+            </div>
+
+            <button class="vp-primary-btn vp-in-btn" id="vpPunchInBtn" type="button" onclick="vpPunchIn()" disabled>
+              ▶ PUNCH IN
+            </button>
+            <div class="vp-error" id="vpInError" hidden></div>
+          </section>
+
+          <!-- ══════ VISITS LIST FOR SELECTED DATE ══════ -->
+          <section class="vp-card vp-today" id="vpTodayCard">
+            <h3 class="vp-section-title">
+              <span id="vpTodayHeader">Today</span>
+              <span class="vp-today-count" id="vpTodayCount">0</span>
+            </h3>
+            <div id="vpTodayList" class="vp-today-list">
+              <div class="vp-empty" id="vpTodayEmpty" hidden>
+                No visits punched on this date.
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ SHARED CAMERA MODAL ══════ -->
+  <div class="vp-cam-modal" id="vpCamModal" hidden>
+    <div class="vp-cam-stage">
+      <video id="vpCamVideo" autoplay playsinline muted></video>
+      <div class="vp-cam-overlay" id="vpCamOverlay">
+        <div class="vp-cam-label" id="vpCamLabel">Position the subject in frame</div>
+        <div class="vp-cam-spinner" id="vpCamSpinner" hidden>Starting camera…</div>
+      </div>
+    </div>
+    <div class="vp-cam-actions">
+      <button class="vp-cam-btn vp-cam-cancel" type="button" onclick="vpCancelCapture()">Cancel</button>
+      <button class="vp-cam-btn vp-cam-shoot" type="button" id="vpCamShoot" onclick="vpDoCapture()" disabled>📷</button>
+      <button class="vp-cam-btn vp-cam-flip" type="button" id="vpCamFlip" onclick="vpFlipCamera()" title="Flip camera">⇆</button>
+    </div>
+  </div>
+
+  <!-- hidden canvas for JPEG encode -->
+  <canvas id="vpCanvas" hidden></canvas>
+
+  <!-- toast -->
+  <div class="vp-toast" id="vpToast" hidden></div>
+
+  <script src="/shared/modules.js?v=4"></script>
+  <script src="/shared/common.js?v=4"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/visit-punch.js?v=1"></script>
+</body>
+</html>

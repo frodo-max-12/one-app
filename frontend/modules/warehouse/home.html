@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Warehouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/warehouse.css?v=109" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Warehouse · Singapore</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip"><span class="chip-dot" style="background:#22c55e"></span>Company B Pte Ltd</span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="wh-shell">
+          <h2 style="margin:6px 0 2px;font:600 22px 'DM Sans',sans-serif;">Welcome to the Warehouse module</h2>
+          <p style="margin:0 0 12px;color:#64748b;font-size:13px;">
+            Live data from NAV (Purchase Orders, Sales Invoices) merged with your
+            local tracking (carton inventory, cheques, expenses, freight, permits).
+          </p>
+
+          <!-- One-click full workbook import (all 5 sheets at once) -->
+          <div id="whBulkBar" style="background:#f8fafc;border:1px solid #e4e7ec;border-radius:12px;padding:14px 16px;margin-bottom:14px;display:none;">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:240px;">
+                <div style="font:600 14px 'DM Sans',sans-serif;color:#0f172a;">⇧ Import full workbook</div>
+                <div style="font-size:12px;color:#64748b;">Uploads the 5-sheet Excel once; NAV line numbers auto-resolve for Purchase + Sales.</div>
+              </div>
+              <label style="font-size:12px;color:#475569;display:flex;align-items:center;gap:6px;">
+                <input type="checkbox" id="whBulkWipe" /> Wipe existing rows first (clean re-import)
+              </label>
+              <input type="file" id="whBulkFile" accept=".xlsx,.xls" hidden />
+              <button class="btn btn-primary btn-sm" id="whBulkBtn">Choose file…</button>
+            </div>
+            <div id="whBulkLog" style="margin-top:10px;font:12px/1.5 'DM Mono',monospace;color:#1e293b;white-space:pre-wrap;"></div>
+          </div>
+
+          <div class="wh-home-tiles">
+            <a class="wh-tile" href="/modules/warehouse/purchase.html">
+              <div class="wh-tile-ic">📦</div>
+              <div class="wh-tile-title">Purchase Order — In Transit</div>
+              <div class="wh-tile-desc">PO lines linked to SOs marked PWV-T / PWPR-INT / PWPR-VPD INT. Material coming to your warehouse.</div>
+            </a>
+            <a class="wh-tile" href="/modules/warehouse/soBacklog.html">
+              <div class="wh-tile-ic">📑</div>
+              <div class="wh-tile-title">SO Backlog — Ready for Pick & In Transit</div>
+              <div class="wh-tile-desc">Two clickable cards: PFP (ready to dispatch) and In Transit material (en route).</div>
+            </a>
+            <a class="wh-tile" href="/modules/warehouse/stocks.html">
+              <div class="wh-tile-ic">🏷</div>
+              <div class="wh-tile-title">Stocks / Inventory</div>
+              <div class="wh-tile-desc">Carton-level inventory in the Singapore warehouse. Split, dispatch, customer hold.</div>
+            </a>
+            <a class="wh-tile" href="/modules/warehouse/sales.html">
+              <div class="wh-tile-ic">🚚</div>
+              <div class="wh-tile-title">Sales Invoice</div>
+              <div class="wh-tile-desc">Upcoming invoices (PFP variants) with status segregation cards. Track dispatch / AWB / permit before posting.</div>
+            </a>
+            <a class="wh-tile" href="/modules/warehouse/cheques.html">
+              <div class="wh-tile-ic">🧾</div>
+              <div class="wh-tile-title">Cheques</div>
+              <div class="wh-tile-desc">Bank-issued cheque ledger across Bank B / UOB / DBS.</div>
+            </a>
+            <a class="wh-tile" href="/modules/warehouse/expenses.html">
+              <div class="wh-tile-ic">💸</div>
+              <div class="wh-tile-title">Expenses</div>
+              <div class="wh-tile-desc">Petty cash + non-PO operating expenses (paper, courier handover, etc.).</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/common.js"></script>
+  <script src="/shared/modules.js"></script>
+  <script src="./js/warehouse-common.js?v=109"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const u = requireAuth(); if (!u) return;
+      renderSidebar('wh-home');
+      const rt = document.getElementById('roleTag');
+      if (rt) rt.textContent = (u.role || '').toUpperCase();
+
+      // Show the bulk-import bar only for warehouse users (writers).
+      if (!WH.canWrite()) return;
+      document.getElementById('whBulkBar').style.display = 'block';
+
+      const btn  = document.getElementById('whBulkBtn');
+      const file = document.getElementById('whBulkFile');
+      const log  = document.getElementById('whBulkLog');
+      btn.onclick = () => file.click();
+      file.addEventListener('change', async () => {
+        if (!file.files || !file.files[0]) return;
+        const blob = file.files[0];
+        const wipe = document.getElementById('whBulkWipe').checked ? '1' : '0';
+        const targets = [
+          { name: 'Purchase', endpoint: '/warehouse/purchase' },
+          { name: 'Stocks',   endpoint: '/warehouse/stocks'   },
+          { name: 'Sales',    endpoint: '/warehouse/sales'    },
+          { name: 'Cheques',  endpoint: '/warehouse/cheques'  },
+          { name: 'Expenses', endpoint: '/warehouse/expenses' },
+        ];
+        const company = (typeof getCompany === 'function') ? getCompany() : 'COMPANYB';
+        const token   = (typeof getToken   === 'function') ? getToken()   : null;
+        log.textContent = ''; btn.disabled = true; btn.textContent = '⏳ Uploading…';
+        for (const t of targets) {
+          const fd = new FormData(); fd.append('file', blob);
+          log.textContent += `→ ${t.name}: uploading…\n`;
+          try {
+            const res = await fetch(`/api${t.endpoint}/import?company=${encodeURIComponent(company)}&wipe=${wipe}`, {
+              method:  'POST',
+              headers: { 'X-Company': company, ...(token ? { Authorization: token } : {}) },
+              body:    fd,
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              log.textContent += `   ✗ ${data.message || ('HTTP ' + res.status)}\n`;
+            } else {
+              log.textContent += `   ✓ ${data.inserted || 0} inserted`
+                              + (data.failed ? `, ${data.failed} failed` : '')
+                              + (data.wiped   ? `, wiped ${data.wiped} old` : '')
+                              + (data.sheet   ? ` from "${data.sheet}"` : '')
+                              + (data.navHits !== undefined
+                                   ? ` · NAV match: ${data.navHits}/${data.navHits + data.navMisses} POs/invoices`
+                                   : '')
+                              + '\n';
+              if (data.navMissedPos && data.navMissedPos.length) {
+                log.textContent += '     NAV miss sample: ' + data.navMissedPos.slice(0, 3).join(' | ') + '\n';
+              }
+              if (data.errors && data.errors.length) {
+                log.textContent += '     first errors: ' + data.errors.slice(0, 3).join(' | ') + '\n';
+              }
+            }
+          } catch (e) {
+            log.textContent += `   ✗ ${e.message}\n`;
+          }
+        }
+        btn.disabled = false; btn.textContent = 'Choose file…';
+        file.value = '';
+        log.textContent += '\nDone. Open Purchase / Stocks / Sales / Cheques / Expenses to view.';
+      });
+    });
+  </script>
+</body>
+</html>

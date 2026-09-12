@@ -1,0 +1,166 @@
+/* Payroll Run + My Payslips (Phase 5B) */
+
+.pr-wrap {
+  padding: 14px 18px 40px;
+  max-width: 1500px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+.btn {
+  background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+  padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 13px;
+  font-weight: 500; transition: var(--theme-transition), transform 0.08s ease;
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+}
+.btn:hover  { background: var(--bg4); border-color: var(--border2); }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: white; border-color: var(--accent2); }
+.btn-primary:hover { background: var(--accent2); }
+.btn-success { background: var(--green); color: white; border-color: rgba(0,0,0,0.05); }
+.btn-success:hover { filter: brightness(0.95); }
+.btn-danger  { background: var(--red); color: white; border-color: rgba(0,0,0,0.05); }
+.btn-danger:hover { filter: brightness(0.95); }
+.btn-sm    { padding: 5px 10px; font-size: 12px; }
+.btn-wide  { width: 100%; padding: 10px 14px; justify-content: center; }
+
+.pr-head {
+  display: flex; justify-content: space-between; align-items: center; gap: 14px;
+}
+.pr-head h2 { margin: 0; font-size: 18px; color: var(--text); }
+.pr-year, .pr-year-inline { display: inline-flex; flex-direction: column; gap: 4px; }
+.pr-year-inline { flex-direction: row; align-items: center; gap: 6px; }
+.pr-year span, .pr-year-inline span { font-size: 12px; color: var(--text2); }
+.pr-year select, .pr-year-inline select {
+  padding: 6px 10px; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+  font-size: 13px; outline: none;
+}
+
+.pr-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 200px; color: var(--text2); font-size: 14px; text-align: center;
+  padding: 24px; background: var(--bg2); border: 1px dashed var(--border); border-radius: var(--radius-lg);
+  gap: 4px;
+}
+.pr-err { color: var(--red); }
+.pr-loading { padding: 18px; text-align: center; color: var(--text2); font-size: 13px; }
+.pr-meta { font-size: 11.5px; color: var(--text2); }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+
+/* ── Run cards (list view) ──────────────────────────────────────────────── */
+.pr-runs {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px;
+}
+.pr-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 16px; cursor: pointer; display: flex; flex-direction: column; gap: 10px;
+  transition: var(--theme-transition), transform 0.08s ease;
+}
+.pr-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: var(--shadow); }
+.pr-card header { display: flex; justify-content: space-between; align-items: center; }
+.pr-card-month { font-size: 17px; font-weight: 600; color: var(--text); }
+.pr-card-code  { font-size: 11px; color: var(--text2); font-family: var(--mono); letter-spacing: 0.4px; }
+.pr-card-period { font-size: 12px; color: var(--text2); }
+
+.pr-card-kpis {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  background: var(--bg3); border-radius: 8px; padding: 8px;
+}
+.pr-card-kpis > div { display: flex; flex-direction: column; align-items: flex-start; }
+.pr-card-kpis span { font-size: 10.5px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; }
+.pr-card-kpis b    { font-size: 13px;   color: var(--text); font-weight: 600; }
+.pr-card-kpis .net b { color: var(--green); font-size: 14px; }
+
+.pr-status {
+  display: inline-block; padding: 2px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.pr-status-draft    { background: rgba(240,162,46,0.15); color: var(--amber); }
+.pr-status-locked   { background: rgba(79,142,247,0.15); color: var(--accent); }
+.pr-status-paid     { background: rgba(52,199,123,0.15); color: var(--green); }
+
+/* ── Run detail page ───────────────────────────────────────────────────── */
+.pr-runhead {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 18px 22px; display: flex; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap;
+}
+.pr-runhead-month { font-size: 13px; color: var(--text2); margin-bottom: 2px; }
+.pr-runhead h1 { margin: 0 0 4px; font-size: 22px; color: var(--text); }
+.pr-runhead-right { text-align: right; }
+
+.pr-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.pr-kpis {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+@media (max-width: 720px) { .pr-kpis { grid-template-columns: repeat(2, 1fr); } }
+
+.kpi-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; position: relative; overflow: hidden;
+}
+.kpi-card::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--kpi-tint, var(--accent)); }
+.kpi-lbl { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; }
+.kpi-num { font-size: 20px; font-weight: 700; color: var(--text); margin-top: 4px; }
+.kpi-blue  { --kpi-tint: var(--accent); }
+.kpi-green { --kpi-tint: var(--green);  }
+.kpi-red   { --kpi-tint: var(--red);    }
+.kpi-teal  { --kpi-tint: var(--teal);   }
+
+.pr-table-wrap {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: auto; max-height: calc(100vh - 360px);
+}
+.pr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.pr-table thead th {
+  position: sticky; top: 0; background: var(--bg3); z-index: 1;
+  text-align: left; padding: 9px 12px; border-bottom: 2px solid var(--border);
+  color: var(--text2); font-weight: 600; font-size: 11.5px;
+  text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+}
+.pr-table thead th.r, .pr-table td.r { text-align: right; }
+.pr-table tbody td {
+  padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text);
+  white-space: nowrap;
+}
+.pr-table tbody tr:hover td { background: var(--bg3); }
+
+/* ── Lock modal ─────────────────────────────────────────────────────────── */
+.pr-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.pr-field span { font-size: 12px; color: var(--text2); font-weight: 500; }
+.pr-field select, .pr-field input {
+  padding: 8px 12px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+  font: inherit; font-size: 13.5px; outline: none;
+}
+.pr-field input:focus, .pr-field select:focus { border-color: var(--accent); }
+
+/* ── My Payslips ─────────────────────────────────────────────────────────── */
+.my-payslips-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;
+}
+.my-ps-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 16px; display: flex; flex-direction: column; gap: 8px;
+  transition: var(--theme-transition);
+}
+.my-ps-card header { display: flex; justify-content: space-between; align-items: center; }
+.my-ps-month { font-size: 16px; font-weight: 600; color: var(--text); }
+.my-ps-net {
+  background: linear-gradient(135deg, rgba(52,199,123,0.12), rgba(46,196,182,0.12));
+  border: 1px solid rgba(52,199,123,0.25);
+  border-radius: 10px; padding: 10px 14px;
+}
+.my-ps-net div { font-size: 11.5px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; }
+.my-ps-net b   { font-size: 22px; color: var(--green); font-weight: 700; display: block; margin-top: 2px; }
+.my-ps-meta {
+  display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap;
+  font-size: 11.5px; color: var(--text2);
+  border-top: 1px dashed var(--border); padding-top: 6px;
+}
+.my-ps-meta b { color: var(--text); }
+.my-ps-card footer {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--border);
+}

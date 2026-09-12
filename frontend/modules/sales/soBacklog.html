@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — SO Backlog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/soBacklog.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">SO Backlog</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <div class="chip">
+            <span class="chip-dot" style="background: var(--green);"></span>
+            <span>API Connected</span>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="grid-4 backlog-summary" id="summaryCards" style="display:none;">
+          <div class="card stat-card"><div class="card-title">Total SO Lines</div><div class="card-value" id="statTotalLines">—</div><div class="card-sub">in date range</div></div>
+          <div class="card stat-card"><div class="card-title">Total Bal. Value</div><div class="card-value accent-purple" id="statBalValue">—</div><div class="card-sub">outstanding amount</div></div>
+          <div class="card stat-card"><div class="card-title">Total PO Value</div><div class="card-value accent-green" id="statPoValue">—</div><div class="card-sub">ordered amount</div></div>
+          <div class="card stat-card"><div class="card-title">Reserve Value</div><div class="card-value accent-amber" id="statReserveValue">—</div><div class="card-sub">reserved amount</div></div>
+        </div>
+        <div class="card">
+          <div class="section-head so-header">
+            <div class="so-header-left">
+              <h2>SO Backlog</h2>
+              <span class="chip"><span class="chip-dot" style="background:var(--purple);"></span><span id="soTotalText">— records</span></span>
+            </div>
+            <div class="so-header-right">
+              <button id="soExportBtn" class="btn btn-export">⬇ Export Excel</button>
+              <button id="soRefreshBtn" class="btn btn-ghost btn-sm">⟳ Refresh</button>
+            </div>
+          </div>
+          <div class="so-filters">
+            <div class="so-date-group">
+              <div class="inv-date-wrap"><label class="inv-date-label" for="startDateInput">From</label><input type="date" id="startDateInput" class="form-input inv-date-input" /></div>
+              <div class="inv-date-wrap"><label class="inv-date-label" for="endDateInput">To</label><input type="date" id="endDateInput" class="form-input inv-date-input" /></div>
+              <button id="soApplyDate" class="btn btn-ghost btn-sm">Apply</button>
+            </div>
+            <div class="input-wrap so-search-wrap"><span class="input-icon">⌕</span><input id="soSearchInput" class="search-input" placeholder="Search Sales Person, SO No., Customer Name, Customer No…" /></div>
+            <button id="soClearBtn" class="btn btn-ghost btn-sm" style="display:none;">✕ Clear</button>
+          </div>
+          <div id="soLoading" class="loading-center"><div class="spinner"></div><span>Loading backlog…</span></div>
+          <div class="table-wrap so-table-wrap" id="soTableWrap" style="display:none;">
+            <table id="soTable">
+              <thead><tr>
+                <th class="col-freeze">#</th><th>Year</th><th>Quarter</th><th>Month</th>
+                <th>Customer ID</th><th>Customer</th><th>Customer PO No.</th>
+                <th>Customer PO Rec. Date</th><th>Customer PO Date</th><th>CRD</th><th>CRD Week</th>
+                <th>Promise Delivery Date</th><th>Revised Promise Date</th><th>VPD Week</th>
+                <th>CPN</th><th>Item Name</th><th>MPN</th><th>Make</th>
+                <th style="text-align:right;">Unit Price</th><th style="text-align:right;">PO Qty.</th>
+                <th style="text-align:right;">PO Value</th><th style="text-align:right;">Bal. Qty.</th>
+                <th style="text-align:right;">Bal. Value</th>
+                <th style="text-align:right;">Reserve Qty.</th><th style="text-align:right;">Reserve Value</th>
+                <th style="text-align:right;">Qty On Hand</th><th>Sales Person</th><th>SO No.</th><th>SO Date</th>
+                <th>Remarks</th><th>Remarks 2</th><th>Remarks 3</th><th>Remarks 4</th><th>Remarks 5</th>
+                <th>Address 1</th><th>Address 2</th><th>Address 3</th><th>City</th>
+                <th>Phone</th><th>Email</th><th>Website</th><th>Contact</th><th>Vertical</th>
+                <th style="text-align:right;">Qty On PO</th><th>Currency</th><th>Vendor Name</th>
+                <th>User ID</th><th>Created Date Time</th>
+                <th>Mod. Header User</th><th>Mod. Header Date</th><th>Mod. Line User</th><th>Mod. Line Date</th>
+              </tr></thead>
+              <tbody id="soBody"></tbody>
+            </table>
+          </div>
+          <div id="soEmpty" class="empty" style="display:none;"><div class="empty-icon">📋</div><div class="empty-text">No SO Backlog records found</div></div>
+          <div id="soError" class="empty" style="display:none;"><div class="empty-icon">⚠</div><div class="empty-text" id="soErrorText">Failed to load SO Backlog.</div></div>
+          <div class="pagination" id="soPagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/mobile-menu.js"></script>
+  <script src="./js/soBacklog.js?v=2"></script>
+</body>
+</html>

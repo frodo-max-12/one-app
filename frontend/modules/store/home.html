@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ONE App · Store Auditing</title>
+<style>
+:root{
+  --bg:#0f172a; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
+  --line:#e2e8f0; --brand:#0ea5e9; --brand-d:#0369a1;
+  --green:#16a34a; --green-l:#dcfce7; --amber:#f59e0b; --amber-l:#fef3c7;
+  --red:#dc2626; --red-l:#fee2e2; --shadow:0 4px 20px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:#f1f5f9;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+  overscroll-behavior:none;}
+body{padding-bottom:90px;}
+
+/* ── Header ── */
+.appbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 16px;
+  display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:40;}
+.appbar h1{font-size:15px;font-weight:800;margin:0;line-height:1.25;flex:1;}
+.appbar h1 small{display:block;font-weight:600;color:var(--muted);font-size:12px;}
+/* Hamburger button */
+.ham-btn{background:none;border:none;font-size:24px;line-height:1;cursor:pointer;color:#111;
+  padding:2px 6px;border-radius:8px;}
+.ham-btn:active{background:#f1f5f9;}
+/* Slide-in drawer */
+.nav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60;opacity:0;
+  pointer-events:none;transition:opacity .2s;}
+.nav-overlay.show{opacity:1;pointer-events:auto;}
+.nav-drawer{position:fixed;top:0;left:0;bottom:0;width:80%;max-width:300px;background:#fff;
+  z-index:61;transform:translateX(-100%);transition:transform .22s ease;box-shadow:2px 0 16px rgba(0,0,0,.18);
+  display:flex;flex-direction:column;}
+.nav-drawer.show{transform:translateX(0);}
+.nav-drawer-head{background:var(--brand,#16a34a);color:#fff;padding:20px 18px 16px;position:relative;}
+.nav-drawer-title{font-size:20px;font-weight:800;}
+.nav-drawer-sub{font-size:12px;opacity:.9;margin-top:2px;}
+.nav-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.2);border:none;color:#fff;
+  width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;}
+.nav-drawer-body{padding:10px 0;flex:1;}
+.nav-link{display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:15px;font-weight:600;
+  color:#1f2937;text-decoration:none;cursor:pointer;border-left:3px solid transparent;}
+.nav-link:active{background:#f1f5f9;}
+.nav-link.active{background:#ecfdf5;border-left-color:var(--brand,#16a34a);color:var(--brand,#16a34a);}
+.nav-ico{font-size:18px;width:22px;text-align:center;}
+/* Pull-to-refresh */
+.ptr-indicator{height:0;overflow:hidden;text-align:center;color:var(--muted);font-size:13px;
+  font-weight:600;transition:height .15s;background:#f8fafc;}
+.ptr-indicator.show{height:38px;line-height:38px;}
+.ptr-indicator.spin span{display:inline-block;animation:ptrspin .8s linear infinite;}
+@keyframes ptrspin{to{transform:rotate(360deg);}}
+.vchip{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:999px;
+  padding:5px 11px;font-size:12px;font-weight:800;white-space:nowrap;}
+.engine-row{padding:6px 16px;background:#fff;border-bottom:1px solid var(--line);
+  font-size:13px;color:var(--green);font-weight:700;display:flex;gap:10px;align-items:center;}
+
+/* ── Tabs ── */
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:49px;z-index:39;}
+.tab{flex:1;text-align:center;padding:13px 8px;font-size:14px;font-weight:700;color:var(--muted);
+  border:none;background:none;border-bottom:3px solid transparent;cursor:pointer;}
+.tab.active{color:var(--brand-d);border-bottom-color:var(--brand);}
+.tab.in.active{color:var(--green);border-bottom-color:var(--green);}
+.tab.out.active{color:var(--red);border-bottom-color:var(--red);}
+
+/* ── Main card ── */
+.wrap{padding:14px;max-width:560px;margin:0 auto;}
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px;}
+.card h2{font-size:16px;font-weight:800;margin:0 0 12px;}
+
+/* ── DESKTOP RESPONSIVE ──────────────────────────────────────────────
+   On phones the app stays a narrow 560px column (feels native). On wider
+   screens (tablets / desktop) we let the content use the real estate:
+   the wrap widens, tables span the full width, and the scan card + list
+   can sit comfortably. This removes the “squished narrow column with huge
+   empty sides” look on desktop. */
+@media (min-width: 900px){
+  .wrap{ max-width: 1200px; padding: 20px 28px; }
+  /* table cards span the full wide wrap */
+  .tablecard{ width:100%; }
+  .dtable{ font-size:14px; }
+  .dtable thead th, .dtable tbody td{ padding:14px 16px; }
+  /* status banner + tabs also span the wider area */
+  .tabs{ max-width:1200px; margin:0 auto; }
+}
+@media (min-width: 1400px){
+  .wrap{ max-width: 1500px; }
+}
+/* let the scan card breathe but not become absurdly wide on big monitors */
+@media (min-width: 900px){
+  #scanCard{ max-width:680px; margin-left:auto; margin-right:auto; }
+}
+/* On desktop, Inward/Outward TABLES use the FULL width (same as Total Audit).
+   The camera/scan card stays a compact centered box ABOVE the wide table — since
+   auditing is done from the mobile app, the desktop camera doesn't need to be big.
+   The entries table spans the entire wrap so all columns are comfortably visible. */
+@media (min-width: 900px){
+  body.io-layout .wrap{ max-width:1200px; }
+  body.io-layout #scanCard{ max-width:680px; margin:0 auto 16px; }   /* compact camera, centered */
+  body.io-layout #listCard{ width:100%; }                            /* table full width */
+}
+@media (min-width: 1400px){
+  body.io-layout .wrap{ max-width:1500px; }
+}
+
+/* ── Status banner ── */
+.status{border-radius:14px;padding:14px 16px;font-size:15px;font-weight:700;
+  display:flex;align-items:center;gap:10px;margin-bottom:12px;transition:background .15s;}
+.status .dot{width:14px;height:14px;border-radius:50%;flex:none;}
+.status.idle{background:#f1f5f9;color:var(--muted);} .status.idle .dot{background:#cbd5e1;}
+.status.scan{background:var(--amber-l);color:#92400e;} .status.scan .dot{background:var(--amber);}
+.status.green{background:var(--green-l);color:#15803d;} .status.green .dot{background:var(--green);}
+.status.red{background:var(--red-l);color:#b91c1c;} .status.red .dot{background:var(--red);}
+
+/* ── Camera ── */
+.cam{position:relative;border-radius:18px;overflow:hidden;background:#0b0f14;
+  aspect-ratio:4/3;border:5px solid var(--line);transition:border-color .15s linear;}
+.cam.scan{border-color:var(--amber);} .cam.green{border-color:var(--green);} .cam.red{border-color:var(--red);}
+.cam video,.cam canvas,.cam img{width:100%;height:100%;object-fit:cover;display:block;}
+.cam .corner{position:absolute;width:34px;height:34px;border:3px solid var(--brand);z-index:3;pointer-events:none;}
+.cam .corner.tl{top:14px;left:14px;border-right:none;border-bottom:none;border-radius:6px 0 0 0;}
+.cam .corner.tr{top:14px;right:14px;border-left:none;border-bottom:none;border-radius:0 6px 0 0;}
+.cam .corner.bl{bottom:14px;left:14px;border-right:none;border-top:none;border-radius:0 0 0 6px;}
+.cam .corner.br{bottom:14px;right:14px;border-left:none;border-top:none;border-radius:0 0 6px 0;}
+.cam .torch{position:absolute;top:14px;right:14px;width:46px;height:46px;border-radius:50%;
+  background:rgba(15,23,42,.7);color:#fff;border:none;font-size:22px;z-index:6;display:flex;
+  align-items:center;justify-content:center;cursor:pointer;}
+.cam .refreshcam{position:absolute;top:14px;right:70px;width:46px;height:46px;border-radius:50%;
+  background:rgba(15,23,42,.7);color:#fff;border:none;font-size:20px;z-index:6;display:flex;
+  align-items:center;justify-content:center;cursor:pointer;}
+.cam video{transition:transform .12s ease;}
+
+/* Zoom controls overlay */
+.zoombar{position:absolute;left:12px;right:12px;bottom:12px;z-index:7;
+  display:flex;align-items:center;gap:10px;background:rgba(15,23,42,.62);
+  backdrop-filter:blur(4px);border-radius:999px;padding:8px 12px;}
+.zoombar .zbtn{width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,.9);
+  color:#0f172a;font-size:20px;font-weight:800;cursor:pointer;flex:none;line-height:1;}
+.zoombar input[type=range]{flex:1;accent-color:var(--brand);height:4px;}
+.zoombar .zlabel{color:#fff;font-size:13px;font-weight:800;min-width:34px;text-align:right;}
+.zoombar .zmode{color:#cbd5e1;font-size:10px;font-weight:600;}
+
+/* ── Countdown ring ── */
+.countdown{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:130px;height:130px;border-radius:50%;background:rgba(15,23,42,.82);
+  display:none;align-items:center;justify-content:center;z-index:20;
+  font-size:64px;font-weight:900;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.5);}
+.countdown.show{display:flex;}
+.countdown.done{background:rgba(22,163,74,.92);}
+
+/* ── Hint pill ── */
+.hint{background:var(--amber-l);border:1px dashed var(--amber);border-radius:10px;
+  padding:10px 14px;font-size:13px;color:#92400e;font-weight:600;margin-top:12px;display:none;}
+.hint.show{display:block;}
+
+/* ── Form fields ── */
+.fields{margin-top:14px;display:flex;flex-direction:column;gap:10px;}
+.field{position:relative;}
+.field label{position:absolute;top:8px;left:14px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.field input{width:100%;padding:26px 14px 10px;border:2px solid var(--line);border-radius:12px;
+  font-size:16px;font-weight:600;color:var(--ink);background:#fff;}
+.field input:focus{outline:none;border-color:var(--brand);}
+.field.ok input{border-color:var(--green);background:var(--green-l);}
+
+/* ── Buttons ── */
+.btn-row{display:flex;gap:10px;margin-top:14px;}
+.btn{flex:1;padding:15px;font-size:15px;font-weight:800;border:none;border-radius:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn.primary{background:var(--brand);color:#fff;}
+.btn.green{background:var(--green);color:#fff;}
+.btn.ghost{background:#f1f5f9;color:var(--muted);}
+.btn.amber{background:var(--amber-l);color:#92400e;}
+.btn:disabled{opacity:.45;}
+.btn.sm{flex:none;padding:15px 18px;}
+
+/* ── Post-scan choice sheet ── */
+.sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:4px solid var(--green);
+  padding:18px 16px 22px;z-index:90;box-shadow:0 -10px 30px rgba(0,0,0,.18);
+  display:none;flex-direction:column;gap:12px;border-radius:20px 20px 0 0;max-width:560px;margin:0 auto;}
+.sheet.show{display:flex;}
+.sheet .stitle{font-size:18px;font-weight:900;}
+.sheet .sdetail{font-size:16px;font-weight:700;color:var(--ink);background:#f8fafc;
+  border-radius:10px;padding:12px 14px;}
+.sheet .ssub{font-size:13px;color:var(--muted);margin-top:-4px;}
+
+/* ── Table ── */
+.tablecard{background:#fff;border-radius:18px;box-shadow:var(--shadow);overflow:hidden;}
+.tablecard .thead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);}
+.tablecard .thead h3{margin:0;font-size:15px;font-weight:800;}
+.tablecard .count{font-size:13px;color:var(--muted);font-weight:600;}
+.row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f1f5f9;}
+.row:last-child{border-bottom:none;}
+.row img{width:46px;height:46px;border-radius:8px;object-fit:cover;background:#f1f5f9;flex:none;}
+.row .info{flex:1;min-width:0;}
+.row .nm{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row .mt{font-size:12px;color:var(--muted);}
+.row .qty{font-size:18px;font-weight:900;}
+.row .qty.in{color:var(--green);} .row .qty.out{color:var(--red);}
+.row .del{background:none;border:none;color:#cbd5e1;font-size:20px;cursor:pointer;padding:4px;}
+.empty{padding:40px 16px;text-align:center;color:var(--muted);font-size:14px;}
+
+/* ── Proper data table — stylish, bordered, bigger numbers ── */
+.table-scroll{overflow-x:auto;padding:2px;}
+.dtable{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;
+  border:2px solid var(--line);border-radius:12px;overflow:hidden;}
+.dtable thead th{text-align:left;padding:12px 12px;background:linear-gradient(180deg,#f1f5f9,#e9eef5);
+  color:#334155;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+  border-bottom:2px solid #cbd5e1;border-right:1px solid #e2e8f0;white-space:nowrap;position:sticky;top:0;}
+.dtable thead th.sortable:hover{background:linear-gradient(180deg,#e0e7ef,#d8e0ea);color:var(--brand-d);}
+.dtable thead th.sortable span{font-size:11px;opacity:.7;margin-left:2px;}
+.dtable thead th:last-child{border-right:none;}
+.dtable th.num,.dtable td.num{text-align:right;}
+.dtable tbody td{padding:12px 12px;border-bottom:1px solid #e8edf3;border-right:1px solid #f1f5f9;vertical-align:middle;color:#1e293b;font-weight:500;}
+/* Item NAME column (3rd cell) — DESKTOP: one line (no wrap), dark readable text. */
+.dtable tbody td:nth-child(3){ color:#1e293b; font-weight:500; white-space:nowrap; }
+.dtable tbody td:last-child{border-right:none;}
+.dtable tbody tr:last-child td{border-bottom:none;}
+.dtable tbody tr:nth-child(even){background:#fafcff;}
+.dtable tbody tr:hover{background:#f0f7ff;}
+/* BIGGER numbers for Qty / Boxes / Total */
+.dtable td.num{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;}
+.dtable td.num.big{font-size:18px;font-weight:900;}
+/* DESKTOP override (placed AFTER the base rule so it wins): smaller, refined numbers.
+   Mobile keeps the big 16/18px via the max-width:640px block further below. */
+@media (min-width: 900px){
+  .dtable td.num{ font-size:13px; font-weight:700; letter-spacing:.01em; }
+  .dtable td.num.big{ font-size:14px; font-weight:800; }
+}
+.dtable td.num.pos{color:var(--green);}
+.dtable td.num.neg{color:var(--red);}
+/* Inward-qty vs inventory colour coding */
+.dtable td.qtymatch{color:#15803d;background:rgba(34,197,94,.12);font-weight:900;border-radius:0;}
+
+/* ── MOBILE: keep the bordered/striped styling + colours, but make cells COMPACT
+   so the table fits the phone without horizontal spilling. Smaller padding but
+   keep the numbers nice and BIG (readable) on narrow screens. ── */
+@media (max-width: 640px){
+  .dtable{ font-size:12px; }
+  .dtable thead th{ padding:12px 7px; font-size:10px; }
+  .dtable tbody td{ padding:16px 7px; }   /* taller rows — more vertical breathing room */
+  /* item name on the phone — OLD natural behaviour: let it wrap as needed at the
+     normal cell width (no forced min/max width). Borders/colours/styling stay. */
+  .dtable tbody td:nth-child(3){ white-space:normal; line-height:1.3; max-width:none; min-width:0; font-size:12px; }
+  .dtable thead th:nth-child(3){ max-width:none; min-width:0; }
+  .dtable td.num{ font-size:16px; font-weight:800; }
+  .dtable td.num.big{ font-size:18px; font-weight:900; }
+  .dtable img.thumb{ width:42px; height:42px; }
+  .filterbar{ padding:10px 12px; }
+  .filterbar input[type=text]{ padding:9px 10px; font-size:14px; }
+}
+.dtable td.qtyunder{color:#92400e;background:rgba(245,158,11,.14);font-weight:900;}
+.dtable td.qtyover{color:#b91c1c;background:rgba(239,68,68,.14);font-weight:900;}
+.dtable .sdot{display:inline-block;width:11px;height:11px;border-radius:50%;}
+.dtable .sdot.green{background:var(--green);} .dtable .sdot.red{background:var(--red);}
+.dtable img.thumb{width:56px;height:56px;border-radius:6px;object-fit:cover;cursor:pointer;background:#f1f5f9;}
+.filterbar{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px;background:#fafcff;}
+.filterbar input[type=text]{width:100%;padding:11px 12px;border:2px solid var(--line);border-radius:10px;font-size:15px;}
+.filterbar input[type=text]:focus{border-color:var(--brand);outline:none;}
+.filterrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.filterrow select,.filterrow input[type=date]{padding:9px 10px;border:2px solid var(--line);border-radius:9px;font-size:14px;background:#fff;}
+.filterrow .todash{color:var(--muted);font-size:13px;}
+.filterrow .btn.sm{padding:9px 14px;font-size:14px;}
+.dtable .delbtn{background:none;border:none;color:#cbd5e1;font-size:18px;cursor:pointer;padding:2px 6px;}
+.dtable .editqty{cursor:pointer;color:var(--red);font-weight:800;white-space:nowrap;padding:4px 8px;border-radius:6px;background:var(--red-l);}
+.dtable .editqty:active{opacity:.6;}
+.dtable .badge{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;}
+.dtable .badge.ok{background:var(--green-l);color:#15803d;}
+.dtable .badge.warn{background:var(--amber-l);color:#92400e;}
+/* Download-to-Excel button */
+.btn-excel{display:inline-flex;align-items:center;gap:6px;background:#15803d;color:#fff;border:none;
+  padding:9px 14px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-excel:active{opacity:.8;}
+
+
+/* photo lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:130;display:none;align-items:center;justify-content:center;padding:12px;overflow:auto;}
+.lightbox.show{display:flex;}
+.lightbox img{max-width:100%;max-height:90vh;border-radius:12px;transition:transform .2s;transform-origin:center;cursor:zoom-in;}
+.lightbox img.zoomed{max-width:none;max-height:none;width:auto;transform:scale(2);cursor:zoom-out;}
+.lightbox .lbclose{position:fixed;top:16px;right:16px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.95);border:none;font-size:22px;font-weight:800;cursor:pointer;z-index:131;}
+
+/* ── Total audit ── */
+.taudit .row .nm{font-weight:700;}
+.taudit .net{font-size:20px;font-weight:900;}
+
+.debug{font-size:11px;color:#94a3b8;text-align:center;padding:8px;font-family:ui-monospace,monospace;}
+.rescan-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--green-l);border:1px solid #86efac;border-radius:12px;padding:12px 14px;margin-top:12px;}
+.rescan-bar span{font-weight:800;color:#15803d;font-size:15px;}
+.rescan-bar .btn{flex:none;}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;
+  padding:12px 20px;border-radius:999px;font-size:14px;font-weight:600;z-index:120;opacity:0;
+  transition:opacity .2s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+.hidden{display:none!important;}
+
+/* settings modal */
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal.show{display:flex;}
+.modal .box{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:380px;}
+.modal h3{margin:0 0 8px;font-size:16px;font-weight:800;}
+.modal p{font-size:13px;color:var(--muted);margin:0 0 12px;}
+.modal input{width:100%;padding:11px;border:2px solid var(--line);border-radius:10px;font-family:ui-monospace,monospace;font-size:13px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <button id="hamBtn" class="ham-btn" aria-label="Menu">☰</button>
+  <h1>ONE App <small>Company A · Store — Retailer Auditing</small></h1>
+</div>
+
+<!-- Slide-in navigation drawer (left) -->
+<div id="navOverlay" class="nav-overlay"></div>
+<div id="navDrawer" class="nav-drawer">
+  <div class="nav-drawer-head">
+    <div class="nav-drawer-title">ONE App</div>
+    <div class="nav-drawer-sub">Store · Retailer Auditing</div>
+    <button id="navClose" class="nav-close" aria-label="Close">✕</button>
+  </div>
+  <nav class="nav-drawer-body">
+    <a class="nav-link active" id="navRetailer"><span class="nav-ico">📦</span> Store Retailer Auditing</a>
+    <a class="nav-link" id="navSignout"><span class="nav-ico">⎋</span> Sign out</a>
+    <a class="nav-link hidden" id="navSignin"><span class="nav-ico">↪</span> Sign in</a>
+  </nav>
+</div>
+
+<div class="engine-row">
+  <span id="engineStatus">⏳ Starting…</span>
+</div>
+
+<!-- Pull-to-refresh indicator -->
+<div id="ptrIndicator" class="ptr-indicator"><span id="ptrText">↓ Pull to refresh</span></div>
+
+<div class="tabs">
+  <button class="tab in active" id="tabIn" data-view="inward">📥 Inward</button>
+  <button class="tab out" id="tabOut" data-view="outward">📤 Outward</button>
+  <button class="tab" id="tabTotal" data-view="total">📊 Total Audit</button>
+  <!-- Retailer expansion tabs (shown/hidden by role in JS) -->
+  <button class="tab hidden" id="tabPickout" data-view="pickout">📤 Pickout</button>
+  <button class="tab hidden" id="tabStoreAudit" data-view="storeaudit">📊 Store Audit</button>
+  <button class="tab hidden" id="tabShipment" data-view="shipment">🚚 Shipment</button>
+  <button class="tab hidden" id="tabItemAudit" data-view="itemaudit">📋 Total Audit</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ===================== PICKOUT (auditors capture / store verifies) ===================== -->
+  <div id="view-pickout" class="hidden">
+    <!-- per-row capture camera (auditor only) -->
+    <div class="card hidden" id="pkScanCard">
+      <h2>Pickout capture — <span id="pkRowLabel">select a row</span></h2>
+      <div class="camera-wrap" id="pkCamWrap" style="position:relative;border-radius:14px;overflow:hidden;background:#000;margin-bottom:12px;">
+        <video id="pkVideo" playsinline muted autoplay style="width:100%;display:block;max-height:46vh;object-fit:cover;"></video>
+        <div class="cam-hint" id="pkCamHint" style="position:absolute;left:50%;transform:translateX(-50%);bottom:10px;background:rgba(15,23,42,.7);color:#fff;padding:6px 12px;border-radius:16px;font-size:12px;font-weight:600;z-index:5;">Scan the item code for this invoice line</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" id="pkCapture" style="flex:1;background:var(--brand);color:#fff;">📸 Capture</button>
+        <button class="btn ghost" id="pkCancel">✖ Cancel</button>
+      </div>
+    </div>
+    <div class="tablecard">
+      <div class="thead"><h3 id="pkTitle">Pickout</h3><span class="count" id="pickoutCount">0</span></div>
+      <div class="filterbar" id="pkFilters">
+        <input id="pkInvoice" type="text" placeholder="Invoice no…">
+        <input id="pkDate" type="date">
+        <button class="btn ghost sm" id="pkApply">Apply</button>
+        <button class="btn ghost sm" id="pkClear">Clear</button>
+        <button class="btn ghost sm" id="pkRefresh">↻ Refresh</button>
+      </div>
+      <div class="table-scroll">
+        <table class="dtable"><thead><tr id="pkHead"></tr></thead><tbody id="pickoutBody"></tbody></table>
+      </div>
+      <p class="empty" id="pickoutEmpty">No invoice lines. Use the filter or refresh.</p>
+    </div>
+  </div>
+
+  <!-- ===================== STORE AUDIT (inward physical vs system) ===================== -->
+  <div id="view-storeaudit" class="hidden">
+    <div class="tablecard">
+      <div class="thead"><h3>Store Audit — inward physical vs system</h3><span class="count" id="storeAuditCount">0</span></div>
+      <div class="filterbar"><input id="saSearch" type="text" placeholder="🔍 Search item name or code…" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:10px;"></div>
+      <div class="table-scroll">
+        <table class="dtable">
+          <thead><tr>
+            <th>#</th><th>Item Code</th><th>Item Name</th>
+            <th class="num">System Qty</th><th class="num">Physical Qty</th>
+            <th>Capture Date &amp; Time</th><th>Captured By</th><th>Photo</th>
+          </tr></thead>
+          <tbody id="storeAuditBody"></tbody>
+        </table>
+      </div>
+      <p class="empty" id="storeAuditEmpty">No inward data yet.</p>
+    </div>
+  </div>
+
+  <!-- ===================== SHIPMENT (delivery captures GPS photo / store views) ===================== -->
+  <div id="view-shipment" class="hidden">
+    <div class="card hidden" id="shScanCard">
+      <h2>Delivery capture — <span id="shRowLabel">select a row</span></h2>
+      <div class="camera-wrap" id="shCamWrap" style="position:relative;border-radius:14px;overflow:hidden;background:#000;margin-bottom:12px;">
+        <video id="shVideo" playsinline muted autoplay style="width:100%;display:block;max-height:46vh;object-fit:cover;"></video>
+        <div class="cam-hint" id="shCamHint" style="position:absolute;left:50%;transform:translateX(-50%);bottom:10px;background:rgba(15,23,42,.7);color:#fff;padding:6px 12px;border-radius:16px;font-size:12px;font-weight:600;z-index:5;">Scan item code · location stamped on photo</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" id="shCapture" style="flex:1;background:var(--brand);color:#fff;">📸 Capture with location</button>
+        <button class="btn ghost" id="shCancel">✖ Cancel</button>
+      </div>
+    </div>
+    <div class="tablecard">
+      <div class="thead"><h3>Shipment</h3><span class="count" id="shipmentCount">0</span></div>
+      <div class="filterbar"><input id="shSearch" type="text" placeholder="🔍 Search invoice / item…" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:10px;"></div>
+      <div class="table-scroll">
+        <table class="dtable"><thead><tr id="shHead"></tr></thead><tbody id="shipmentBody"></tbody></table>
+      </div>
+      <p class="empty" id="shipmentEmpty">No verified pickouts to ship yet.</p>
+    </div>
+  </div>
+
+  <!-- ===================== ITEM AUDIT (inward vs pickout per item) ===================== -->
+  <div id="view-itemaudit" class="hidden">
+    <div class="tablecard">
+      <div class="thead"><h3>Total Audit — physical vs pickout</h3><span class="count" id="itemAuditCount">0</span></div>
+      <div class="filterbar"><input id="iaSearch" type="text" placeholder="🔍 Search item name or code…" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:10px;"></div>
+      <div class="table-scroll">
+        <table class="dtable">
+          <thead><tr>
+            <th>#</th><th>Item Code</th><th>Item Name</th>
+            <th class="num">System Qty</th><th class="num">Physical Qty</th><th>Physical Capture</th>
+            <th class="num">Pickout Qty</th><th>Pickout Capture</th>
+            <th class="num">Total</th><th>Status</th>
+          </tr></thead>
+          <tbody id="itemAuditBody"></tbody>
+        </table>
+      </div>
+      <p class="empty" id="itemAuditEmpty">No data yet.</p>
+    </div>
+  </div>
+
+  <!-- Scanner card (inward/outward) -->
+  <div class="card" id="scanCard">
+    <h2 id="scanTitle">Scan box — Inward</h2>
+
+    <div class="status idle" id="status">
+      <span class="dot"></span>
+      <span id="statusText">Starting camera…</span>
+    </div>
+
+    <div class="cam" id="cam">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="snapCanvas" class="hidden"></canvas>
+      <img id="snapImg" class="hidden" alt="">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <button class="torch" id="torchBtn" title="Torch">🔦</button>
+      <button class="refreshcam" id="refreshBtn" title="Refresh camera">🔄</button>
+      <div class="countdown" id="countdown">5</div>
+
+      <!-- Zoom controls -->
+      <div class="zoombar hidden" id="zoomBar">
+        <button class="zbtn" id="zoomOut">−</button>
+        <input type="range" id="zoomSlider" min="1" max="4" step="0.1" value="1">
+        <button class="zbtn" id="zoomIn">+</button>
+        <span class="zlabel" id="zoomLabel">1×</span>
+        <span class="zmode" id="zoomMode"></span>
+      </div>
+    </div>
+
+    <div class="hint" id="hint"></div>
+
+    <!-- "Scan next" bar appears after a Yes-save; user taps to start the next scan -->
+    <div class="rescan-bar hidden" id="rescanBar">
+      <span>Saved ✓</span>
+      <button class="btn green" id="rescanBtn">📷 Scan next carton</button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn green" id="captureBtn" style="flex:2;">📸 Capture (best accuracy)</button>
+      <button class="btn ghost sm" id="flipBtn">🔄 Flip</button>
+    </div>
+
+    <div class="debug" id="debug" style="display:block;font-size:11px;color:#94a3b8;padding:4px 0;">ready</div>
+  </div>
+
+  <!-- List (inward/outward) — proper table matching the original -->
+  <div class="tablecard" id="listCard">
+    <div class="thead">
+      <h3 id="listTitle">Inward — scanned entries</h3>
+      <span class="count" id="listCount">0 items</span>
+    </div>
+    <!-- search bar for inward/outward (item code or item name) -->
+    <div class="filterbar">
+      <input id="listSearch" type="text" placeholder="🔍 Search by item name or item code…" autocomplete="off">
+    </div>
+    <div class="table-scroll">
+      <table class="dtable">
+        <thead><tr>
+          <th>#</th><th>Item code</th><th>Item name</th><th class="num">Qty</th>
+          <th class="num">Boxes</th><th class="num">Total</th>
+          <th class="sortable" id="listDateSort" style="cursor:pointer;user-select:none;">Capture date &amp; time <span id="listSortArrow">▼</span></th><th>Scan</th><th>Photo</th><th></th>
+        </tr></thead>
+        <tbody id="listBody"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="listEmpty">No scans yet. Point the camera at a carton label.</p>
+  </div>
+
+  <!-- Total audit — proper table matching the original -->
+  <div class="tablecard hidden" id="totalCard">
+    <div class="thead">
+      <h3>Total Audit — inward vs outward per item</h3>
+      <span class="count" id="totalCount">0 models</span>
+    </div>
+
+    <!-- search + date filters -->
+    <div class="filterbar">
+      <input id="taSearch" type="text" placeholder="🔍 Search by item name or item code…" autocomplete="off">
+      <div class="filterrow">
+        <select id="taDateMode">
+          <option value="all">All dates</option>
+          <option value="single">Specific date</option>
+          <option value="range">Date range</option>
+        </select>
+        <input id="taDate" type="date" class="hidden">
+        <span id="taRangeWrap" class="hidden">
+          <input id="taFrom" type="date"> <span class="todash">to</span> <input id="taTo" type="date">
+        </span>
+        <button class="btn ghost sm" id="taApply">Apply</button>
+        <button class="btn ghost sm" id="taClear">Clear</button>
+        <button class="btn-excel" id="taExcel">⬇ Download Excel</button>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="dtable">
+        <thead><tr>
+          <th>#</th><th>Item code</th><th>Item name</th><th class="num">Inventory qty</th>
+          <th class="num">Inward qty</th>
+          <th class="num">Outward qty</th><th class="num">Total qty</th>
+          <th class="sortable" id="totalDateSort" style="cursor:pointer;user-select:none;">Last capture date &amp; time <span id="totalSortArrow">▼</span></th><th>Status</th>
+        </tr></thead>
+        <tbody id="totalBody"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="totalEmpty">Nothing to total yet — scan a few inward and outward boxes first.</p>
+  </div>
+
+</div>
+
+<!-- Save popup: "Save to Inward/Outward? Yes / No" -->
+<div class="modal" id="savePopup">
+  <div class="box">
+    <h3 id="popTitle">Save to Inward?</h3>
+    <img id="popImg" class="hidden" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:12px;" alt="">
+    <div style="font-size:17px;font-weight:800;color:var(--ink);margin-bottom:10px;" id="popModel">—</div>
+    <div style="display:flex;gap:10px;margin-bottom:8px;">
+      <div style="flex:1;">
+        <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">Qty</label>
+        <input id="popQtyInput" type="number" inputmode="numeric" value="1"
+          style="width:100%;padding:12px;border:2px solid var(--line);border-radius:10px;font-size:18px;font-weight:700;text-align:center;">
+      </div>
+      <div style="display:flex;align-items:center;font-size:22px;font-weight:800;color:var(--muted);padding-top:18px;">×</div>
+      <div style="flex:1;">
+        <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">Boxes</label>
+        <input id="popBoxesInput" type="number" inputmode="numeric" value="1"
+          style="width:100%;padding:12px;border:2px solid var(--brand);border-radius:10px;font-size:18px;font-weight:700;text-align:center;background:#f0f9ff;">
+      </div>
+    </div>
+    <div style="font-size:16px;font-weight:800;color:var(--green);margin-bottom:16px;" id="popTotal">Total: 1 unit</div>
+    <div class="btn-row">
+      <button class="btn green" id="popYes" style="flex:2;">✓ Yes, save</button>
+      <button class="btn ghost" id="popNo">✕ No</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox"><button class="lbclose" id="lbClose">✕</button><img id="lightboxImg" alt=""></div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script src="retailer-modules.js"></script>
+</body>
+</html>

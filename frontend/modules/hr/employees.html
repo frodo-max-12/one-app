@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Employees</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/employee.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Employees</span>
+        <div class="topbar-actions">
+          <a href="/modules/hr/employee-add.html" class="emp-add-btn">+ Add Employee</a>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="emp-shell">
+          <div class="emp-toolbar">
+            <div class="emp-search">
+              <input type="text" id="searchInput" placeholder="🔍  Search by name, email, code, mobile…" oninput="filter()" />
+            </div>
+            <select id="deptFilter" class="att-filter" onchange="filter()">
+              <option value="">All departments</option>
+              <option value="SALES">Sales</option>
+              <option value="FAE">FAE</option>
+              <option value="CSR">CSR</option>
+              <option value="STORE">Store</option>
+              <option value="PURCHASE">Purchase</option>
+              <option value="ACCOUNT">Account</option>
+              <option value="PRODUCT">Product</option>
+              <option value="HR">HR</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+            <span class="lens-sub" id="countLbl">— employees</span>
+          </div>
+
+          <div class="emp-table-wrap">
+            <table class="emp-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Code</th>
+                  <th>Designation</th>
+                  <th>Department</th>
+                  <th>Location</th>
+                  <th>Office</th>
+                  <th>Joined</th>
+                  <th>Role</th>
+                </tr>
+              </thead>
+              <tbody id="empBody">
+                <tr><td colspan="8" style="text-align:center; padding:30px; color:var(--lens-text-3);">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3><ul id="diagList"></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/employees.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Leave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <style>
+    .act-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px; max-width: 1100px; margin: 30px auto; padding: 0 20px;
+    }
+    .act-tile { display: block; padding: 28px 22px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--border); text-decoration: none; color: var(--text); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+    .act-tile:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 8px 22px rgba(0,0,0,0.08); }
+    .act-tile-ic    { font-size: 38px; margin-bottom: 12px; line-height: 1; }
+    .act-tile-name  { font-size: 17px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .act-tile-desc  { font-size: 12.5px; color: var(--text2); line-height: 1.5; }
+    .act-tile.hr-only { display: none; }
+  </style>
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Leave</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="act-grid">
+          <a class="act-tile" href="/modules/hr/leave-apply.html">
+            <div class="act-tile-ic">📝</div>
+            <div class="act-tile-name">Apply for Leave</div>
+            <div class="act-tile-desc">Submit a new leave application. Pick type (Casual / Short / LOP), dates, half-day options, reason, and reviewer.</div>
+          </a>
+          <a class="act-tile" href="/modules/hr/leave-balance.html">
+            <div class="act-tile-ic">📊</div>
+            <div class="act-tile-name">My Balance & History</div>
+            <div class="act-tile-desc">FY balance per leave type, grants & adjustments log, plus your recent applications with their status.</div>
+          </a>
+          <a class="act-tile act-tile-approvals" href="/modules/hr/leave-approvals.html">
+            <div class="act-tile-ic">✓</div>
+            <div class="act-tile-name">Approvals</div>
+            <div class="act-tile-desc">Review and approve / reject leave applications assigned to you. HR / admin / heads see this tile.</div>
+          </a>
+          <a class="act-tile act-tile-granter hr-only" href="/modules/hr/leave-granter.html">
+            <div class="act-tile-ic">🎁</div>
+            <div class="act-tile-name">Grant Leave (HR)</div>
+            <div class="act-tile-desc">Issue bonus / comp-off / correction grants to one or many employees. Full audit log of all grants.</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=4"></script>
+  <script src="/shared/common.js?v=4"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script>
+    const user = (typeof requireAuth === 'function') ? requireAuth() : null;
+    const HR_ROLES       = ['admin','operation head','director','hr','hr head'];
+    const REVIEWER_ROLES = ['admin','operation head','director','hr','hr head','sales head','north sales head','electrical head'];
+    if (user) {
+      const apply = () => {
+        renderSidebar('leave');
+        const role = (user.role || '').toLowerCase();
+        if (REVIEWER_ROLES.includes(role)) document.querySelector('.act-tile-approvals').style.display = '';
+        else                                document.querySelector('.act-tile-approvals').style.display = 'none';
+        if (HR_ROLES.includes(role))        document.querySelector('.act-tile-granter').style.display   = '';
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+      else apply();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/dashboard.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Dashboard</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <div class="chip">
+            <span class="chip-dot" style="background: var(--green);"></span>
+            <span>API Connected</span>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div id="dashboardLoading" class="loading-center">
+          <div class="spinner"></div>
+          <span>Loading dashboard…</span>
+        </div>
+        <div id="dashboardContent" style="display:none;">
+          <div class="grid-4" id="dashboardCards"></div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="section-head"><h2>Aging Breakdown</h2></div>
+              <div id="agingBreakdown"></div>
+            </div>
+            <div class="card">
+              <div class="section-head"><h2>Top 7 Debtors</h2></div>
+              <div id="topDebtors"></div>
+            </div>
+          </div>
+          <div class="card" id="salespersonCard" style="display:none;">
+            <div class="section-head"><h2>Outstanding by Salesperson</h2></div>
+            <div id="salespersonGrid" class="salesperson-grid"></div>
+          </div>
+        </div>
+        <div id="dashboardError" class="empty" style="display:none;">
+          <div class="empty-icon">⚠</div>
+          <div class="empty-text">Failed to load dashboard.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/mobile-menu.js"></script>
+  <script src="./js/dashboard.js"></script>
+</body>
+</html>

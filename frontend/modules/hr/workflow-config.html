@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Workflow Config</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/payroll.css?v=1" />
+  <link rel="stylesheet" href="./css/workflow.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Workflow Config</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <button class="btn btn-primary" type="button" onclick="openEdit(null)">+ New Workflow</button>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="pr-wrap">
+          <div class="wf-filters">
+            <label class="pr-year-inline">
+              <span>Entity</span>
+              <select id="entitySel" onchange="loadList()">
+                <option value="">All</option>
+                <option value="Leave">Leave</option>
+                <option value="Regularization">Regularization</option>
+                <option value="ITDeclaration">IT Declaration</option>
+              </select>
+            </label>
+            <label class="pr-year-inline">
+              <input type="checkbox" id="archivedChk" onchange="loadList()" /> Show archived
+            </label>
+          </div>
+
+          <section class="pr-table-wrap">
+            <table class="pr-table">
+              <thead><tr>
+                <th>Code</th><th>Name</th><th>Entity</th>
+                <th class="r">Priority</th><th class="r">Levels</th><th class="r">In Use</th>
+                <th>Conditions</th><th></th>
+              </tr></thead>
+              <tbody id="listTbody"><tr><td colspan="8" class="pr-loading">Loading…</td></tr></tbody>
+            </table>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ EDIT MODAL ════════ -->
+  <div class="lens-modal" id="editModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeEdit()">←</button>
+        <span id="editTitle">Workflow</span>
+      </div>
+      <input type="hidden" id="wfId" />
+
+      <div class="ps-row">
+        <label class="ps-field">
+          <span>Code *</span>
+          <input type="text" id="wfCode" maxlength="40" placeholder="e.g. LEAVE_LONG" />
+        </label>
+        <label class="ps-field">
+          <span>Name *</span>
+          <input type="text" id="wfName" maxlength="150" placeholder="e.g. Long Leave (>5 days)" />
+        </label>
+      </div>
+
+      <div class="ps-row">
+        <label class="ps-field">
+          <span>Entity Kind *</span>
+          <select id="wfEntity">
+            <option value="Leave">Leave</option>
+            <option value="Regularization">Regularization</option>
+            <option value="ITDeclaration">IT Declaration</option>
+          </select>
+        </label>
+        <label class="ps-field">
+          <span>Priority (lower = wins)</span>
+          <input type="number" id="wfPriority" value="100" min="0" max="9999" />
+        </label>
+      </div>
+
+      <label class="ps-field">
+        <span>Description</span>
+        <textarea id="wfDesc" rows="2" maxlength="500" placeholder="Optional explanation"></textarea>
+      </label>
+
+      <label class="ps-field">
+        <span>Conditions (JSON) — examples below</span>
+        <textarea id="wfConditions" rows="3" placeholder='{"daysGT": 5}'></textarea>
+        <small class="pr-meta">
+          Recognised keys: <code>daysGT</code> (Leave), <code>daysGTE</code>, <code>amountGT</code> (IT), <code>amountGTE</code>,
+          <code>departmentIn</code> (array), <code>leaveTypeIn</code> (array). Empty = matches everything.
+        </small>
+      </label>
+
+      <div class="wf-levels">
+        <div class="wf-levels-head">
+          <h3>Approval Levels</h3>
+          <button class="btn btn-sm" type="button" onclick="addLevel()">+ Add Level</button>
+        </div>
+        <div id="levelsList"></div>
+      </div>
+
+      <button class="btn btn-primary btn-wide" type="button" onclick="submitEdit()">Save Workflow</button>
+      <div class="pr-err" id="editErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=12"></script>
+  <script src="/shared/common.js?v=12"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/workflow-config.js?v=1"></script>
+</body>
+</html>

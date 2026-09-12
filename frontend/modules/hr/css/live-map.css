@@ -1,0 +1,52 @@
+/* Live Map — field-staff real-time location (v1.8) */
+
+.lm-content { padding: 0 !important; }
+.lm-wrap { display: flex; height: calc(100vh - 64px); }
+
+.lm-side {
+  width: 320px; flex-shrink: 0; border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; background: var(--bg2);
+}
+.lm-side-head { padding: 12px; border-bottom: 1px solid var(--border); }
+.lm-legend {
+  display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 6px;
+  font-size: 11px; color: var(--text2);
+}
+.lm-legend span { display: flex; align-items: center; gap: 4px; }
+.lm-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.lm-live  { background: #16a34a; }
+.lm-idle  { background: #f0a22e; }
+.lm-stale { background: #888; }
+.lm-off   { background: #c0392b; opacity: .5; }
+.lm-refresh { font-size: 11px; color: var(--text3); }
+.lm-refresh a { color: var(--accent); text-decoration: none; }
+
+.lm-list { overflow-y: auto; flex: 1; }
+.lm-item {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  cursor: pointer; display: flex; gap: 10px; align-items: flex-start;
+}
+.lm-item:hover { background: var(--bg3); }
+.lm-item .lm-status { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.lm-item .lm-name { font-weight: 600; color: var(--text); font-size: 13.5px; }
+.lm-item .lm-meta { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.5; }
+.lm-item .lm-role { font-size: 10px; color: var(--text3); text-transform: uppercase; }
+
+.lm-map { flex: 1; height: 100%; }
+
+.lm-summary { font-size: 12px; color: var(--text2); font-family: var(--mono); }
+
+/* Map marker labels */
+.lm-marker {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4);
+  font-size: 12px; font-weight: 700; color: #fff;
+}
+.lm-marker span { transform: rotate(45deg); }
+
+@media (max-width: 768px) {
+  .lm-wrap { flex-direction: column; height: auto; }
+  .lm-side { width: 100%; max-height: 40vh; }
+  .lm-map { height: 60vh; }
+}

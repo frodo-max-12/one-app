@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ONE App</string>
+    <string name="title_activity_main">ONE App</string>
+    <string name="package_name">com.example.oneapp</string>
+    <string name="custom_url_scheme">com.example.oneapp</string>
+</resources>

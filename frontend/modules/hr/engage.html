@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Engage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/engage.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Engage</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="eng-wrap">
+
+          <!-- ════════ COMPOSER ════════ -->
+          <section class="eng-card eng-composer">
+            <div class="eng-comp-tabs" id="compTabs">
+              <button class="comp-tab hr-only" data-mode="post"  onclick="switchMode('post')"  style="display:none;">📣 Post</button>
+              <button class="comp-tab active"  data-mode="kudos" onclick="switchMode('kudos')">🏆 Give Kudos</button>
+              <button class="comp-tab hr-only" data-mode="poll"  onclick="switchMode('poll')"  style="display:none;">📊 Poll</button>
+            </div>
+
+            <!-- POST mode -->
+            <div class="comp-form" id="compFormPost" style="display:none;">
+              <input type="text" id="postTitle" placeholder="Headline (optional)" maxlength="200" />
+              <textarea id="postBody" rows="4" placeholder="Share an announcement with the team…"></textarea>
+              <div class="comp-actions">
+                <button class="btn btn-primary" type="button" onclick="submitPost()">Publish</button>
+              </div>
+            </div>
+
+            <!-- KUDOS mode (default) -->
+            <div class="comp-form" id="compFormKudos">
+              <div class="comp-row">
+                <label class="comp-field">
+                  <span>Give kudos to *</span>
+                  <input type="text" id="kudosTarget" list="empListDL" placeholder="Start typing a name…" autocomplete="off" />
+                </label>
+                <label class="comp-field">
+                  <span>Badge *</span>
+                  <select id="kudosBadge"></select>
+                </label>
+              </div>
+              <textarea id="kudosBody" rows="3" placeholder="Tell us why they deserve it…"></textarea>
+              <div class="comp-actions">
+                <button class="btn btn-primary" type="button" onclick="submitKudos()">Send Kudos</button>
+              </div>
+            </div>
+
+            <!-- POLL mode -->
+            <div class="comp-form" id="compFormPoll" style="display:none;">
+              <input type="text" id="pollQuestion" placeholder="Ask the team a question…" maxlength="200" />
+              <div id="pollOptionsWrap"></div>
+              <button type="button" class="btn btn-sm btn-ghost" onclick="addPollOption()">+ Add option</button>
+              <label class="comp-field comp-inline">
+                <span>Close at (optional)</span>
+                <input type="datetime-local" id="pollCloseAt" />
+              </label>
+              <div class="comp-actions">
+                <button class="btn btn-primary" type="button" onclick="submitPoll()">Publish Poll</button>
+              </div>
+            </div>
+
+            <div class="eng-err" id="compErr" style="display:none;"></div>
+            <datalist id="empListDL"></datalist>
+          </section>
+
+          <!-- ════════ HR Suggestions ════════ -->
+          <section class="eng-card hr-only" id="suggestPanel" style="display:none;">
+            <div class="eng-card-head"><h2>Today’s Suggestions</h2><span class="eng-sub">birthdays + new joiners</span></div>
+            <div class="suggest-list" id="suggestList"><div class="eng-empty eng-empty-sm">Nothing to suggest today.</div></div>
+          </section>
+
+          <!-- ════════ Filter chips ════════ -->
+          <div class="eng-chips" id="filterChips">
+            <button class="chip active" data-kind=""                   onclick="setFilter('')">All</button>
+            <button class="chip"        data-kind="post"               onclick="setFilter('post')">Posts</button>
+            <button class="chip"        data-kind="kudos"              onclick="setFilter('kudos')">Kudos</button>
+            <button class="chip"        data-kind="poll"               onclick="setFilter('poll')">Polls</button>
+            <button class="chip"        data-kind="birthdays-joiners"  onclick="setFilter('birthdays-joiners')">🎂 Birthdays &amp; Joiners</button>
+          </div>
+
+          <!-- ════════ Feed ════════ -->
+          <div class="eng-feed" id="feedList">
+            <div class="eng-empty">Loading…</div>
+          </div>
+
+          <div class="eng-loadmore-wrap">
+            <button class="btn" type="button" id="loadMoreBtn" onclick="loadMore()" style="display:none;">Load more</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=7"></script>
+  <script src="/shared/common.js?v=7"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/engage.js?v=1"></script>
+</body>
+</html>

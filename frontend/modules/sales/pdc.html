@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — PDC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/pdc.css?v=9" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App · PDC (Cheques In)</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip"><span class="chip-dot" style="background:#22c55e"></span><span id="pdcCount">0 PDCs</span></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="pdc-shell">
+
+          <!-- Toolbar -->
+          <div class="pdc-toolbar">
+            <div class="pdc-search-wrap">
+              <span class="pdc-search-ic">🔍</span>
+              <input type="text" id="pdcSearch" placeholder="Search customer, cheque no, bill no, bank, remark…" />
+              <button id="pdcClearSearch" style="display:none;" class="pdc-clear-btn" onclick="clearSearch()">✕</button>
+            </div>
+            <input type="date" id="pdcFromDate" class="att-filter" title="Cheque date FROM" />
+            <input type="date" id="pdcToDate" class="att-filter" title="Cheque date TO" />
+            <button class="btn btn-ghost btn-sm" id="pdcApply" onclick="loadList()">Apply</button>
+            <div style="flex:1;"></div>
+            <button class="btn btn-sm" onclick="openImport()">⇧ Import Excel</button>
+            <button class="btn btn-sm" onclick="exportExcel()">⇩ Export Excel</button>
+            <button class="btn btn-primary btn-sm" onclick="openEdit(null)">+ Add PDC</button>
+          </div>
+
+          <!-- Last-import failures banner — surfaces rows that didn't make it into the DB.
+               Persists via localStorage so the user can still see it after closing the
+               import modal. Click ✕ to dismiss; populated again on the next import. -->
+          <div id="pdcFailBanner" class="pdc-fail-banner" hidden></div>
+
+          <!-- Stats strip — click a card to filter by that remark; "All" clears the search -->
+          <div class="pdc-stats" id="pdcStats">
+            <div class="stat-card stat-all" onclick="showAll()" title="Click to clear filter & show all">
+              <div class="stat-lbl">📊 All</div>
+              <div class="stat-num" id="statTotal">—</div>
+              <div class="stat-amt" id="statAmount">—</div>
+            </div>
+            <div class="stat-card stat-pending"   onclick="filterByBucket('pending')"   title="Click to filter Pending">
+              <div class="stat-lbl">⏳ Pending</div>
+              <div class="stat-num" id="statPending">—</div>
+              <div class="stat-amt" id="amtPending">—</div>
+            </div>
+            <div class="stat-card stat-deposited" onclick="filterByBucket('deposited')" title="Click to filter Deposited">
+              <div class="stat-lbl">🟡 Deposited</div>
+              <div class="stat-num" id="statDeposited">—</div>
+              <div class="stat-amt" id="amtDeposited">—</div>
+            </div>
+            <div class="stat-card stat-cleared"   onclick="filterByBucket('cleared')"   title="Click to filter Cleared">
+              <div class="stat-lbl">🟢 Cleared</div>
+              <div class="stat-num" id="statCleared">—</div>
+              <div class="stat-amt" id="amtCleared">—</div>
+            </div>
+            <div class="stat-card stat-online"    onclick="filterByBucket('online')"    title="Click to filter Online Received / NEFT">
+              <div class="stat-lbl">💰 Online</div>
+              <div class="stat-num" id="statOnline">—</div>
+              <div class="stat-amt" id="amtOnline">—</div>
+            </div>
+            <div class="stat-card stat-bounced"   onclick="filterByBucket('bounced')"   title="Click to filter Bounced / Cheque Bounce">
+              <div class="stat-lbl">🔴 Bounced</div>
+              <div class="stat-num" id="statBounced">—</div>
+              <div class="stat-amt" id="amtBounced">—</div>
+            </div>
+            <div class="stat-card stat-hold" onclick="filterByBucket('hold')" title="Click to filter Hold — cheques on hold (Status = Hold)">
+              <div class="stat-lbl">⏸ Hold</div>
+              <div class="stat-num" id="statHold">—</div>
+              <div class="stat-amt" id="amtHold">—</div>
+            </div>
+            <div class="stat-card stat-mismatch" onclick="filterByBucket('mismatch')" title="Rows that need fixing — no NAV customer match, or missing Cheque Date / Cheque No / Amount / Status">
+              <div class="stat-lbl">⚠ Mismatch</div>
+              <div class="stat-num" id="statMismatch">—</div>
+              <div class="stat-amt" id="amtMismatch">—</div>
+            </div>
+            <div class="stat-card stat-lapsed" onclick="filterByBucket('lapsed')" title="Lapsed — cheque date has passed (as on today) but the cheque is still on Hold or Not Deposited. Should have been banked by its cheque date.">
+              <div class="stat-lbl">⌛ Lapsed</div>
+              <div class="stat-num" id="statLapsed">—</div>
+              <div class="stat-amt" id="amtLapsed">—</div>
+            </div>
+          </div>
+
+          <!-- Selection bar — shown when any rows are checked -->
+          <div id="pdcSelBar" class="pdc-sel-bar" style="display:none;">
+            <span><b id="pdcSelCount">0</b> selected</span>
+            <button class="btn btn-sm" onclick="exportSelectedExcel()">⇩ Export Selected</button>
+            <button class="btn btn-sm btn-danger" onclick="bulkDelete()">🗑 Delete Selected</button>
+            <button class="btn btn-sm btn-ghost" onclick="clearSelection()">Clear</button>
+          </div>
+
+          <!-- Table -->
+          <div class="pdc-table-wrap">
+            <table class="pdc-table" id="pdcTable">
+              <thead>
+                <tr>
+                  <th style="width:36px; text-align:center;"><input type="checkbox" id="pdcSelAll" onchange="toggleSelectAll(this.checked)" title="Select all on this page" /></th>
+                  <th>CHEQUE DATE</th>
+                  <th>CUSTOMER</th>
+                  <th class="r">AMOUNT</th>
+                  <th>CHEQUE NO</th>
+                  <th>BANK</th>
+                  <th>VERTICAL</th>
+                  <th>BILL NO</th>
+                  <th>STATUS</th>
+                  <th>RECEIVED</th>
+                  <th>CLEARED</th>
+                  <th>REMARK</th>
+                  <th>IMPORTED AT</th>
+                  <th>IMPORTED BY</th>
+                  <th class="r"></th>
+                </tr>
+              </thead>
+              <tbody id="pdcBody">
+                <tr><td colspan="15" class="pdc-loading">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pdc-pagination" id="pdcPagination" style="margin-top: 12px;"></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ Add/Edit Modal ════════ -->
+  <div class="lens-modal" id="pdcModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeEdit()">←</button>
+        <span id="pdcModalTitle">Add PDC</span>
+      </div>
+      <input type="hidden" id="pdcId" />
+
+      <!-- Row 1: Customer name (wide) + Customer code; type-ahead from NAV -->
+      <div class="pdc-form-grid">
+        <div class="kv pdc-form-grid-full" style="grid-column: span 2; position: relative;">
+          <div class="kv-label">Customer Name *</div>
+          <input type="text" id="fCustomerName" placeholder="Start typing — pick from NAV suggestions…" autocomplete="off" />
+          <div id="custSuggest" class="pdc-suggest" hidden></div>
+          <div class="lens-sub">Pick from suggestions so Customer Code auto-fills — required for the PDC to appear in Customer Ledger.</div>
+        </div>
+        <div class="kv">
+          <div class="kv-label">Customer Code <span class="lens-sub">(NAV)</span></div>
+          <input type="text" id="fCustomerCode" placeholder="auto-filled" readonly />
+        </div>
+      </div>
+
+      <!-- Row 2: Cheque core -->
+      <div class="pdc-form-grid">
+        <div class="kv">
+          <div class="kv-label">Cheque No *</div>
+          <input type="text" id="fChequeNo" placeholder="195227" />
+        </div>
+        <div class="kv">
+          <div class="kv-label">Cheque Date *</div>
+          <input type="date" id="fChequeDate" />
+        </div>
+        <div class="kv">
+          <div class="kv-label">Amount (₹) *</div>
+          <input type="number" id="fAmount" step="0.01" placeholder="62250.00" />
+        </div>
+      </div>
+
+      <!-- Row 3: Bank / vertical / bill -->
+      <div class="pdc-form-grid">
+        <div class="kv">
+          <div class="kv-label">Bank Name</div>
+          <input type="text" id="fBankName" placeholder="CANARA BANK" />
+        </div>
+        <div class="kv">
+          <div class="kv-label">Vertical</div>
+          <input type="text" id="fVertical" placeholder="RETAILER" />
+        </div>
+        <div class="kv">
+          <div class="kv-label">Bill No <span class="lens-sub">(invoice paid)</span></div>
+          <input type="text" id="fBillNo" placeholder="COMPANYA/BE-2526/0071" />
+        </div>
+      </div>
+
+      <!-- Row 4: Status + dates -->
+      <div class="pdc-form-grid">
+        <div class="kv">
+          <div class="kv-label">Status</div>
+          <select id="fStatus">
+            <option value="pending">Pending</option>
+            <option value="not_deposited">Not Deposited</option>
+            <option value="with_salesperson">PDC with Salesperson</option>
+            <option value="deposited">Deposited</option>
+            <option value="cleared">Cleared</option>
+            <option value="online">Online Received</option>
+            <option value="bounced">Cheque Bounce</option>
+            <option value="hold">Hold</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="kv">
+          <div class="kv-label">Received Date</div>
+          <input type="date" id="fReceivedDate" />
+        </div>
+        <div class="kv">
+          <div class="kv-label">Cleared Date</div>
+          <input type="date" id="fClearedDate" />
+        </div>
+      </div>
+
+      <!-- Row 5: Remark full width -->
+      <div class="pdc-form-textarea">
+        <label>Remark</label>
+        <textarea id="fRemark" rows="2" maxlength="500" placeholder="Any notes about this cheque…"></textarea>
+      </div>
+
+      <div class="pdc-actions">
+        <button class="btn btn-danger btn-sm" id="pdcDeleteBtn" type="button" onclick="deletePdc()" style="display:none;">🗑 Delete</button>
+        <div style="flex:1;"></div>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closeEdit()">Cancel</button>
+        <button class="btn btn-primary" type="button" onclick="savePdc()">Save PDC</button>
+      </div>
+      <div class="sign-error" id="pdcError" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ════════ Import Modal ════════ -->
+  <div class="lens-modal" id="importModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeImport()">←</button>
+        <span>Import PDC from Excel</span>
+      </div>
+
+      <div class="kv">
+        <div class="kv-label">Excel file (.xlsx)</div>
+        <input type="file" id="importFile" accept=".xlsx,.xls" />
+        <div class="lens-sub" style="margin-top:6px;">
+          Expected columns (any order): <b>Customer Name</b>, <b>Customer Code</b> (optional),
+          <b>Cheque No</b>, <b>Cheque Date</b>, <b>Amount</b>, <b>Bank Name</b>, <b>Vertical</b>, <b>Bill No</b>,
+          <b>Status</b>, <b>Received Date</b>, <b>Cleared Date</b>, <b>Remark</b>. Re-importing the same cheque
+          (same Cheque No + Amount + Date) <b>UPDATES</b> the existing row — no need to delete & re-upload.
+          Legacy CHEQUES IN.xlsx headers (NAME LIST / IN AMT / CHEQUE_DT / CHEQUE_REMARK) still work.
+        </div>
+      </div>
+
+      <div class="pdc-actions">
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closeImport()">Cancel</button>
+        <div style="flex:1;"></div>
+        <button class="btn btn-sm" type="button" onclick="doImport(true)">👁 Preview (Dry Run)</button>
+        <button class="btn btn-primary" type="button" onclick="doImport(false)">⇧ Import</button>
+      </div>
+      <div class="sign-error" id="importError" style="display:none;"></div>
+      <div id="importResult" class="pdc-import-result" style="display:none; margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=5"></script>
+  <script src="/shared/common.js?v=5"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/pdc.js?v=18"></script>
+</body>
+</html>

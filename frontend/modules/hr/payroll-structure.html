@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Salary Structure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/payroll-structure.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Salary Structure</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="ps-wrap">
+
+          <!-- Tabs -->
+          <div class="ps-tabs">
+            <button class="tab-btn active" data-tab="components"  onclick="switchTab('components')">📦 Components</button>
+            <button class="tab-btn"        data-tab="structures"  onclick="switchTab('structures')">🧩 Structures</button>
+            <button class="tab-btn"        data-tab="employees"   onclick="switchTab('employees')">👥 Employee Salaries</button>
+          </div>
+
+          <!-- ═══════ Tab: Components ═══════ -->
+          <section id="paneComponents" class="ps-pane">
+            <div class="ps-pane-head">
+              <h2>Salary Components</h2>
+              <button class="btn btn-primary" type="button" onclick="openCompEdit(null)">+ New Component</button>
+            </div>
+            <div class="ps-table-wrap">
+              <table class="ps-table">
+                <thead><tr>
+                  <th>Code</th><th>Name</th><th>Kind</th><th>Taxability</th>
+                  <th>Formula</th><th class="r">Default</th><th>PF</th><th>ESI</th><th>PT</th><th></th>
+                </tr></thead>
+                <tbody id="compTbody"><tr><td colspan="10" class="ps-loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- ═══════ Tab: Structures ═══════ -->
+          <section id="paneStructures" class="ps-pane" style="display:none;">
+            <div class="ps-pane-head">
+              <h2>Salary Structures</h2>
+              <button class="btn btn-primary" type="button" onclick="openStructEdit(null)">+ New Structure</button>
+            </div>
+            <div class="ps-cards" id="structCards"><div class="ps-loading">Loading…</div></div>
+          </section>
+
+          <!-- ═══════ Tab: Employee Salaries ═══════ -->
+          <section id="paneEmployees" class="ps-pane" style="display:none;">
+            <div class="ps-pane-head">
+              <h2>Employee Salaries</h2>
+              <input type="search" id="empSearch" placeholder="Search by name / code / department…" oninput="renderEmployees()" />
+            </div>
+            <div class="ps-table-wrap">
+              <table class="ps-table">
+                <thead><tr>
+                  <th>Emp Code</th><th>Name</th><th>Department</th><th>Designation</th>
+                  <th>Structure</th><th class="r">Current CTC</th><th class="r">Monthly Gross</th>
+                  <th>Effective From</th><th></th>
+                </tr></thead>
+                <tbody id="empTbody"><tr><td colspan="9" class="ps-loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ COMPONENT EDIT MODAL ════════ -->
+  <div class="lens-modal" id="compModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeCompEdit()">←</button>
+        <span id="compModalTitle">Component</span>
+      </div>
+      <input type="hidden" id="cmId" />
+      <div class="ps-row">
+        <label class="ps-field">
+          <span>Code *</span>
+          <input type="text" id="cmCode" maxlength="20" placeholder="e.g. BONUS_QTR" />
+        </label>
+        <label class="ps-field">
+          <span>Name *</span>
+          <input type="text" id="cmName" maxlength="100" placeholder="e.g. Quarterly Bonus" />
+        </label>
+      </div>
+      <div class="ps-row">
+        <label class="ps-field">
+          <span>Kind *</span>
+          <select id="cmKind"><option>Earning</option><option>Deduction</option><option>Reimbursement</option></select>
+        </label>
+        <label class="ps-field">
+          <span>Taxability *</span>
+          <select id="cmTax"><option>Taxable</option><option>NonTaxable</option><option>PartialExempt</option></select>
+        </label>
+      </div>
+      <div class="ps-row">
+        <label class="ps-field">
+          <span>Formula Type *</span>
+          <select id="cmFt" onchange="updateCmDefaultHint()">
+            <option>Fixed</option><option>PctOfBasic</option><option>PctOfCTC</option>
+            <option>PctOfGross</option><option>Slab</option><option>Balancer</option><option>Manual</option>
+          </select>
+        </label>
+        <label class="ps-field">
+          <span id="cmDefHint">Default value</span>
+          <input type="number" step="0.01" id="cmDef" placeholder="0.00" />
+        </label>
+      </div>
+      <div class="ps-checkboxes">
+        <label><input type="checkbox" id="cmPF" /> Counts in PF wages</label>
+        <label><input type="checkbox" id="cmESI" /> Counts in ESI wages</label>
+        <label><input type="checkbox" id="cmPT" /> Counts in PT gross</label>
+      </div>
+      <label class="ps-field">
+        <span>Display Order</span>
+        <input type="number" id="cmOrder" value="50" min="0" max="999" />
+      </label>
+      <button class="btn btn-primary btn-wide" type="button" onclick="submitCompEdit()">Save</button>
+      <div class="ps-err" id="cmErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ════════ STRUCTURE EDIT MODAL ════════ -->
+  <div class="lens-modal" id="structModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeStructEdit()">←</button>
+        <span id="structModalTitle">Salary Structure</span>
+      </div>
+      <input type="hidden" id="smId" />
+      <div class="ps-row">
+        <label class="ps-field">
+          <span>Code *</span>
+          <input type="text" id="smCode" maxlength="30" placeholder="e.g. STD_SALES" />
+        </label>
+        <label class="ps-field">
+          <span>Name *</span>
+          <input type="text" id="smName" maxlength="150" placeholder="e.g. Sales Executive" />
+        </label>
+      </div>
+      <label class="ps-field">
+        <span>Description</span>
+        <textarea id="smDesc" rows="2" maxlength="500"></textarea>
+      </label>
+      <div class="ps-field">
+        <span>Components — tick the ones included in this structure</span>
+        <div class="ps-checklist" id="smCompList"></div>
+      </div>
+      <button class="btn btn-primary btn-wide" type="button" onclick="submitStructEdit()">Save</button>
+      <div class="ps-err" id="smErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ════════ ASSIGN SALARY MODAL ════════ -->
+  <div class="lens-modal" id="assignModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeAssign()">←</button>
+        <span>Assign Salary — <span id="asEmpName">—</span></span>
+      </div>
+      <input type="hidden" id="asUserId" />
+      <div class="ps-row">
+        <label class="ps-field">
+          <span>Structure *</span>
+          <select id="asStructure" onchange="livePreview()"></select>
+        </label>
+        <label class="ps-field">
+          <span>Annual CTC (₹) *</span>
+          <input type="number" id="asCtc" step="1" min="0" oninput="debouncePreview()" placeholder="e.g. 600000" />
+        </label>
+      </div>
+      <div class="ps-row">
+        <label class="ps-field">
+          <span>Effective From *</span>
+          <input type="date" id="asEff" />
+        </label>
+        <label class="ps-field">
+          <span>Remarks</span>
+          <input type="text" id="asRem" maxlength="500" placeholder="Promotion / Joining / Increment" />
+        </label>
+      </div>
+
+      <div class="ps-preview" id="asPreview"><div class="ps-preview-empty">Enter CTC to see breakdown…</div></div>
+
+      <details id="asHistory" style="margin-top:14px;">
+        <summary>Previous assignments</summary>
+        <div id="asHistoryList" class="ps-history-list"><div class="ps-empty-sm">—</div></div>
+      </details>
+
+      <button class="btn btn-primary btn-wide" type="button" onclick="submitAssign()">Assign Salary</button>
+      <div class="ps-err" id="asErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=9"></script>
+  <script src="/shared/common.js?v=9"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/payroll-structure.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Purchase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/warehouse.css?v=88" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Warehouse · Purchase (Singapore)</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip"><span class="chip-dot" style="background:#3b82f6"></span><span id="whCount">0 lines</span></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="wh-shell">
+          <div class="wh-toolbar">
+            <div class="wh-search-wrap">
+              <span class="wh-search-ic">🔍</span>
+              <input type="text" id="whSearch" placeholder="Search ALL columns — PO, item, supplier, qty, AWB, status, permit, dates…" />
+            </div>
+            <select id="whStatus" title="Tracked filter"></select>
+            <input type="date" id="whFrom" title="PO order date from" />
+            <input type="date" id="whTo"   title="PO order date to" />
+            <button class="btn btn-ghost btn-sm" id="whApply">Apply</button>
+            <button class="wh-clear-btn" id="whClear" title="Reset search + date + status filters">✕ Clear Filters</button>
+            <button class="btn btn-ghost btn-sm" id="whRecent" title="Show your most recently edited rows on top">⏱ Recent edits</button>
+            <div style="flex:1"></div>
+            <button class="btn btn-sm" id="whImport">⇧ Import Excel</button>
+            <input type="file" id="whFile" accept=".xlsx,.xls" hidden />
+            <button class="btn btn-sm" id="whExport">⇩ Export Excel</button>
+            <button class="btn btn-primary btn-sm" id="whAdd" style="display:none">+ Add Purchase</button>
+          </div>
+
+          <div class="wh-source-legend">
+            <span><span class="swatch nav"></span>Blue = auto-fetched from NAV (read-only)</span>
+            <span><span class="swatch manual"></span>White = the warehouse lead's manual entries (type + 💾 Save)</span>
+          </div>
+          <!-- Datalists used by Received Through + Status (input + dropdown suggestions) -->
+          <datalist id="dl-received-through">
+            <option>FedEx</option><option>DHL</option><option>UPS</option><option>TNT</option>
+            <option>Air Freight</option><option>Sea Freight</option><option>HD Local</option>
+            <option>Transworld</option><option>Local</option>
+          </datalist>
+          <datalist id="dl-status">
+            <option>Pending</option><option>Received Material</option><option>Received</option>
+            <option>Partially Received</option><option>Paid</option><option>Cancelled</option>
+          </datalist>
+          <datalist id="dl-fright-status">
+            <option>Claimed</option><option>Not Claimed</option><option>Pending</option>
+          </datalist>
+          <datalist id="dl-import-permit">
+            <option>Import</option><option>Local</option><option>Exempt</option><option>Drop Shipment</option>
+          </datalist>
+          <datalist id="dl-purchase-type">
+            <option>Purchase</option><option>Expenses</option>
+          </datalist>
+          <!-- Populated on load via GET /api/warehouse/stocks/carton-list.
+               Used by the "Received Material" → Stocks auto-link modal so
+               Amit gets typeahead of existing carton numbers + manual input. -->
+          <datalist id="dl-carton-no"></datalist>
+          <!-- Populated lazily on first modal open via /location-list.
+               Combobox: pick an existing NewLocation or type a new one. -->
+          <datalist id="dl-stock-location"></datalist>
+
+          <div class="wh-table-wrap">
+            <table class="wh-table wh-inline-edit">
+              <thead>
+                <tr>
+                  <!-- 1-5: Manual identification fields -->
+                  <th>Matrl. Recv Date</th>
+                  <th>System No.</th>
+                  <th>Purchase / Expences</th>
+                  <th>Invoice Date</th>
+                  <th>Invoice No</th>
+                  <!-- 5a: Carton No (2026-06-24 — visible per the warehouse lead's request) -->
+                  <th>Carton No</th>
+                  <!-- 6-7: NAV identity -->
+                  <th class="nav-col">Supplier Name</th>
+                  <th class="nav-col">CompanyB Po No</th>
+                  <!-- 8: Manual flag -->
+                  <th>Po Received</th>
+                  <!-- 9-14: NAV item + computed -->
+                  <th class="nav-col">Item Name</th>
+                  <th class="nav-col">Make</th>
+                  <!-- 11a-c: NAV Quantities per user spec (2026-06-10)
+                       Total = PO Qty ordered · Received = NAV Qty Received · Outstanding = NAV Outstanding -->
+                  <th class="num nav-col">Total Quantity</th>
+                  <th class="num nav-col">Received Qty</th>
+                  <th class="num nav-col">Outstanding Qty</th>
+                  <th class="num nav-col">Rate</th>
+                  <th class="num nav-col">Base price</th>
+                  <th class="num nav-col">Base Total</th>
+                  <!-- 15: NAV Item Wise Value (Purchase Line.Amount). 16: Manual Bank/Other Charges. -->
+                  <th class="num nav-col">Item Wise Value</th>
+                  <th class="num">Bank/Other Chg</th>
+                  <!-- 17-19: Computed -->
+                  <th class="num">GST By Us</th>
+                  <th class="num">GST By Supp</th>
+                  <th class="num">Net Inv Value</th>
+                  <!-- 19a: Status — moved 2026-06-24 (was between Payment Terms and Paid Date) -->
+                  <th>Status</th>
+                  <!-- 20-24: Manual shipping -->
+                  <th>Diamension</th>
+                  <th class="num">Weight</th>
+                  <th>COO</th>
+                  <th>Received Through</th>
+                  <th>Air Waybill No.</th>
+                  <!-- 25-26: NAV currency / terms -->
+                  <th class="nav-col">Currency</th>
+                  <th class="nav-col">Payment Terms</th>
+                  <!-- 28: Paid Date (Status moved up) -->
+                  <th>Paid Date</th>
+                  <!-- 29-33: Manual freight -->
+                  <th class="num">Freight (SGD)</th>
+                  <th class="num">GST acc Fright</th>
+                  <th>Fright Status</th>
+                  <th class="num">Freight/Kg</th>
+                  <th class="num">Total FF</th>
+                  <!-- 34: Manual FF invoice -->
+                  <th>FF/Courier Inv</th>
+                  <!-- 35-37: Manual local -->
+                  <th class="num">Local Chg</th>
+                  <th>Permit No.</th>
+                  <th>Import Permit Type</th>
+                  <!-- 38: Manual GST claim -->
+                  <th>GST Claimed Mth</th>
+                  <!-- 39: Save action -->
+                  <th class="actions-col">Save</th>
+                </tr>
+              </thead>
+              <tbody id="whTbody"><tr><td colspan="41" class="wh-loading">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="whPaging" class="wh-paging"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carton-wise ASN wizard. Two steps:
+         1. Vendor picker (unchanged)
+         2. Carton & Lines screen — pick a PO from the vendor's dropdown,
+            tick the lines you received, assign a Carton No, repeat with
+            another PO. Selected lines accumulate in a cart-table below.
+            Common Invoice / Pricing / Carton-Logistics fields on the right.
+         Status field removed from form — saved rows default to Received,
+         which fires the auto-stock-creation side-channel. -->
+  <div id="wizModal" class="rm-overlay" hidden>
+    <div class="rm-dialog wiz-dialog" role="dialog" aria-labelledby="wizTitle">
+      <div class="rm-head">
+        <h3 id="wizTitle">New ASN / Shipment — Step 1 of 2</h3>
+        <button class="rm-x" id="wizClose" title="Close" aria-label="Close">✕</button>
+      </div>
+      <div class="wiz-steps">
+        <div class="wiz-step is-active" data-step="1"><span class="wiz-step-num">1</span> Vendor</div>
+        <div class="wiz-step" data-step="2"><span class="wiz-step-num">2</span> Cartons &amp; Lines</div>
+      </div>
+
+      <!-- Step 1: Vendor picker (unchanged) -->
+      <div class="rm-body wiz-body" id="wizStep1">
+        <div class="wiz-search-row">
+          <input type="text" id="wizVendorSearch" placeholder="Search vendor by code or name (min 2 chars)…" autofocus />
+          <div class="wiz-search-hint" id="wizVendorHint">Start typing to search vendors that have POs.</div>
+        </div>
+        <div class="wiz-result-wrap">
+          <table class="wiz-table" id="wizVendorTable" hidden>
+            <thead>
+              <tr><th>Code</th><th>Name</th><th>Country</th><th>Default Currency</th><th class="num">PO Count</th></tr>
+            </thead>
+            <tbody id="wizVendorBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Step 2: Carton-wise picker + cart -->
+      <div class="rm-body wiz-body" id="wizStep2" hidden>
+        <div class="wiz-context">
+          <span class="wiz-context-chip" id="wizVendorChip">—</span>
+          <button class="wiz-back" id="wizBackTo1">← Change vendor</button>
+        </div>
+
+        <!-- 📦 CARTON MANAGER — sets the carton the next ticked line is assigned to -->
+        <div class="wiz-section wiz-carton-bar">
+          <div class="wiz-section-title">📦 Current Carton <span class="wiz-hint">Lines you tick below are assigned to this carton — click "Next carton" to start a new one</span></div>
+          <div class="wiz-carton-row">
+            <label class="wiz-carton-lbl">Carton No
+              <input type="text" id="wizCartonNo" maxlength="50" placeholder="CTN-26-0001" />
+            </label>
+            <button class="btn btn-ghost btn-sm" type="button" id="wizNextCarton" title="Bump the carton suggestion to the next number in the series">⮞ Next carton</button>
+          </div>
+        </div>
+
+        <!-- 🛒 PO PICKER — switch POs to add lines from each -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">🛒 Add lines from PO <span class="wiz-hint">Pick a PO → tick lines → repeat with another PO (lines accumulate below)</span></div>
+          <div class="wiz-po-row">
+            <select id="wizPoSelect" class="wiz-po-select">
+              <option value="">— select a PO —</option>
+            </select>
+            <input type="text" id="wizPoFilter" placeholder="filter PO no…" class="wiz-po-filter" />
+            <span class="wiz-search-hint" id="wizPoHint" style="margin-left:6px;">Loading POs…</span>
+          </div>
+          <div class="wiz-result-wrap wiz-line-wrap" style="margin-top:8px;">
+            <table class="wiz-table wiz-line-tbl" id="wizLineTable">
+              <thead>
+                <tr>
+                  <th class="wiz-cb-col"><input type="checkbox" id="wizSelAll" title="Select all on this PO" /></th>
+                  <th>Line</th>
+                  <th>Vendor Item No</th>
+                  <th>Description</th>
+                  <th class="num">PO Qty</th>
+                  <th class="num input-col">Recd Qty</th>
+                  <th class="num">Rate</th>
+                  <th class="num input-col">Net Wt (kg)</th>
+                  <th class="input-col">Datecode</th>
+                  <th class="input-col">Lot No</th>
+                  <th>Stock hint</th>
+                </tr>
+              </thead>
+              <tbody id="wizLineBody"><tr><td colspan="11" class="wh-empty">Pick a PO above to load its lines.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 🧺 SELECTED LINES CART — grouped by Carton No -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">🧺 Selected Lines (saved on click 💾)
+            <span class="wiz-hint">Grouped by carton — multiple POs can share one carton or split across cartons</span>
+            <span class="wiz-cart-count" id="wizCartCount" style="margin-left:8px;color:#1A5276;font-weight:700;">0 lines · 0 cartons</span>
+          </div>
+          <div class="wiz-result-wrap" style="max-height:30vh;">
+            <table class="wiz-table" id="wizCartTable">
+              <thead>
+                <tr>
+                  <th>Carton No</th>
+                  <th>PO No</th>
+                  <th>Line</th>
+                  <th>Vendor Item No</th>
+                  <th>Description</th>
+                  <th class="num">Recd Qty</th>
+                  <th class="num">Net Wt</th>
+                  <th>Datecode</th>
+                  <th>Lot No</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="wizCartBody"><tr><td colspan="10" class="wh-empty">No lines selected yet.</td></tr></tbody>
+            </table>
+          </div>
+          <div class="wiz-warn" id="wizDupWarn" hidden></div>
+        </div>
+
+        <!-- 📋 INVOICE INFO (common across the whole shipment) -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">📋 Invoice Info <span class="wiz-hint">Applies to every line saved in this shipment</span></div>
+          <div class="wiz-form-grid grid-2">
+            <label>Invoice Date <span class="req">*</span>
+              <input type="date" id="wizInvDate" />
+            </label>
+            <label>Invoice No <span class="req">*</span>
+              <input type="text" id="wizInvNo" maxlength="50" placeholder="e.g. INV-001" />
+            </label>
+            <label>Supplier Name <span class="wiz-auto">(auto)</span>
+              <input type="text" id="wizSupplier" readonly />
+            </label>
+            <label>Currency <span class="wiz-auto">(auto)</span>
+              <input type="text" id="wizCurrency" readonly />
+            </label>
+            <label>Payment Terms <span class="wiz-auto">(auto)</span>
+              <input type="text" id="wizPayTerms" readonly />
+            </label>
+            <label>Incoterms
+              <select id="wizIncoterms">
+                <option value="">—</option>
+                <option value="FOB" selected>FOB</option>
+                <option value="CIF">CIF</option>
+                <option value="EXW">EXW</option>
+                <option value="CFR">CFR</option>
+                <option value="DDP">DDP</option>
+                <option value="DAP">DAP</option>
+                <option value="FCA">FCA</option>
+              </select>
+            </label>
+            <label>Material Recv Date <span class="wiz-auto">(only when received)</span>
+              <input type="date" id="wizMatlDate" />
+            </label>
+          </div>
+        </div>
+
+        <!-- 💰 PRICING -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">💰 Pricing <span class="wiz-hint">Applied to every selected line</span></div>
+          <div class="wiz-form-grid grid-3">
+            <label>Bank / Other Charges
+              <input type="number" id="wizCharges" min="0" step="0.01" value="0" />
+            </label>
+            <label class="wiz-check span-2">
+              <input type="checkbox" id="wizGstByUs" />
+              GST paid by Us (9%)
+              <span class="wiz-sublabel">Leave off when supplier charges GST (SG vendors).</span>
+            </label>
+            <label>GST (Us) <span class="wiz-auto">(preview)</span>
+              <input type="text" id="wizGstUsPreview" readonly value="0.00" />
+            </label>
+            <label>GST (Supplier) <span class="wiz-auto">(preview)</span>
+              <input type="text" id="wizGstSupPreview" readonly value="0.00" />
+            </label>
+            <label>Net Invoice Preview <span class="wiz-auto">(sum of selected)</span>
+              <input type="text" id="wizFinalPreview" readonly value="0.00" />
+            </label>
+          </div>
+        </div>
+
+        <!-- 📐 PER-CARTON DETAILS — one row per unique carton in the cart -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">📐 Per-Carton Details <span class="wiz-hint">Dimension + Gross Weight per carton — fill one, get asked to copy to all</span></div>
+          <div id="wizCartonDetailsWrap">
+            <div class="carton-details-empty">Add lines to the cart above — per-carton inputs appear here automatically.</div>
+          </div>
+        </div>
+
+        <!-- 🚛 CARTON & LOGISTICS (shipment-level common) -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">🚛 Carton &amp; Logistics <span class="wiz-hint">Shipment-level common fields</span></div>
+          <div class="wiz-form-grid grid-2">
+            <label>No. of Cartons <span class="wiz-auto">(auto from cart)</span>
+              <input type="number" id="wizNoOfCartons" min="1" step="1" value="0" readonly />
+            </label>
+            <label>COO
+              <input type="text" id="wizCoo" maxlength="50" placeholder="e.g. China" />
+            </label>
+            <label>Received Through
+              <input type="text" id="wizRcvThrough" list="dl-received-through" placeholder="Air / Sea / Courier" />
+            </label>
+            <label>Air Waybill No.
+              <input type="text" id="wizAwb" maxlength="50" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="rm-foot wiz-foot">
+        <button class="btn btn-ghost btn-sm" id="wizCancel">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="wizSave" disabled>💾 Save 0 lines</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit row modal (admin family only). Mirrors wizard Step 3's 4-section
+       layout but for a single existing BN_WhPurchase row. Opens from the
+       ✎ Edit button on the listing row. -->
+  <div id="editModal" class="rm-overlay" hidden>
+    <div class="rm-dialog wiz-dialog" role="dialog" aria-labelledby="editTitle">
+      <div class="rm-head">
+        <h3 id="editTitle">Edit Purchase Row</h3>
+        <button class="rm-x" id="editClose" title="Close" aria-label="Close">✕</button>
+      </div>
+      <div class="rm-body wiz-body" id="editBody">
+
+        <div class="wiz-context">
+          <span class="wiz-context-chip" id="editPoChip">—</span>
+          <span class="wiz-context-chip" id="editSystemChip">—</span>
+        </div>
+
+        <!-- Section 1 — INVOICE INFO -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">📋 Invoice Info</div>
+          <div class="wiz-form-grid grid-2">
+            <label>Invoice Date <input type="date" id="editInvDate" /></label>
+            <label>Invoice No <input type="text" id="editInvNo" maxlength="50" /></label>
+            <label>Supplier <span class="wiz-auto">(NAV)</span>
+              <input type="text" id="editSupplier" readonly />
+            </label>
+            <label>Currency <span class="wiz-auto">(NAV)</span>
+              <input type="text" id="editCurrency" readonly />
+            </label>
+            <label>Incoterms
+              <select id="editIncoterms">
+                <option value="">—</option>
+                <option value="FOB">FOB</option>
+                <option value="CIF">CIF</option>
+                <option value="EXW">EXW</option>
+                <option value="CFR">CFR</option>
+                <option value="DDP">DDP</option>
+                <option value="DAP">DAP</option>
+                <option value="FCA">FCA</option>
+              </select>
+            </label>
+            <label>Status
+              <select id="editStatus">
+                <option value="">—</option>
+                <option value="Pending">Pending</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Partially Received">Partially Received</option>
+                <option value="Received">Received</option>
+                <option value="Paid">Paid</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </label>
+            <label>Material Recv Date <input type="date" id="editMatlDate" /></label>
+            <label>Paid Date <input type="date" id="editPaidDate" /></label>
+          </div>
+        </div>
+
+        <!-- Section 2 — ITEM INFO (read-only, NAV) -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">📦 Item Info <span class="wiz-hint">(NAV — read-only)</span></div>
+          <div class="wiz-form-grid grid-2">
+            <label>Item No <input type="text" id="editItemNo" readonly /></label>
+            <label>Vendor Item No <input type="text" id="editVendorItemNo" readonly /></label>
+            <label class="span-2">Item Name <input type="text" id="editItemName" readonly /></label>
+            <label>PO Qty <input type="text" id="editPoQty" readonly /></label>
+            <label>Recd Qty <input type="number" id="editRecdQty" min="0" step="0.01" /></label>
+            <label>Net Wt (kg, SKU) <input type="number" id="editNetWt" min="0" step="0.001" /></label>
+            <label>Datecode <input type="text" id="editDatecode" maxlength="30" /></label>
+            <label>Lot No <input type="text" id="editLotNo" maxlength="50" /></label>
+            <label>Carton No <input type="text" id="editCartonNo" maxlength="50" /></label>
+          </div>
+        </div>
+
+        <!-- Section 3 — PRICING -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">💰 Pricing</div>
+          <div class="wiz-form-grid grid-3">
+            <label>Bank / Other Charges
+              <input type="number" id="editCharges" min="0" step="0.01" />
+            </label>
+            <label class="wiz-check span-2">
+              <input type="checkbox" id="editGstByUs" />
+              GST paid by Us (9%)
+            </label>
+          </div>
+        </div>
+
+        <!-- Section 4 — CARTON & LOGISTICS -->
+        <div class="wiz-section">
+          <div class="wiz-section-title">🚛 Carton &amp; Logistics</div>
+          <div class="wiz-form-grid grid-2">
+            <label>No. of Cartons <input type="number" id="editNoOfCartons" min="1" step="1" /></label>
+            <label>Gross Weight (kg) <input type="number" id="editGrossWt" min="0" step="0.01" /></label>
+            <label>Dimension <input type="text" id="editDim" maxlength="50" /></label>
+            <label>COO <input type="text" id="editCoo" maxlength="50" /></label>
+            <label>Received Through
+              <input type="text" id="editRcvThrough" list="dl-received-through" />
+            </label>
+            <label>Air Waybill No. <input type="text" id="editAwb" maxlength="50" /></label>
+            <label>Freight (SGD) <input type="number" id="editFreightSgd" min="0" step="0.01" /></label>
+            <label>Permit No. <input type="text" id="editPermitNo" maxlength="50" /></label>
+          </div>
+        </div>
+
+      </div>
+      <div class="rm-foot">
+        <button class="btn btn-ghost btn-sm" id="editCancel">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="editSave">💾 Save changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Summary modal — opens when Amit clicks an Invoice No on the
+       home table. Mirrors his Apps Script layout: header (Invoice No/Date/
+       Supplier/Currency), body table (SKU/Desc/Make/Carton/Qty/Rate/NetWt/
+       Dim/Value), footer (subtotal / charges / GST / total). -->
+  <div id="invoiceModal" class="rm-overlay" hidden>
+    <div class="rm-dialog inv-dialog" role="dialog" aria-labelledby="invTitle">
+      <div class="rm-head inv-head">
+        <h3 id="invTitle">Invoice Summary</h3>
+        <button class="rm-x" id="invClose" title="Close" aria-label="Close">✕</button>
+      </div>
+      <div class="inv-banner">
+        <div class="inv-grid">
+          <div><span>Invoice No</span><b id="invHdrNo">—</b></div>
+          <div><span>Date</span><b id="invHdrDate">—</b></div>
+          <div><span>Supplier</span><b id="invHdrSupplier">—</b></div>
+          <div><span>Currency</span><b id="invHdrCurrency">—</b></div>
+          <div><span>Incoterms</span><b id="invHdrIncoterms">—</b></div>
+          <div><span>Status</span><b id="invHdrStatus">—</b></div>
+        </div>
+      </div>
+      <div class="rm-body inv-body" id="invBody">
+        <table class="inv-tbl">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Description</th>
+              <th>Make</th>
+              <th>Carton No</th>
+              <th class="num">Qty</th>
+              <th class="num">Rate</th>
+              <th class="num">Net Wt</th>
+              <th>Dimension</th>
+              <th class="num">Value</th>
+            </tr>
+          </thead>
+          <tbody id="invTbody"><tr><td colspan="9" class="wh-loading">Loading…</td></tr></tbody>
+          <tfoot id="invTfoot"></tfoot>
+        </table>
+      </div>
+      <div class="rm-foot">
+        <button class="btn btn-ghost btn-sm" id="invCancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receive-to-Stocks modal — opens when Amit sets a PO row's Status to
+       "Received Material" / "Received". Body is built by purchase.js so
+       it can prefill MPN / Make / Qty / Invoice No from the row context. -->
+  <div id="receiveModal" class="rm-overlay" hidden>
+    <div class="rm-dialog" role="dialog" aria-labelledby="rmTitle">
+      <div class="rm-head">
+        <h3 id="rmTitle">Add Received Material to Stocks</h3>
+        <button class="rm-x" id="rmClose" title="Close" aria-label="Close">✕</button>
+      </div>
+      <div class="rm-body" id="rmBody"></div>
+      <div class="rm-foot">
+        <button class="btn btn-ghost btn-sm" id="rmCancel">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="rmSave">💾 Add to Stocks</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Modal — minimal styling so we don't pull in a full UI lib. */
+    .rm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000;
+                  display:flex; align-items:center; justify-content:center; padding:24px; }
+    .rm-overlay[hidden] { display:none; }
+    .rm-dialog  { background:var(--bg2,#fff); color:var(--text,#0d0f14); width:min(720px,100%);
+                  max-height:90vh; display:flex; flex-direction:column;
+                  border-radius:12px; box-shadow:0 24px 64px rgba(0,0,0,.4); overflow:hidden; }
+    .rm-head    { display:flex; align-items:center; justify-content:space-between;
+                  padding:14px 20px; border-bottom:1px solid var(--bg4,#d8dcea); }
+    .rm-head h3 { margin:0; font-size:1.05rem; }
+    .rm-x       { background:none; border:0; font-size:1.1rem; cursor:pointer; color:inherit; padding:4px 8px; }
+    .rm-body    { padding:16px 20px; overflow:auto; }
+    .rm-foot    { padding:12px 20px; border-top:1px solid var(--bg4,#d8dcea);
+                  display:flex; justify-content:flex-end; gap:8px; }
+    .rm-grid    { display:grid; grid-template-columns:140px 1fr; row-gap:10px; column-gap:12px; align-items:center; }
+    .rm-grid label { font-size:.85rem; color:var(--text2,#3a3f5c); }
+    .rm-readonly { background:var(--bg3,#e8eaf0); padding:6px 10px; border-radius:6px; font-weight:500; }
+    .rm-cartons  { margin-top:18px; }
+    .rm-cartons h4 { margin:0 0 8px; font-size:.95rem; }
+    .rm-cartons table { width:100%; border-collapse:collapse; }
+    .rm-cartons th, .rm-cartons td { padding:6px 8px; border-bottom:1px solid var(--bg4,#d8dcea); font-size:.9rem; text-align:left; }
+    .rm-cartons input { width:100%; padding:5px 8px; border:1px solid var(--bg4,#d8dcea); border-radius:5px; background:transparent; color:inherit; }
+    .rm-cartons input[type=number] { text-align:right; }
+    .rm-actions  { margin-top:8px; display:flex; gap:8px; align-items:center; }
+    .rm-warn     { margin-top:10px; padding:8px 12px; background:#fef3c7; color:#92400e; border-radius:6px; font-size:.85rem; }
+    .rm-warn[hidden] { display:none; }
+    .rm-existing { margin-top:18px; padding:12px; background:#f8fafc; border-radius:8px; }
+    .rm-existing h4 { margin:0 0 8px; font-size:.95rem; }
+    .rm-existing-body table { width:100%; border-collapse:collapse; }
+    .rm-existing-body th, .rm-existing-body td { padding:4px 8px; border-bottom:1px solid #e2e8f0; font-size:.85rem; text-align:left; }
+    .rm-existing-body th { background:#eef2f7; font-weight:600; }
+
+    /* Wizard dialog — wider than the receive modal. */
+    .wiz-dialog { width:min(960px,100%); max-height:92vh; }
+    .wiz-steps  { display:flex; gap:0; padding:10px 20px; background:var(--bg3,#eef1f8);
+                  border-bottom:1px solid var(--bg4,#d8dcea); font-size:.88rem; }
+    .wiz-step   { flex:1; display:flex; align-items:center; gap:8px; padding:6px 10px;
+                  color:var(--text2,#6b7280); opacity:.7; border-radius:6px; }
+    .wiz-step.is-active { background:#fff; color:var(--text,#0d0f14); opacity:1; font-weight:600;
+                          box-shadow:0 1px 3px rgba(0,0,0,.08); }
+    .wiz-step-num { display:inline-flex; align-items:center; justify-content:center;
+                    width:22px; height:22px; border-radius:50%; background:var(--bg4,#d8dcea);
+                    font-size:.8rem; font-weight:600; }
+    .wiz-step.is-active .wiz-step-num { background:#2563eb; color:#fff; }
+    .wiz-body   { min-height:400px; }
+    .wiz-search-row input { width:100%; padding:9px 12px; font-size:.95rem;
+                            border:1px solid var(--bg4,#d8dcea); border-radius:6px;
+                            background:transparent; color:inherit; }
+    .wiz-search-hint { font-size:.82rem; color:var(--text2,#6b7280); margin-top:6px; }
+    .wiz-result-wrap { margin-top:14px; max-height:50vh; overflow:auto;
+                       border:1px solid var(--bg4,#d8dcea); border-radius:8px; }
+    .wiz-table   { width:100%; border-collapse:collapse; font-size:.88rem; }
+    .wiz-table th { position:sticky; top:0; background:#eef2f7; padding:8px 10px;
+                    border-bottom:1px solid var(--bg4,#d8dcea); text-align:left;
+                    font-weight:600; z-index:1; }
+    .wiz-table td { padding:7px 10px; border-bottom:1px solid #e8eaf0; }
+    .wiz-table tbody tr { cursor:pointer; }
+    .wiz-table tbody tr:hover { background:#f3f6fb; }
+    .wiz-table .num { text-align:right; }
+    .wiz-cb-col  { width:32px; }
+    .wiz-table tbody tr.is-selected { background:#dbeafe; }
+    .wiz-context { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+    .wiz-context-chip { padding:5px 11px; background:#dbeafe; color:#1e40af;
+                        border-radius:999px; font-size:.85rem; font-weight:500; }
+    .wiz-back   { background:none; border:0; color:#2563eb; cursor:pointer;
+                  font-size:.85rem; padding:4px 8px; }
+    .wiz-back:hover { text-decoration:underline; }
+    .wiz-manual { margin-bottom:16px; padding:14px; background:#f8fafc;
+                  border:1px solid var(--bg4,#d8dcea); border-radius:8px; }
+    .wiz-manual h4 { margin:0 0 10px; font-size:.92rem; }
+    .wiz-manual-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+                       gap:10px 14px; }
+    .wiz-manual-grid label { display:flex; flex-direction:column; gap:4px; font-size:.82rem; color:var(--text2,#6b7280); }
+    .wiz-manual-grid input,
+    .wiz-manual-grid select { padding:6px 8px; border:1px solid var(--bg4,#d8dcea);
+                              border-radius:5px; background:#fff; color:inherit; font-size:.88rem; }
+    .wiz-lines-title { margin:0 0 8px; font-size:.95rem; display:flex; align-items:baseline; gap:10px; }
+    .wiz-lines-count { font-size:.82rem; color:var(--text2,#6b7280); font-weight:400; }
+    .wiz-warn { margin-top:10px; padding:8px 12px; background:#fef3c7; color:#92400e;
+                border-radius:6px; font-size:.85rem; }
+    .wiz-warn[hidden] { display:none; }
+    .wiz-foot { background:#f8fafc; }
+    .wiz-hint { font-size:.78rem; font-weight:400; color:var(--text2,#6b7280); margin-left:6px; }
+    .wiz-check { flex-direction:row !important; align-items:center; gap:8px !important; font-size:.85rem; color:var(--text,#0d0f14); flex-wrap:wrap; }
+    .wiz-check input { width:16px; height:16px; margin:0; }
+    .wiz-sublabel { display:block; width:100%; font-size:.75rem; color:var(--text2,#6b7280); margin-top:2px; }
+
+    /* Amit-style sectioned form (screenshots 1352-1354) */
+    .wiz-section { background:#fff; border-radius:8px; border-left:4px solid #1A5276;
+                   padding:12px 16px; margin-bottom:12px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    .wiz-section-title { font-size:.78rem; font-weight:700; color:#1A5276;
+                         text-transform:uppercase; letter-spacing:.4px; margin-bottom:10px; }
+    .wiz-form-grid { display:grid; gap:10px 14px; }
+    .wiz-form-grid.grid-2 { grid-template-columns:1fr 1fr; }
+    .wiz-form-grid.grid-3 { grid-template-columns:1fr 1fr 1fr; }
+    .wiz-form-grid label { display:flex; flex-direction:column; gap:4px;
+                           font-size:.78rem; color:#555; font-weight:500; }
+    .wiz-form-grid label .req  { color:#dc2626; margin-left:2px; }
+    .wiz-form-grid label .wiz-auto { color:#1E8449; font-size:.7rem; margin-left:4px; font-weight:400; }
+    .wiz-form-grid input, .wiz-form-grid select { padding:6px 9px; border:1px solid #ddd;
+                                                  border-radius:5px; background:#fff;
+                                                  color:#0d0f14; font-size:.88rem; font-family:inherit; }
+    .wiz-form-grid input[readonly] { background:#EAF3DE; color:#1E8449; font-weight:600; }
+    .wiz-form-grid input:focus, .wiz-form-grid select:focus { outline:none; border-color:#1A5276; }
+    .wiz-form-grid .span-2 { grid-column:span 2; }
+    .wiz-form-grid .span-3 { grid-column:span 3; }
+    @media (max-width:640px) {
+      .wiz-form-grid.grid-2, .wiz-form-grid.grid-3 { grid-template-columns:1fr; }
+      .wiz-form-grid .span-2, .wiz-form-grid .span-3 { grid-column:1; }
+    }
+
+    /* Per-line editable item table (Step 3, Section 2) */
+    .wiz-line-wrap   { max-height:none; overflow-x:auto; overflow-y:auto; max-height:42vh; }
+    .wiz-line-tbl    { min-width:1200px; font-size:.85rem; }
+    .wiz-line-tbl th { white-space:nowrap; font-size:.78rem; }
+    .wiz-line-tbl td { vertical-align:middle; padding:5px 8px; }
+    .wiz-line-tbl tbody tr { cursor:default; }
+    .wiz-line-tbl .input-col { background:#fffbef; }
+    .wiz-line-tbl tbody td.cell-input { background:#fffbef; padding:3px 5px; }
+    .wiz-line-tbl tbody td.cell-input input {
+      width:100%; padding:4px 6px; border:1px solid #ddd; border-radius:4px;
+      background:#fff; color:#0d0f14; font-size:.82rem; font-family:inherit;
+    }
+    .wiz-line-tbl tbody td.cell-input input:focus { outline:none; border-color:#1A5276; }
+    .wiz-line-tbl tbody td.cell-input input.num { text-align:right; }
+    .wiz-line-help   { margin-top:8px; padding:8px 11px; background:#eef5fb;
+                       border-left:3px solid #2563eb; border-radius:5px;
+                       font-size:.78rem; color:#1e3a5f; line-height:1.5; }
+    .wiz-line-help code { background:#dbeafe; padding:1px 5px; border-radius:3px; font-size:.85em; }
+
+    /* Status-based row tint on the listing — mirrors the warehouse lead's Apps Script colour code */
+    .status-row.status-pending             { background:#ffffff; }
+    .status-row.status-in-transit,
+    .status-row.status-received-material,
+    .status-row.status-partially-received  { background:#fff8db !important; }
+    .status-row.status-received,
+    .status-row.status-paid                { background:#d9ead3 !important; }
+    .status-row.status-cancelled           { background:#fdecea !important; }
+    .status-row.status-cancelled td         { color:#7f1d1d; text-decoration:line-through; }
+    .status-row td                          { vertical-align:middle; }
+
+    /* Edit / locked indicator on the right of each row */
+    .row-edit   { padding:5px 10px; background:#1A5276; color:#fff; border:0;
+                  border-radius:5px; font-size:.82rem; cursor:pointer;
+                  display:inline-flex; align-items:center; gap:4px; }
+    .row-edit:hover { background:#154360; }
+    .row-locked { font-size:1rem; opacity:.45; cursor:not-allowed; }
+
+    /* ── Invoice Summary modal (2026-06-24) ───────────────────────────── */
+    .inv-dialog { width:min(1080px,100%); }
+    .inv-head   { background:#1A5276; color:#fff; border-bottom:none; }
+    .inv-head h3 { color:#fff; }
+    .inv-head .rm-x { color:#fff; }
+    .inv-banner { padding:14px 20px; background:#eaf3fb; border-bottom:1px solid #b9d3e6; }
+    .inv-grid   { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px 18px; }
+    .inv-grid div { display:flex; flex-direction:column; gap:2px; }
+    .inv-grid span { font-size:.7rem; text-transform:uppercase; letter-spacing:.5px; color:#4a6477; font-weight:600; }
+    .inv-grid b    { font-size:.92rem; color:#0d2538; word-break:break-word; }
+    .inv-body   { padding:0; overflow:auto; }
+    .inv-tbl    { width:100%; border-collapse:collapse; font-size:.86rem; }
+    .inv-tbl th { position:sticky; top:0; background:#eef2f7; padding:9px 11px;
+                  border-bottom:2px solid #1A5276; text-align:left;
+                  font-weight:700; color:#1A5276; font-size:.78rem;
+                  text-transform:uppercase; letter-spacing:.4px; z-index:1; }
+    .inv-tbl td { padding:8px 11px; border-bottom:1px solid #e8eaf0; vertical-align:middle; }
+    .inv-tbl .num { text-align:right; }
+    .inv-tbl tbody tr:nth-child(even) { background:#fafbfd; }
+    .inv-tbl tfoot td { padding:7px 11px; border-top:1px solid #cbd5e1; background:#f1f5f9; font-size:.85rem; }
+    .inv-tbl tfoot tr.inv-total td { background:#1A5276; color:#fff; font-weight:700; font-size:.95rem; padding:10px 11px; }
+    .inv-tbl tfoot tr.inv-total td.num { font-size:1.05rem; }
+    .invoice-link { color:#1A5276; text-decoration:underline dotted; font-weight:600; cursor:pointer; }
+    .invoice-link:hover { color:#0d3050; text-decoration:underline; }
+
+    /* ── Carton-wise wizard additions (2026-06-24) ────────────────────── */
+    .wiz-carton-bar { border-left-color:#7c3aed; background:#faf5ff; }
+    .wiz-carton-row { display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; }
+    .wiz-carton-lbl { display:flex; flex-direction:column; gap:4px; font-size:.78rem; color:#555; font-weight:500; flex:1; max-width:260px; }
+    .wiz-carton-lbl input { padding:7px 10px; border:2px solid #7c3aed; border-radius:6px; background:#fff; color:#0d0f14; font-size:.95rem; font-weight:700; letter-spacing:.5px; }
+    .wiz-carton-lbl input:focus { outline:none; box-shadow:0 0 0 3px rgba(124,58,237,.18); }
+    .wiz-po-row    { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .wiz-po-select { flex:1; min-width:280px; padding:7px 10px; border:1px solid var(--bg4,#d8dcea); border-radius:6px; background:#fff; color:#0d0f14; font-size:.92rem; font-family:inherit; }
+    .wiz-po-select:focus { outline:none; border-color:#1A5276; }
+    .wiz-po-filter { padding:7px 10px; border:1px solid var(--bg4,#d8dcea); border-radius:6px; background:#fff; color:inherit; font-size:.88rem; max-width:180px; }
+    .wiz-stock-hint { display:inline-block; padding:2px 7px; background:#ecfdf5; color:#065f46; border-radius:10px; font-size:.72rem; font-weight:600; white-space:nowrap; }
+    .wiz-stock-hint.none { background:#f1f5f9; color:#64748b; }
+    .wiz-stock-hint.loading { background:#fef3c7; color:#92400e; opacity:.7; }
+    .wiz-cart-count { font-size:.82rem; }
+    /* Cart-row carton-no grouping — light tint to make the visual groups obvious */
+    #wizCartBody tr.cart-row-first-of-group td { border-top:2px solid #c7b9eb; }
+    #wizCartBody tr td:first-child { background:#faf5ff; font-weight:700; color:#5b21b6; }
+    .cart-remove { background:none; border:0; color:#dc2626; cursor:pointer; font-size:1rem; padding:2px 6px; border-radius:4px; }
+    .cart-remove:hover { background:#fee2e2; }
+    .cart-split  { background:none; border:0; color:#7c3aed; cursor:pointer; font-size:1rem; padding:2px 6px; border-radius:4px; margin-right:2px; }
+    .cart-split:hover { background:#ede9fe; }
+    /* ── Per-carton details section (2026-06-24) ──────────────────────── */
+    .carton-details-tbl { width:100%; border-collapse:collapse; margin-top:6px; }
+    .carton-details-tbl th { background:#f1f5f9; padding:6px 9px; font-size:.72rem; text-transform:uppercase; letter-spacing:.4px; color:#475569; text-align:left; border-bottom:1px solid #cbd5e1; }
+    .carton-details-tbl td { padding:5px 9px; border-bottom:1px solid #e2e8f0; vertical-align:middle; font-size:.82rem; }
+    .carton-details-tbl td input { width:100%; padding:5px 7px; border:1px solid #ddd; border-radius:4px; font-size:.82rem; background:#fffbef; }
+    .carton-details-tbl td input:focus { outline:none; border-color:#7c3aed; }
+    .carton-details-tbl td:first-child { font-weight:700; color:#5b21b6; background:#faf5ff; white-space:nowrap; }
+    .carton-details-empty { padding:10px 14px; color:#64748b; font-size:.82rem; font-style:italic; }
+    .wiz-line-tbl tbody tr.is-incart { background:#ede9fe; }
+    .wiz-line-tbl tbody tr.is-incart td:first-child::after { content:'  ✓ in cart'; font-size:.7rem; color:#5b21b6; margin-left:4px; }
+
+    /* Visual cell-merge (2026-06-25): TRUE rowspan-based merge for repeated
+       Invoice / Supplier / Carton / Dim / Weight cells within an Invoice
+       group. Content vertically centered. Group-start gets thicker top
+       border so distinct invoices read as separate blocks. */
+    .wh-table tr.group-start td        { border-top:2px solid #94a3b8; }
+    .wh-table tbody td.merged-cell     { vertical-align:middle; text-align:center; background:#fafbfc; }
+    .wh-table tbody td.merged-cell.num { text-align:right; }
+
+    /* Status pill (renderer in warehouse-common.js) */
+    .wh-pill           { display:inline-block; padding:3px 9px; border-radius:11px;
+                         font-size:.75rem; font-weight:600; white-space:nowrap; }
+    .wh-pill.pending           { background:#e2e8f0; color:#475569; }
+    .wh-pill.intransit,
+    .wh-pill.receivedmaterial,
+    .wh-pill.partiallyreceived { background:#fff3c4; color:#7c4a03; }
+    .wh-pill.received,
+    .wh-pill.paid              { background:#bbf7d0; color:#14532d; }
+    .wh-pill.cancelled         { background:#fecaca; color:#7f1d1d; }
+  </style>
+
+  <script src="/shared/common.js"></script>
+  <script src="/shared/modules.js"></script>
+  <script src="./js/warehouse-common.js?v=146"></script>
+  <script src="./js/purchase.js?v=146"></script>
+</body>
+</html>

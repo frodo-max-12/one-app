@@ -1,0 +1,25 @@
+{
+  "name": "oneapp-mobile",
+  "version": "1.1.0-lens-phase0",
+  "private": true,
+  "description": "ONE App Android (Capacitor) — thin native shell loading https://app.example.com. v1.1 adds Lens (geo + camera + device) plugins for the HRMS/Geo module.",
+  "scripts": {
+    "sync": "cap sync",
+    "open:android": "cap open android",
+    "build:android": "cd android && gradlew assembleRelease",
+    "build:android-debug": "cd android && gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor-community/background-geolocation": "^1.2.20",
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/camera": "^6.1.2",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/device": "^6.0.2",
+    "@capacitor/filesystem": "^6.0.4",
+    "@capacitor/geolocation": "^6.1.0",
+    "@capacitor/push-notifications": "^6.0.5",
+    "@capacitor/share": "^6.0.4",
+    "@pantrist/capacitor-plugin-ml-kit-text-recognition": "^6.2.1"
+  }
+}

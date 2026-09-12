@@ -1,0 +1,43 @@
+/* Workflow config (Phase 6B) */
+
+.wf-filters {
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 14px;
+}
+
+.wf-levels {
+  margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border);
+}
+.wf-levels-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.wf-levels-head h3 { margin: 0; font-size: 14px; color: var(--text); }
+
+.wf-level-row {
+  display: flex; gap: 10px; padding: 10px;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 8px; align-items: flex-start;
+}
+.wf-level-no {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent); color: white; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 13px;
+}
+.wf-level-body { flex: 1; min-width: 0; }
+.wf-level-flags {
+  display: flex; gap: 14px; padding-top: 4px;
+  font-size: 12.5px; color: var(--text2);
+}
+.wf-level-flags label { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Workflow badge shown on approval pages */
+.wf-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 999px;
+  background: rgba(155,113,245,0.15); color: var(--purple);
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.3px;
+  margin-left: 6px;
+}
+.wf-badge[title] { cursor: help; }

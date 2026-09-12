@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Payment Reminders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/reminders.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Payment Reminders</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <div class="chip" id="testModeChip" style="display:none;">
+            <span class="chip-dot" style="background: var(--amber);"></span>
+            <span>TEST MODE — all mails go to test email</span>
+          </div>
+          <div class="chip">
+            <span class="chip-dot" style="background: var(--green);"></span>
+            <span>API Connected</span>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="grid-4" id="statsCards"></div>
+        <div class="card">
+          <div class="section-head">
+            <h2>Reminder Log</h2>
+            <div style="display:flex; gap:8px;">
+              <button id="runEmailBtn" class="btn btn-primary btn-sm" style="display:none;">✉ Run Email Cron</button>
+              <button id="runWaBtn" class="btn btn-primary btn-sm" style="display:none; background:#25D366; border-color:#1da851;">⌬ Run WhatsApp Cron</button>
+              <button id="refreshBtn" class="btn btn-ghost btn-sm">Refresh</button>
+            </div>
+          </div>
+          <div class="filters-row" style="flex-wrap:wrap; gap:10px;">
+            <div class="input-wrap search-flex">
+              <span class="input-icon">⌕</span>
+              <input id="searchInput" class="search-input" placeholder="Search customer, invoice…" />
+            </div>
+            <input type="hidden" id="companyFilter" value="" />
+            <select id="channelFilter" class="select-filter" title="Channel">
+              <option value="">All Channels</option>
+              <option value="EMAIL">Email</option>
+              <option value="WHATSAPP">WhatsApp</option>
+              <option value="PAYMENT_ADVICE">Payment Advice</option>
+            </select>
+            <select id="stageFilter" class="select-filter">
+              <option value="">All Stages</option>
+              <option value="PRE_DUE">Pre-Due</option>
+              <option value="DUE_DAY">Due Day</option>
+              <option value="OVERDUE">Overdue</option>
+              <option value="FOLLOW_UP">Follow-Up</option>
+            </select>
+            <input id="fromDate" type="date" class="select-filter" title="From date" />
+            <input id="toDate"   type="date" class="select-filter" title="To date" />
+          </div>
+          <div id="loadingDiv" class="loading-center"><div class="spinner"></div></div>
+          <div class="table-wrap">
+            <table id="reminderTable" style="display:none;">
+              <thead>
+                <tr>
+                  <th>Sent At</th><th>Company</th><th>Customer</th><th>Invoice</th>
+                  <th>Due Date</th><th style="text-align:right;">Amount</th>
+                  <th>Stage</th><th>Ch</th><th>#</th><th>Salesperson</th><th>To / CC / Phone</th>
+                  <th>Sent By</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="reminderBody"></tbody>
+            </table>
+            <!-- v1.8 — Payment Advice log (BN_PaymentAdvice). Shown when the
+                 Channel dropdown is set to "Payment Advice"; the reminder
+                 table above is hidden, and vice versa. -->
+            <table id="paTable" style="display:none;">
+              <thead>
+                <tr>
+                  <th>Sent At</th><th>Company</th><th>Customer</th><th>Payment Doc</th>
+                  <th>Pay Date</th><th style="text-align:right;">Amount</th>
+                  <th>Mode</th><th>Phone</th><th>Status</th><th>PDF</th>
+                </tr>
+              </thead>
+              <tbody id="paBody"></tbody>
+            </table>
+          </div>
+          <div id="emptyDiv" class="empty" style="display:none;">
+            <div class="empty-icon">✉</div>
+            <div class="empty-text">No reminders found for the selected filters</div>
+          </div>
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="detailModal" class="rl-modal" style="display:none;">
+    <div class="rl-modal-card">
+      <div class="rl-modal-head">
+        <h3>Reminder Details</h3>
+        <button class="rl-modal-close" onclick="closeDetail()">✕</button>
+      </div>
+      <div class="rl-modal-body" id="detailBody"></div>
+    </div>
+  </div>
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/mobile-menu.js"></script>
+  <script src="./js/reminders.js?v=2"></script>
+</body>
+</html>

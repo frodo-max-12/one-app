@@ -1,0 +1,204 @@
+/* ============================================================================
+   ONE App — MOM & Action Points page  [v1.12]
+   Uses the app's THEME VARIABLES (theme.css) so it adapts to Day + Night:
+     --bg/--bg2/--bg3/--bg4  backgrounds (bg=page, bg2=card, bg3=inset, bg4=raised)
+     --text/--text2/--text3  text (bright→dim)
+     --border  --accent  --green/--red/--amber/--purple  semantic colors
+   Never hardcode dark colors — they won't switch with the theme.
+   ============================================================================ */
+
+.mom-shell { display: flex; flex-direction: column; gap: 16px; padding: 4px 2px 40px; }
+/* The tab panels are their own flex columns so the toolbar, the info note, the
+   stat cards and the table get real breathing room between them. Scope the
+   flex to NON-hidden tabs — an id selector's `display:flex` would otherwise
+   override the [hidden] attribute's `display:none` and show both tabs at once. */
+#tabMom:not([hidden]), #tabAp:not([hidden]) { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── Tabs (MOM | Action Points) ──────────────────────────────────────────── */
+.mom-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.mom-tab { border: none; background: transparent; color: var(--text2); font-family: inherit; font-size: 13.5px; font-weight: 600; padding: 10px 16px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.mom-tab:hover { color: var(--text); }
+.mom-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+.mom-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mom-search-wrap { position: relative; flex: 1 1 320px; min-width: 220px; }
+.mom-search-ic { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 13px; pointer-events: none; }
+.mom-search-wrap input { width: 100%; padding: 11px 36px 11px 38px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 13px; font-family: inherit; }
+.mom-search-wrap input::placeholder { color: var(--text3); }
+.mom-clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text2); cursor: pointer; font-size: 13px; }
+.mom-toolbar .att-filter, .mom-toolbar select { padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 12.5px; font-family: inherit; }
+
+/* Clean focus ring on all inputs (replaces the browser's harsh default outline). */
+.mom-shell input:focus, .mom-shell select:focus, .mom-shell textarea:focus,
+.mom-form input:focus, .mom-form select:focus, .mom-form textarea:focus {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--nav-active-bg);
+}
+
+.mom-note { font-size: 12px; color: var(--text2); background: var(--badge-amber-bg); border: 1px solid var(--badge-amber-border); border-radius: 8px; padding: 8px 12px; }
+
+/* Native controls (date pickers, select popups) render dark in night theme so
+   their text/icons aren't black-on-dark. Day theme keeps the light default. */
+body:not(.day-theme) .mom-shell input,
+body:not(.day-theme) .mom-shell select,
+body:not(.day-theme) .mom-shell textarea,
+body:not(.day-theme) .mom-form input,
+body:not(.day-theme) .mom-form select,
+body:not(.day-theme) .mom-form textarea { color-scheme: dark; }
+
+/* ── Stats strip ─────────────────────────────────────────────────────────── */
+.mom-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.mom-stats .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: border-color .15s, transform .05s; }
+.mom-stats .stat-card:hover { border-color: var(--accent); }
+.mom-stats .stat-card:active { transform: translateY(1px); }
+.mom-stats .stat-card.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.mom-stats .stat-lbl { font-size: 11.5px; color: var(--text2); margin-bottom: 6px; }
+.mom-stats .stat-num { font-size: 22px; font-weight: 700; color: var(--text); font-family: var(--mono); }
+.stat-inperson   .stat-num { color: var(--accent); }
+.stat-conference .stat-num { color: var(--purple); }
+.stat-telephonic .stat-num { color: var(--green); }
+.stat-month      .stat-num { color: var(--amber); }
+.stat-overdue    .stat-num { color: var(--red); }
+.stat-pending    .stat-num { color: var(--amber); }
+.stat-done       .stat-num { color: var(--green); }
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.mom-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+.mom-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 980px; }
+.mom-table thead th { text-align: left; padding: 10px 10px; font-size: 10.5px; letter-spacing: .04em; color: var(--text3); background: var(--bg3); border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; z-index: 1; }
+.mom-table tbody td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text2); }
+.mom-table tbody tr { cursor: pointer; }
+.mom-table tbody tr:hover td { background: var(--bg3); }
+.mom-table .mono { font-family: var(--mono); }
+.mom-table .r { text-align: right; }
+.mom-strong { font-weight: 600; color: var(--text); max-width: 320px; }
+.mom-dim { color: var(--text2); }
+.mom-loading, .mom-empty { text-align: center; padding: 26px 12px; color: var(--text3); }
+.mom-row-action { border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 6px; padding: 4px 10px; font-size: 11.5px; cursor: pointer; font-family: inherit; }
+.mom-row-action:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Type + status pills (neutral chip + semantic text = theme-safe) ─────── */
+.mom-type-pill, .mom-status-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; white-space: nowrap; background: var(--bg3); border: 1px solid var(--border); }
+.mom-type-inperson { color: var(--accent); }
+.mom-type-conf     { color: var(--purple); }
+.mom-type-tel      { color: var(--green); }
+.mom-st-new    { color: var(--text2); }
+.mom-st-prog   { color: var(--accent); }
+.mom-st-done   { color: var(--green); }
+.mom-st-hold   { color: var(--amber); }
+.mom-st-cancel { color: var(--red); }
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.mom-page-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mom-page-btn { border: 1px solid var(--border); background: var(--bg3); color: var(--text2); border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: inherit; }
+.mom-page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
+.mom-page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+.mom-page-btn:disabled { opacity: .4; cursor: default; }
+.mom-page-gap { color: var(--text3); font-size: 12px; padding: 0 2px; }
+.mom-page-info { margin-left: auto; color: var(--text3); font-size: 11.5px; }
+
+/* ── Action Points: view toggle + overdue tint ───────────────────────────── */
+.mom-view-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.mom-view-toggle button { border: none; background: var(--bg2); color: var(--text2); padding: 7px 14px; font-size: 12.5px; cursor: pointer; font-family: inherit; border-right: 1px solid var(--border); }
+.mom-view-toggle button:last-child { border-right: none; }
+.mom-view-toggle button.active { background: var(--accent); color: #fff; font-weight: 700; }
+.mom-table tr.ap-overdue td { background: var(--badge-red-bg); }
+.ap-due-over { color: var(--red); font-weight: 600; }
+.ap-momlink { color: var(--accent); text-decoration: none; font-family: var(--mono); }
+.ap-momlink:hover { text-decoration: underline; }
+
+/* SmartSys-style AP grid: wide, per-column filter row, inline status dropdown */
+.mom-ap-grid { min-width: 1500px; }
+.mom-ap-grid thead th { position: static; }   /* two header rows → skip sticky to avoid overlap */
+.mom-filter-row th { padding: 4px 6px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+.mom-filter-row input { width: 100%; padding: 5px 7px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 11.5px; font-family: inherit; }
+.mom-filter-row input::placeholder { color: var(--text3); }
+/* FIXED width (not 100%) — a select with width:100% in an auto-layout table
+   collapses to min-content, clipping "Complete"/"Inprogress" to "Compl". */
+.ap-status-inline { padding: 5px 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 11.5px; font-family: inherit; width: 132px; box-sizing: border-box; }
+
+/* ── Detail modal ────────────────────────────────────────────────────────── */
+.mom-detail { padding: 4px 2px; max-height: 68vh; overflow-y: auto; }
+.mom-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.mom-detail-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.mom-detail-badges { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+.mom-badge { font-size: 11px; color: var(--text2); border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px; }
+.mom-kv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.mom-kv-l { font-size: 10.5px; color: var(--text3); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 2px; }
+.mom-kv-v { font-size: 13px; color: var(--text); }
+.mom-section { margin-bottom: 14px; }
+.mom-section-h { font-size: 11.5px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.mom-prose { font-size: 12.5px; line-height: 1.55; color: var(--text); background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; }
+.mom-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.mom-tag { font-size: 11.5px; background: var(--bg3); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; color: var(--text); }
+.mom-tag-cust { border-color: var(--green); color: var(--green); }
+.mom-sub-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.mom-sub-table th { text-align: left; padding: 6px 8px; font-size: 10px; color: var(--text3); border-bottom: 1px solid var(--border); }
+.mom-sub-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text); }
+.mom-file { font-size: 12px; padding: 4px 0; color: var(--text); }
+.mom-detail-foot { margin-top: 10px; font-size: 11px; color: var(--text3); border-top: 1px solid var(--border); padding-top: 8px; }
+.mom-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+
+/* ── Create / Edit form ──────────────────────────────────────────────────── */
+.mom-form { padding: 4px 2px; max-height: 70vh; overflow-y: auto; }
+.mom-form .kv { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 10px; }
+.mom-form .kv input[type=text], .mom-form .kv input[type=date], .mom-form .kv select, .mom-form .kv textarea { text-transform: none; letter-spacing: normal; font-size: 13px; font-family: inherit; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); width: 100%; }
+.mom-form .kv textarea { resize: vertical; min-height: 40px; }
+.mom-form .kv input::placeholder, .mom-form .kv textarea::placeholder { color: var(--text3); }
+.mom-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.mom-form-full { grid-column: 1 / -1; }
+.mom-form .mom-sub { font-size: 10px; opacity: .7; }
+.mom-typeahead { position: relative; }
+.mom-suggest { position: absolute; top: 100%; left: 0; right: 0; z-index: 40; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; margin-top: 2px; max-height: 220px; overflow-y: auto; box-shadow: var(--shadow); }
+.mom-sug-item { padding: 7px 10px; font-size: 12.5px; cursor: pointer; color: var(--text); }
+.mom-sug-item:hover { background: var(--bg3); }
+.mom-sug-empty { padding: 7px 10px; font-size: 12px; color: var(--text3); }
+.mom-form-section { margin: 6px 0 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+.mom-form-section-h { font-size: 11.5px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.mom-mini-btn { border: 1px solid var(--border); background: var(--bg2); color: var(--text); border-radius: 6px; padding: 3px 10px; font-size: 11px; cursor: pointer; font-family: inherit; }
+.mom-mini-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mom-mini-btn.danger:hover { border-color: var(--red); color: var(--red); }
+.mom-addpart { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.mom-addpart select, .mom-addpart input[type=text] { padding: 9px 11px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 12.5px; font-family: inherit; }
+.mom-fyi { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--text2); }
+.mom-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mom-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 999px; padding: 3px 6px 3px 10px; color: var(--text); }
+.mom-chip-cust { border-color: var(--green); } .mom-chip-vend { border-color: var(--purple); }
+.mom-chip-t { font-size: 9.5px; opacity: .6; text-transform: uppercase; }
+.mom-chip button { border: none; background: transparent; color: var(--text2); cursor: pointer; font-size: 12px; line-height: 1; }
+.mom-chip button:hover { color: var(--red); }
+.mom-ap-list { display: flex; flex-direction: column; gap: 10px; }
+.mom-ap-item { border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: var(--bg2); display: flex; flex-direction: column; gap: 8px; }
+.mom-ap-line1 { display: flex; gap: 8px; align-items: center; }
+.mom-ap-line1 .ap-desc { flex: 1; }
+.ap-assignedby { font-size: 10.5px; color: var(--text3); white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+.mom-ap-line2 { display: grid; grid-template-columns: 1fr 130px 140px 150px; gap: 8px; align-items: center; }
+.ap-pending-inline { width: 150px; }   /* fits the longest value "Supplier/Vendor" */
+
+/* Phase 3 — full-page MOM create/edit form (fills the screen instead of a small modal) */
+#momFormModal { align-items: stretch; padding: 16px; }
+#momFormModal .lens-modal-card.mom-form-page { max-width: 1150px; width: 100%; min-height: calc(100vh - 32px); margin: 0 auto; display: flex; flex-direction: column; }
+#momFormModal .mom-form { max-height: none; flex: 1; }
+@media (min-width: 920px) { #momFormModal .mom-form-grid { grid-template-columns: 1fr 1fr 1fr; } }
+.mom-ap-item input, .mom-ap-item select { padding: 9px 11px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 12.5px; font-family: inherit; }
+.ap-assignees { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ap-assign-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+.ap-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.ap-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; background: var(--bg3); border: 1px solid var(--border); border-radius: 999px; padding: 2px 6px 2px 9px; color: var(--text); }
+.ap-chip button { border: none; background: transparent; color: var(--text2); cursor: pointer; font-size: 11px; line-height: 1; }
+.ap-chip button:hover { color: var(--red); }
+.ap-assign-wrap { flex: 1; min-width: 120px; position: relative; }
+.ap-assign-input { width: 100%; }
+.mom-form-err { color: var(--red); font-size: 12.5px; align-self: center; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .mom-stats { grid-template-columns: repeat(2, 1fr); }
+  .mom-kv-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .mom-stats { grid-template-columns: repeat(2, 1fr); }
+  .mom-kv-grid { grid-template-columns: 1fr; }
+  .mom-form-grid { grid-template-columns: 1fr; }
+  .mom-ap-line2 { grid-template-columns: 1fr; }
+}

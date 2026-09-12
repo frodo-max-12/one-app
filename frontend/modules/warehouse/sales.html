@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Sales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/warehouse.css?v=110" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Warehouse · Sales Invoice (Singapore)</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip" title="Source: SO Backlog rows with Remarks='PFP' — these are the next invoices about to be posted in NAV.">
+            <span class="chip-dot" style="background:#d97706"></span>
+            <span>Upcoming (PFP)</span>
+          </span>
+          <span class="chip"><span class="chip-dot" style="background:#a855f7"></span><span id="whCount">0 lines</span></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="wh-shell">
+          <!-- PFP-mode stat cards — ONE PER REMARK VARIANT (2026-06-15).
+               All clickable. Click toggles the table filter to that variant.
+               "All PFP" card resets to the combined view. Visible immediately
+               with "—" placeholders; values fill in once stats arrive. -->
+          <div id="whStatCards" class="wh-stat-cards">
+            <div class="wh-stat-card slate clickable" data-variant="" id="cardAll">
+              <div class="wh-stat-title">All PFP-prefix</div>
+              <div class="wh-stat-value" id="statAllInvoices">—</div>
+              <div class="wh-stat-sub" id="statAllSub">— lines · sum value</div>
+            </div>
+            <div class="wh-stat-card amber clickable" data-variant="PFP" id="cardPfp">
+              <div class="wh-stat-title">PFP (Pending For Post)</div>
+              <div class="wh-stat-value" id="statPfpInvoices">—</div>
+              <div class="wh-stat-sub" id="statPfpSub">— lines</div>
+            </div>
+            <div class="wh-stat-card blue clickable" data-variant="PFP-WAITING-FF" id="cardWff">
+              <div class="wh-stat-title">PFP-WAITING-FF</div>
+              <div class="wh-stat-value" id="statWffInvoices">—</div>
+              <div class="wh-stat-sub" id="statWffSub">— lines</div>
+            </div>
+            <div class="wh-stat-card purple clickable" data-variant="PFP-DROP" id="cardDrop">
+              <div class="wh-stat-title">PFP-DROP</div>
+              <div class="wh-stat-value" id="statDropInvoices">—</div>
+              <div class="wh-stat-sub" id="statDropSub">— lines</div>
+            </div>
+            <div class="wh-stat-card green clickable" data-variant="PFP-PICK-PACK" id="cardPickPack">
+              <div class="wh-stat-title">PFP-PICK-PACK</div>
+              <div class="wh-stat-value" id="statPpInvoices">—</div>
+              <div class="wh-stat-sub" id="statPpSub">— lines</div>
+            </div>
+          </div>
+          <div class="wh-toolbar">
+            <div class="wh-search-wrap">
+              <span class="wh-search-ic">🔍</span>
+              <input type="text" id="whSearch" placeholder="Search ALL columns — Posting No, customer, item, qty, AWB, permit, dates…" />
+            </div>
+            <select id="whStatus" title="Tracked filter"></select>
+            <input type="date" id="whFrom" title="Invoice date from" />
+            <input type="date" id="whTo"   title="Invoice date to" />
+            <button class="btn btn-ghost btn-sm" id="whApply">Apply</button>
+            <button class="wh-clear-btn" id="whClear" title="Reset search + date + status filters">✕ Clear Filters</button>
+            <div style="flex:1"></div>
+            <button class="btn btn-sm" id="whImport">⇧ Import Excel</button>
+            <input type="file" id="whFile" accept=".xlsx,.xls" hidden />
+            <button class="btn btn-sm" id="whExport">⇩ Export Excel</button>
+            <button class="btn btn-primary btn-sm" id="whAdd" style="display:none">+ Add</button>
+          </div>
+
+          <div class="wh-source-legend">
+            <span><span class="swatch nav"></span>Blue = auto-fetched from NAV (read-only)</span>
+            <span><span class="swatch manual"></span>White = the warehouse lead's manual entries (type + 💾 Save)</span>
+          </div>
+          <!-- Datalists for combobox fields -->
+          <datalist id="dl-sales-dispatch-through">
+            <option>FedEx</option><option>DHL</option><option>UPS</option><option>TNT</option>
+            <option>Air</option><option>Sea</option><option>HD Local</option>
+          </datalist>
+          <datalist id="dl-sales-status">
+            <option>Pending</option><option>Dispatched</option><option>Delivered</option><option>Cancelled</option>
+          </datalist>
+          <datalist id="dl-export-permit">
+            <option>Export</option><option>Local</option><option>Exempt</option><option>Drop Shipment</option>
+          </datalist>
+
+          <div class="wh-table-wrap">
+            <table class="wh-table wh-inline-edit">
+              <thead>
+                <tr>
+                  <!-- NAV invoice header — DEFAULT MODE is "PFP / Upcoming":
+                       Invoice No = SH.[Posting No_] (pre-assigned future invoice no)
+                       Date       = SH.[Order Date] (when SO was raised)
+                       Customer*  = Sell-to (pre-posting) -->
+                  <th class="nav-col">Date</th>
+                  <th class="nav-col">Invoice No</th>
+                  <th class="nav-col">Customer Name</th>
+                  <th class="nav-col">Customer Address</th>
+                  <th class="nav-col">Po No</th>
+                  <!-- NAV line item -->
+                  <th class="nav-col">Item Name</th>
+                  <th class="nav-col">Make</th>
+                  <th class="num nav-col">Qty</th>
+                  <th class="num nav-col">Rate</th>
+                  <th class="num nav-col">Value</th>
+                  <!-- NAV GL aggregate -->
+                  <th class="num nav-col">Bank Charge</th>
+                  <!-- NAV per-line -->
+                  <th class="num nav-col">GST</th>
+                  <th class="num nav-col">Total Amt</th>
+                  <!-- Manual dispatch -->
+                  <th class="num">Cartoons</th>
+                  <th>Diamension</th>
+                  <th class="num">Weight</th>
+                  <th>Dispatch Through</th>
+                  <th>Air Waybill No.</th>
+                  <!-- NAV Shipment Terms -->
+                  <th class="nav-col">Shipment Terms</th>
+                  <!-- NAV GL aggregate -->
+                  <th class="num nav-col">Freight Charges</th>
+                  <th class="num">Local Charges</th>
+                  <th>Dispatch Date</th>
+                  <!-- NAV currency -->
+                  <th class="nav-col">Currency</th>
+                  <!-- Manual status -->
+                  <th>Status</th>
+                  <th>Fright Invoice</th>
+                  <th>Permit No.</th>
+                  <th>Export Permit Type</th>
+                  <th>GST Clamed month</th>
+                  <th class="actions-col">Save</th>
+                </tr>
+              </thead>
+              <tbody id="whTbody"><tr><td colspan="29" class="wh-loading">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="whPaging" class="wh-paging"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/common.js"></script>
+  <script src="/shared/modules.js"></script>
+  <script src="./js/warehouse-common.js?v=111"></script>
+  <script src="./js/sales.js?v=111"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Inventory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/inventory.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Inventory</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <div class="chip">
+            <span class="chip-dot" style="background: var(--green);"></span>
+            <span>API Connected</span>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="card">
+          <div class="section-head">
+            <div class="inv-header-left">
+              <h2>Inventory Items</h2>
+              <span class="chip" id="invTotalChip">
+                <span class="chip-dot" style="background: var(--teal);"></span>
+                <span id="invTotalText">— items</span>
+              </span>
+            </div>
+            <div class="inv-header-right">
+              <div class="inv-date-wrap">
+                <label class="inv-date-label" for="asOnDateInput">As On Date</label>
+                <input type="date" id="asOnDateInput" class="form-input inv-date-input" />
+              </div>
+              <button id="invRefreshBtn" class="btn btn-ghost btn-sm">⟳ Refresh</button>
+            </div>
+          </div>
+          <div class="filter-tabs inv-mode-tabs" id="invModeTabs" style="margin-bottom:14px;">
+            <button class="filter-tab active" data-mode="total">Total Inventory</button>
+            <button class="filter-tab" data-mode="soInventory">Inventory As per SO</button>
+            <button class="filter-tab" data-mode="openInventory">Open Inventory</button>
+          </div>
+          <div class="list-toolbar">
+            <div class="input-wrap search-flex">
+              <span class="input-icon">⌕</span>
+              <input id="invSearchInput" class="search-input" placeholder="Search Item No., Vendor Item No., Brand, Description, Remarks…" />
+            </div>
+            <button id="invClearBtn" class="btn btn-ghost btn-sm" style="display:none;">✕ Clear</button>
+          </div>
+          <div id="invLoading" class="loading-center"><div class="spinner"></div><span>Loading inventory…</span></div>
+          <div class="table-wrap" id="invTableWrap" style="display:none;">
+            <table id="invTable">
+              <thead id="invThead">
+                <tr>
+                  <th>#</th><th>Item No.</th><th>Vendor Item No.</th><th>Brand</th>
+                  <th>Item Description</th><th style="text-align:right;">Quantity</th><th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="invBody"></tbody>
+            </table>
+          </div>
+          <div id="invEmpty" class="empty" style="display:none;"><div class="empty-icon">📦</div><div class="empty-text">No inventory items found</div></div>
+          <div id="invError" class="empty" style="display:none;"><div class="empty-icon">⚠</div><div class="empty-text" id="invErrorText">Failed to load inventory.</div></div>
+          <div class="pagination" id="invPagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="/shared/modules.js"></script>
+  <script src="/shared/common.js"></script>
+  <script src="/shared/mobile-menu.js"></script>
+  <script src="./js/inventory.js"></script>
+</body>
+</html>

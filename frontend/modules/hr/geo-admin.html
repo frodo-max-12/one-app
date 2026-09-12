@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Geo Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <style>
+    .act-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px; max-width: 1100px; margin: 30px auto; padding: 0 20px;
+    }
+    .act-tile { display: block; padding: 28px 22px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--border); text-decoration: none; color: var(--text); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+    .act-tile:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 8px 22px rgba(0,0,0,0.08); }
+    .act-tile-ic    { font-size: 38px; margin-bottom: 12px; line-height: 1; }
+    .act-tile-name  { font-size: 17px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .act-tile-desc  { font-size: 12.5px; color: var(--text2); line-height: 1.5; }
+  </style>
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Geo Admin</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="act-grid">
+          <a class="act-tile" href="/modules/hr/office-presence.html">
+            <div class="act-tile-ic">🏢</div>
+            <div class="act-tile-name">Office Presence</div>
+            <div class="act-tile-desc">Live view of who's currently in which office geofence. Realtime presence per location for HR / Ops.</div>
+          </a>
+          <a class="act-tile" href="/modules/hr/geofence.html">
+            <div class="act-tile-ic">⚓</div>
+            <div class="act-tile-name">Geofences</div>
+            <div class="act-tile-desc">Manage customer + office geofences — pin on map, radius, dwell minutes. The system uses these to auto-confirm visits.</div>
+          </a>
+          <a class="act-tile" href="/modules/hr/stops.html">
+            <div class="act-tile-ic">📍</div>
+            <div class="act-tile-name">Unknown Stops</div>
+            <div class="act-tile-desc">15+ min stops outside any known geofence. Review and convert into customer geofences as your library grows.</div>
+          </a>
+          <a class="act-tile" href="/modules/hr/anomalies.html">
+            <div class="act-tile-ic">⚠️</div>
+            <div class="act-tile-name">Anomalies</div>
+            <div class="act-tile-desc">Late check-ins, missed sign-outs, location spoofing flags, abnormal travel patterns. Daily anomaly digest.</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=4"></script>
+  <script src="/shared/common.js?v=4"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script>
+    const user = (typeof requireAuth === 'function') ? requireAuth() : null;
+    if (user) {
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => renderSidebar('geo-admin'));
+      else renderSidebar('geo-admin');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — My Payroll</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/payroll.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · My Payroll</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <!-- Payslips tab: Year selector -->
+          <label class="pr-year-inline" id="yearSelWrap">
+            <span>Year</span>
+            <select id="yearSel" onchange="loadPayslips()"></select>
+          </label>
+          <!-- YTD + Form 16 tab: FY selector -->
+          <label class="pr-year-inline" id="fySelWrap" style="display:none;">
+            <span>FY</span>
+            <select id="fySel" onchange="onFyChange()"></select>
+          </label>
+          <!-- YTD + Form 16 tab (HR only): View Mode -->
+          <label class="pr-year-inline hr-only" id="viewModeWrap" style="display:none;">
+            <span>View</span>
+            <select id="viewMode" onchange="onFyChange()">
+              <option value="mine">Mine</option>
+              <option value="all">All Employees (HR)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="pr-wrap">
+
+          <!-- Top tabs -->
+          <div class="ps-tabs" style="margin-bottom: 14px;">
+            <button class="tab-btn active" data-tab="payslips" onclick="showTab('payslips')">💼 Payslips</button>
+            <button class="tab-btn"        data-tab="ytd"      onclick="showTab('ytd')">📊 YTD Statement</button>
+            <button class="tab-btn"        data-tab="form16"   onclick="showTab('form16')">📄 Form 16</button>
+          </div>
+
+          <!-- ═══ PAYSLIPS TAB ═══ -->
+          <section id="paneTabPayslips" class="ps-pane">
+            <div class="my-payslips-grid" id="psGrid">
+              <div class="pr-empty">Loading…</div>
+            </div>
+          </section>
+
+          <!-- ═══ YTD STATEMENT TAB ═══ -->
+          <section id="paneTabYtd" class="ps-pane" style="display:none;">
+            <div id="ytdContent"><div class="pr-empty">—</div></div>
+          </section>
+
+          <!-- ═══ FORM 16 TAB ═══ -->
+          <section id="paneTabForm16" class="ps-pane" style="display:none;">
+            <div id="form16Content"><div class="pr-empty">—</div></div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ UPLOAD PART A MODAL (Form 16, HR) ════════ -->
+  <div class="lens-modal" id="uploadModal" hidden>
+    <div class="lens-modal-card">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeUpload()">←</button>
+        <span>Upload Part A — <span id="upEmpName">—</span></span>
+      </div>
+      <input type="hidden" id="upUserId" />
+      <input type="hidden" id="upFy" />
+      <label class="pr-field">
+        <span>TAN Number (employer's)</span>
+        <input type="text" id="upTan" placeholder="e.g. PNES12345A" />
+      </label>
+      <label class="pr-field">
+        <span>Form 24Q Ack No.</span>
+        <input type="text" id="upAck" />
+      </label>
+      <label class="pr-field">
+        <span>TRACES Part A PDF (max 5 MB)</span>
+        <input type="file" id="upFile" accept="application/pdf,image/*" />
+      </label>
+      <button class="btn btn-primary btn-wide" type="button" onclick="submitUpload()">Upload</button>
+      <div class="pr-err" id="upErr" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=4"></script>
+  <script src="/shared/common.js?v=4"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/my-payroll.js?v=1"></script>
+</body>
+</html>

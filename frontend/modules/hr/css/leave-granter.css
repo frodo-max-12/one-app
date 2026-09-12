@@ -1,0 +1,197 @@
+/* ============================================================================
+   ONE App Lens — Leave Granter (HR admin batch tool)
+============================================================================ */
+
+.lg-shell {
+  padding: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex; flex-direction: column;
+  gap: 18px;
+  padding-bottom: 30px;
+}
+
+.lg-card {
+  background: var(--lens-card);
+  border: 1px solid var(--lens-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: var(--lens-shadow);
+}
+.lg-card h2 {
+  font-size: 15px; font-weight: 600; color: var(--lens-text-2);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+
+/* Kind pills */
+.lg-kind-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lg-kind-pill {
+  background: var(--lens-card-soft);
+  border: 1.5px solid var(--lens-border);
+  color: var(--lens-text-2);
+  padding: 6px 14px;
+  border-radius: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lg-kind-pill.selected {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: #22c55e;
+  color: #166534;
+}
+body.lens-body:not(.day-theme) .lg-kind-pill.selected { background: rgba(34, 197, 94, 0.20); color: #6ee7b7; }
+
+/* Employee select */
+.lg-emp-search {
+  width: 100%;
+  background: var(--lens-card-soft);
+  border: 1px solid var(--lens-border);
+  color: var(--lens-text);
+  padding: 10px 14px;
+  border-radius: 22px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.lg-emp-search:focus { outline: none; border-color: #2563eb; }
+
+.lg-emp-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--lens-text-3);
+}
+.lg-emp-toolbar a {
+  color: #2563eb; text-decoration: none; cursor: pointer; font-weight: 600;
+}
+body.lens-body:not(.day-theme) .lg-emp-toolbar a { color: #60a5fa; }
+
+.lg-emp-list {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--lens-border);
+  border-radius: 10px;
+  background: var(--lens-card-soft);
+}
+.lg-emp-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--lens-border);
+  cursor: pointer;
+}
+.lg-emp-row:last-child { border-bottom: none; }
+.lg-emp-row:hover { background: var(--lens-card); }
+.lg-emp-row.selected { background: rgba(37, 99, 235, 0.08); }
+body.lens-body:not(.day-theme) .lg-emp-row.selected { background: rgba(37, 99, 235, 0.18); }
+.lg-emp-check {
+  width: 18px; height: 18px;
+  border: 2px solid var(--lens-border);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.lg-emp-row.selected .lg-emp-check {
+  background: #2563eb; border-color: #2563eb; color: #fff;
+}
+.lg-emp-row.selected .lg-emp-check::before { content: '✓'; font-size: 12px; font-weight: 700; }
+.lg-emp-name { font-size: 13px; font-weight: 500; color: var(--lens-text); }
+.lg-emp-sub  { font-size: 11px; color: var(--lens-text-3); font-family: var(--mono), monospace; }
+.lg-emp-cur  { font-size: 11px; color: var(--lens-text-3); }
+
+.lg-selected-count {
+  background: #ecfeff; border: 1px solid #a5f3fc; color: #155e75;
+  padding: 8px 12px; border-radius: 10px;
+  font-size: 13px; margin-top: 10px;
+}
+body.lens-body:not(.day-theme) .lg-selected-count { background: rgba(6, 182, 212, 0.10); border-color: rgba(6, 182, 212, 0.30); color: #67e8f9; }
+
+/* Type + days + reason inputs */
+.lg-input {
+  width: 100%;
+  background: var(--lens-card-soft);
+  border: 1px solid var(--lens-border);
+  color: var(--lens-text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: var(--font), sans-serif;
+}
+.lg-input:focus { outline: none; border-color: #2563eb; }
+.lg-textarea { resize: vertical; min-height: 60px; }
+
+.lg-days-input {
+  font-family: var(--mono), monospace;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  width: 110px;
+}
+.lg-days-hint { font-size: 11px; color: var(--lens-text-3); margin-top: 4px; }
+
+.lg-grant-btn {
+  width: 100%; height: 48px;
+  border: none;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.25);
+}
+.lg-grant-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #cbd5e1; box-shadow: none; }
+.lg-grant-btn:hover:not(:disabled) { transform: translateY(-1px); }
+
+.lg-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 14px;
+  align-items: end;
+}
+@media (max-width: 600px) { .lg-form-grid { grid-template-columns: 1fr; } }
+
+/* History table */
+.lg-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.lg-history-table th {
+  text-align: left;
+  font-size: 11px; color: var(--lens-text-3);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--lens-border);
+  font-weight: 600;
+}
+.lg-history-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--lens-border);
+  color: var(--lens-text-2);
+}
+.lg-history-table tr:last-child td { border-bottom: none; }
+.lg-history-table tr.revoked td { opacity: 0.55; }
+.lg-history-table tr.revoked .days-cell { text-decoration: line-through; }
+
+.days-cell {
+  font-family: var(--mono), monospace;
+  font-weight: 700;
+}
+.days-cell.positive { color: #16a34a; }
+.days-cell.negative { color: #dc2626; }
+body.lens-body:not(.day-theme) .days-cell.positive { color: #4ade80; }
+body.lens-body:not(.day-theme) .days-cell.negative { color: #f87171; }
+
+.lg-revoke-btn {
+  background: transparent; border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 4px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+}
+body.lens-body:not(.day-theme) .lg-revoke-btn { border-color: rgba(239, 68, 68, 0.30); color: #fca5a5; }
+.lg-revoke-btn:hover { background: #fef2f2; }
+body.lens-body:not(.day-theme) .lg-revoke-btn:hover { background: rgba(239, 68, 68, 0.15); }

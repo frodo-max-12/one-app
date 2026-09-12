@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — DC File</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/dc.css?v=8" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App · Product — DC File</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip"><span class="chip-dot" style="background:#22c55e"></span><span id="dcCount">0 lines</span></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="dc-shell">
+
+          <!-- Toolbar -->
+          <div class="dc-toolbar">
+            <div class="dc-search-wrap">
+              <span class="dc-search-ic">🔍</span>
+              <input type="text" id="dcSearch" placeholder="Search OP, customer, MPN, make, status, PM, remark…" />
+              <button id="dcClearSearch" style="display:none;" class="dc-clear-btn" onclick="clearSearch()">✕</button>
+            </div>
+            <select id="dcCompany" class="dc-filter" title="Company" onchange="loadList()">
+              <option value="">All companies</option>
+              <option value="COMPANYA">COMPANYA</option>
+              <option value="COMPANYB">Company B</option>
+            </select>
+            <select id="dcPm" class="dc-filter" title="Filter by PM" onchange="loadList()" style="display:none;">
+              <option value="">All PMs</option>
+              <option value="PM1">PM1</option>
+              <option value="PM2">PM2</option>
+              <option value="PM3">PM3</option>
+            </select>
+            <select id="dcSalesPerson" class="dc-filter" title="Filter by Salesperson" onchange="loadList()" style="display:none;">
+              <option value="">All Salespersons</option>
+            </select>
+            <select id="dcFae" class="dc-filter" title="Filter by FAE" onchange="loadList()" style="display:none;">
+              <option value="">All FAE</option>
+            </select>
+            <select id="dcRegion" class="dc-filter" title="Filter by Region" onchange="loadList()" style="display:none;">
+              <option value="">All Regions</option>
+            </select>
+            <input type="text" id="dcStatus" class="dc-filter" list="projectStatusList" placeholder="Project status…" title="Project Status" />
+            <input type="date" id="dcFromDate" class="dc-filter" title="Date FROM" />
+            <input type="date" id="dcToDate" class="dc-filter" title="Date TO" />
+            <button class="btn btn-ghost btn-sm" onclick="loadList()">Apply</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearFilters()" title="Clear all filters">✕ Clear</button>
+            <div style="flex:1;"></div>
+            <input type="file" id="chartFile" accept=".xls,.xlsx" style="display:none;" onchange="uploadChart(this)" />
+            <button class="btn btn-sm" id="dcChartBtn" onclick="document.getElementById('chartFile').click()" style="display:none;" title="Refresh the brand→PM and brand→Line FAE map from the latest PM & Line FAE chart Excel (Sheet1: Product line, PM, Line FAE)">⟳ Update PM &amp; Line FAE Chart</button>
+            <button class="btn btn-sm" id="dcResolveBtn" onclick="resolvePm()" style="display:none;" title="Fill PM and Line FAE from the chart for any rows that have no PM / Line FAE (blanks only)">⚙ Auto-assign PM &amp; Line FAE</button>
+            <button class="btn btn-sm" id="dcReassignBtn" onclick="reassignPm()" style="display:none;" title="Overwrite EVERY mapped row's PM and Line FAE from the chart (moves brands to their new PM / Line FAE). A backup is taken — reversible via Undo.">⟲ Reassign PM &amp; Line FAE</button>
+            <button class="btn btn-sm" id="dcUndoReassignBtn" onclick="undoReassign()" style="display:none;" title="Undo the last chart reassignment — restore the previous PM and Line FAE">↩ Undo assign</button>
+            <button class="btn btn-sm" id="dcImportBtn" onclick="openImport()">⇧ Import Excel</button>
+            <button class="btn btn-sm" onclick="exportExcel()">⇩ Export Excel</button>
+            <!-- Sales/FAE bulk-remark flow: download only-remark-editable template → fill → re-import -->
+            <input type="file" id="remarkFile" accept=".xlsx,.xls" style="display:none;" onchange="importRemarks(this)" />
+            <button class="btn btn-sm" id="dcExportRemarksBtn" onclick="exportRemarks()" style="display:none;" title="Download your rows with ALL DC columns (read-only, incl. every team's remark) plus your own remark column to fill in Excel">⬇ Export for editing</button>
+            <button class="btn btn-sm btn-primary" id="dcImportRemarksBtn" onclick="document.getElementById('remarkFile').click()" style="display:none;" title="Upload the filled remark template — your remarks are appended">⬆ Import remarks</button>
+            <button class="btn btn-primary btn-sm" id="dcAddBtn" onclick="openEdit(null)">+ Add Line</button>
+          </div>
+
+          <div id="dcFailBanner" class="dc-fail-banner" hidden></div>
+
+          <!-- Stats -->
+          <div class="dc-stats">
+            <div class="stat-card"><div class="stat-lbl">📋 Lines</div><div class="stat-num" id="statLines">—</div></div>
+            <div class="stat-card"><div class="stat-lbl">🧾 Inquiries (OP)</div><div class="stat-num" id="statOps">—</div></div>
+            <div class="stat-card dc-pot-card"><div class="stat-lbl">💰 Potential <span class="dc-pot-hint">(by currency — not summed across)</span></div><div class="dc-pot-wrap" id="statPotential"><span class="stat-num">—</span></div></div>
+          </div>
+
+          <!-- Funnel — Potential by Project-Status remark (NBO / DIN / DWIN / MWIN / LOSS), each segregated by currency -->
+          <div class="dc-funnel" id="dcFunnel"></div>
+
+          <!-- Selection bar -->
+          <div id="dcSelBar" class="dc-sel-bar" style="display:none;">
+            <span><b id="dcSelCount">0</b> selected</span>
+            <button class="btn btn-sm" onclick="exportSelectedExcel()">⇩ Export Selected</button>
+            <button class="btn btn-sm btn-danger" id="dcBulkDelBtn" onclick="bulkDelete()" style="display:none;">🗑 Delete Selected</button>
+            <button class="btn btn-sm btn-ghost" onclick="clearSelection()">Clear</button>
+          </div>
+
+          <!-- Table -->
+          <div class="dc-table-wrap">
+            <table class="dc-table" id="dcTable">
+              <thead>
+                <tr>
+                  <th style="width:34px;text-align:center;"><input type="checkbox" id="dcSelAll" onchange="toggleSelectAll(this.checked)" /></th>
+                  <th>OP No</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Vertical</th>
+                  <th>Region</th>
+                  <th>Co.</th>
+                  <th>PM</th>
+                  <th>Sales Person</th>
+                  <th title="FAE who visited the customer">FAE</th>
+                  <th title="Line FAE — the FAE who owns this brand/line">Line FAE</th>
+                  <th>Existing MPN</th>
+                  <th>Suggested MPN</th>
+                  <th>Make</th>
+                  <th>Project Status</th>
+                  <th>Samples stage</th>
+                  <th class="r">EAU</th>
+                  <th class="r">Unit $</th>
+                  <th class="r">Potential</th>
+                  <th>Product Remark</th>
+                  <th>Sales Remark</th>
+                  <th>FAE Remark</th>
+                  <th class="r"></th>
+                </tr>
+              </thead>
+              <tbody id="dcBody">
+                <tr><td colspan="23" class="dc-loading">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="dc-pagination" id="dcPagination" style="margin-top:12px;"></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- shared option lists -->
+  <datalist id="projectStatusList">
+    <option value="DIN"></option><option value="DIN-Samples Submitted"></option>
+    <option value="NBO"></option><option value="NBO-Quoted"></option>
+    <option value="Win"></option><option value="Lost"></option><option value="Cancel"></option>
+    <option value="Hold"></option><option value="Mass Production"></option><option value="NA"></option>
+  </datalist>
+  <datalist id="samplesStageList">
+    <option value="Samples Submitted"></option>
+    <option value="PCB & developed-Samples Mounted on Board"></option>
+    <option value="PCB Under Testing Hardware Simulation"></option>
+    <option value="PCB Under Testing Software Simulation"></option>
+    <option value="PCB Under Testing Mass Production"></option>
+    <option value="Samples Tested-Yes"></option>
+    <option value="Samples Tested-No/Mention Technical Issue in Customer"></option>
+    <option value="Proto Stage"></option><option value="Mass Production"></option><option value="NA"></option>
+  </datalist>
+
+  <!-- ════════ Add/Edit Modal ════════ -->
+  <div class="lens-modal" id="dcModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeEdit()">←</button>
+        <span id="dcModalTitle">Add DC Line</span>
+      </div>
+      <input type="hidden" id="fId" />
+
+      <div class="dc-form-grid">
+        <div class="kv"><div class="kv-label">Company *</div>
+          <select id="fCompany"><option value="COMPANYA">COMPANYA</option><option value="COMPANYB">Company B</option></select></div>
+        <div class="kv"><div class="kv-label">PM *</div>
+          <select id="fPm"><option value="PM1">PM1</option><option value="PM2">PM2</option><option value="PM3">PM3</option></select></div>
+        <div class="kv"><div class="kv-label">OP No <span class="lens-sub">(NAV inquiry)</span></div><input type="text" id="fOpNo" placeholder="19192" /></div>
+        <div class="kv"><div class="kv-label">Date</div><input type="date" id="fDcDate" /></div>
+      </div>
+
+      <div class="dc-form-grid">
+        <div class="kv" style="grid-column:span 2;">
+          <div class="kv-label">Customer Name <span class="lens-sub">— type ≥2 letters to search NAV, or just type a new name</span></div>
+          <div class="dc-suggest-wrap">
+            <input type="text" id="fCustomerName" placeholder="Type e.g. Minda…" autocomplete="off" />
+            <div id="dcCustSuggest" class="dc-suggest" hidden></div>
+          </div>
+        </div>
+        <div class="kv"><div class="kv-label">Customer Category</div>
+          <select id="fCustomerCategory"><option value="">—</option>
+            <option>OEM</option><option>ODM</option><option>EMS</option><option>IDH</option><option>Tier-1</option><option>Tier-2</option></select></div>
+      </div>
+
+      <div class="dc-form-grid">
+        <div class="kv"><div class="kv-label">Vertical</div>
+          <select id="fVertical"><option value="">—</option><option>SEMICON</option><option>PEMCO</option></select></div>
+        <div class="kv"><div class="kv-label">Region</div>
+          <select id="fRegion"><option value="">—</option><option>West</option><option>North</option><option>South</option><option>Central</option></select></div>
+        <div class="kv"><div class="kv-label">Segment</div>
+          <select id="fSegment"><option value="">—</option><option>Automotive</option><option>Industrial</option><option>Consumer</option><option>Telecom</option><option>IOT</option><option>Medical</option><option>Solar and Renewable energy</option><option>Railway</option></select></div>
+      </div>
+
+      <div class="dc-form-grid">
+        <div class="kv"><div class="kv-label">Sales Person <span class="lens-sub">— who visits (sales)</span></div><select id="fSalesPerson"><option value="">—</option></select></div>
+        <div class="kv"><div class="kv-label">FAE Person <span class="lens-sub">— FAE who visited</span></div><select id="fFaePerson"><option value="">—</option></select></div>
+        <div class="kv"><div class="kv-label">Line FAE <span class="lens-sub">— brand owner (auto from Suggested Make)</span></div><select id="fLineFae"><option value="">(auto from brand)</option></select></div>
+        <div class="kv"><div class="kv-label">Project</div><input type="text" id="fProject" placeholder="4G Gateway" /></div>
+      </div>
+
+      <div class="dc-line-head" id="dcLine1Head" style="display:none;">Line 1</div>
+      <div id="dcPrimaryLine" class="dc-line-block dc-line-primary">
+      <div class="dc-form-grid">
+        <div class="kv"><div class="kv-label">Existing MPN</div><input type="text" id="fExistingMpn" /></div>
+        <div class="kv"><div class="kv-label">Existing Make</div><input type="text" id="fExistingMake" /></div>
+        <div class="kv"></div>
+      </div>
+      <div class="dc-form-grid">
+        <div class="kv"><div class="kv-label">Suggested MPN <span class="lens-sub">(authorized)</span></div><input type="text" id="fSuggestedMpn" /></div>
+        <div class="kv"><div class="kv-label">Suggested Make</div><input type="text" id="fSuggestedMake" /></div>
+        <div class="kv"></div>
+      </div>
+
+      <div class="dc-form-grid">
+        <div class="kv"><div class="kv-label">Project Status</div><input type="text" id="fProjectStatus" list="projectStatusList" /></div>
+        <div class="kv"><div class="kv-label">Samples stage</div><input type="text" id="fSamplesStage" list="samplesStageList" /></div>
+        <div class="kv"><div class="kv-label">Status Month</div><input type="date" id="fStatusMonth" /></div>
+      </div>
+
+      <div class="dc-form-grid">
+        <div class="kv"><div class="kv-label">Sample Qty</div><input type="number" id="fSampleQty" step="any" /></div>
+        <div class="kv"><div class="kv-label">EAU Qty</div><input type="number" id="fEauQty" step="any" /></div>
+        <div class="kv"><div class="kv-label">QPS</div><input type="number" id="fQps" step="any" /></div>
+      </div>
+      <div class="dc-form-grid">
+        <div class="kv"><div class="kv-label">Unit Price (USD)</div><input type="number" id="fUnitPriceUsd" step="any" /></div>
+        <div class="kv"><div class="kv-label">Currency</div><input type="text" id="fCurrency" placeholder="USD / INR" /></div>
+        <div class="kv"><div class="kv-label">Potential</div><input type="number" id="fPotential" step="any" /></div>
+      </div>
+      <div class="dc-form-grid">
+        <div class="kv"><div class="kv-label">PP date (FAE)</div><input type="date" id="fPpDateFae" /></div>
+        <div class="kv"><div class="kv-label">MP date (Sales)</div><input type="date" id="fMpDateSales" /></div>
+        <div class="kv"></div>
+      </div>
+
+      <div class="dc-form-textarea" id="wrapProductTeamRemarks"><label>Product team remarks</label><textarea id="fProductTeamRemarks" rows="2"></textarea></div>
+      <div class="dc-form-textarea" id="wrapCurrentStatus"><label>Sales Team Remark</label><textarea id="fCurrentStatus" rows="2"></textarea></div>
+      <div class="dc-form-textarea" id="wrapActionItem"><label>FAE Team remark</label><textarea id="fActionItem" rows="2"></textarea></div>
+      <div class="dc-form-textarea" id="wrapRemarks"><label>Remarks</label><textarea id="fRemarks" rows="2"></textarea></div>
+      </div><!-- /dcPrimaryLine -->
+
+      <!-- Multi-line Add: stack more part-lines under the SAME header (start blank). ADD mode only. -->
+      <div id="dcExtraLines"></div>
+      <button class="btn btn-ghost btn-sm" type="button" id="dcAddLineBtn" onclick="addLineBlock()" style="display:none; margin-top:6px;">+ Add one more line</button>
+
+      <template id="dcLineTpl">
+        <div class="dc-line-block dc-line-extra">
+          <div class="dc-line-head">Line <span class="ln-num"></span>
+            <button type="button" class="dc-line-remove" title="Remove this line" onclick="this.closest('.dc-line-block').remove(); renumberLines();">✕</button>
+          </div>
+          <div class="dc-form-grid">
+            <div class="kv"><div class="kv-label">Existing MPN</div><input type="text" class="ln-existingMpn" /></div>
+            <div class="kv"><div class="kv-label">Existing Make</div><input type="text" class="ln-existingMake" /></div>
+            <div class="kv"></div>
+          </div>
+          <div class="dc-form-grid">
+            <div class="kv"><div class="kv-label">Suggested MPN <span class="lens-sub">(authorized)</span></div><input type="text" class="ln-suggestedMpn" /></div>
+            <div class="kv"><div class="kv-label">Suggested Make</div><input type="text" class="ln-suggestedMake" /></div>
+            <div class="kv"></div>
+          </div>
+          <div class="dc-form-grid">
+            <div class="kv"><div class="kv-label">Project Status</div><input type="text" class="ln-projectStatus" list="projectStatusList" /></div>
+            <div class="kv"><div class="kv-label">Samples stage</div><input type="text" class="ln-samplesStage" list="samplesStageList" /></div>
+            <div class="kv"><div class="kv-label">Status Month</div><input type="date" class="ln-statusMonth" /></div>
+          </div>
+          <div class="dc-form-grid">
+            <div class="kv"><div class="kv-label">Sample Qty</div><input type="number" class="ln-sampleQty" step="any" /></div>
+            <div class="kv"><div class="kv-label">EAU Qty</div><input type="number" class="ln-eauQty" step="any" /></div>
+            <div class="kv"><div class="kv-label">QPS</div><input type="number" class="ln-qps" step="any" /></div>
+          </div>
+          <div class="dc-form-grid">
+            <div class="kv"><div class="kv-label">Unit Price (USD)</div><input type="number" class="ln-unitPriceUsd" step="any" /></div>
+            <div class="kv"><div class="kv-label">Currency</div><input type="text" class="ln-currency" placeholder="USD / INR" /></div>
+            <div class="kv"><div class="kv-label">Potential</div><input type="number" class="ln-potential" step="any" /></div>
+          </div>
+          <div class="dc-form-grid">
+            <div class="kv"><div class="kv-label">PP date (FAE)</div><input type="date" class="ln-ppDateFae" /></div>
+            <div class="kv"><div class="kv-label">MP date (Sales)</div><input type="date" class="ln-mpDateSales" /></div>
+            <div class="kv"></div>
+          </div>
+          <div class="dc-form-textarea"><label>Product team remarks</label><textarea class="ln-productTeamRemarks" rows="2"></textarea></div>
+          <div class="dc-form-textarea"><label>Sales Team Remark</label><textarea class="ln-currentStatus" rows="2"></textarea></div>
+          <div class="dc-form-textarea"><label>FAE Team remark</label><textarea class="ln-actionItem" rows="2"></textarea></div>
+          <div class="dc-form-textarea"><label>Remarks</label><textarea class="ln-remarks" rows="2"></textarea></div>
+        </div>
+      </template>
+
+      <div class="dc-actions">
+        <button class="btn btn-danger btn-sm" id="dcDeleteBtn" type="button" onclick="deleteDc()" style="display:none;">🗑 Delete</button>
+        <div style="flex:1;"></div>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closeEdit()">Cancel</button>
+        <button class="btn btn-primary" type="button" onclick="saveDc()">Save</button>
+      </div>
+      <div class="sign-error" id="dcError" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ════════ Import Modal ════════ -->
+  <div class="lens-modal" id="importModal" hidden>
+    <div class="lens-modal-card lens-modal-wide">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeImport()">←</button>
+        <span>Import DC File from Excel</span>
+      </div>
+      <div class="kv">
+        <div class="kv-label">Excel file (.xlsx / .xls)</div>
+        <input type="file" id="importFile" accept=".xlsx,.xls" />
+        <div class="lens-sub" style="margin-top:6px;">
+          Reads the <b>"DC file"</b> sheet. Columns (any order): OP N0., Date, Customer Name, Vertical, Customer Category,
+          Region, Company, Sales Person, FAE Person, Segment, Project, Existing MPN, Existing Make, Suggested MPN,
+          Suggested Make, Project Status, Sample Qty, Samples stage, Status Month, EAU Qty, QPS, Unit Price in USD,
+          Currency, Potential, PP date FAE, MP date Sales, Product team remarks, Sales Team Remark, FAE Team remark, Remarks.
+          A row is matched to an existing line by <b>Company + OP No + Customer Name</b> → it <b>UPDATES</b> that line (so a changed Suggested MPN / price / status updates, no duplicate). Blank cells keep the old value. New OP/Customer = inserted. Several part-lines under one OP+Customer are matched in row order.
+        </div>
+      </div>
+      <div class="kv">
+        <div class="kv-label">Default Company <span class="lens-sub">(used when the sheet has no Company column)</span></div>
+        <select id="importCompany"><option value="">— (use sheet's Company column)</option><option value="COMPANYA">COMPANYA</option><option value="COMPANYB">Company B</option></select>
+      </div>
+      <div class="dc-actions">
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closeImport()">Cancel</button>
+        <div style="flex:1;"></div>
+        <button class="btn btn-sm" type="button" onclick="doImport(true)">👁 Preview</button>
+        <button class="btn btn-primary" type="button" onclick="doImport(false)">⇧ Import</button>
+      </div>
+      <div class="sign-error" id="importError" style="display:none;"></div>
+      <div id="importResult" class="dc-import-result" style="display:none;margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=5"></script>
+  <script src="/shared/common.js?v=5"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="./js/dc.js?v=24"></script>
+</body>
+</html>

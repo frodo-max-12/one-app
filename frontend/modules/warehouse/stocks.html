@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App — Inventory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/warehouse.css?v=95" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">Warehouse · Inventory / Stocks (Singapore)</span>
+        <div class="topbar-actions">
+          <span id="roleTag" class="role-tag"></span>
+          <span class="chip"><span class="chip-dot" style="background:#10b981"></span><span id="whCount">0 items · 0 pcs</span></span>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="wh-shell">
+          <div class="wh-toolbar">
+            <div class="wh-search-wrap">
+              <span class="wh-search-ic">🔍</span>
+              <input type="text" id="whSearch" placeholder="Search item, description, doc, carton, customer…" />
+            </div>
+            <select id="whStatus" title="Tracked filter"></select>
+            <input type="text" id="whLoc"  placeholder="Location" style="width:120px;" />
+            <input type="date" id="whFrom" title="Inword date from" />
+            <input type="date" id="whTo"   title="Inword date to" />
+            <button class="btn btn-ghost btn-sm" id="whApply">Apply</button>
+            <button class="wh-clear-btn" id="whClear" title="Reset search + status + location + dates">✕ Clear Filters</button>
+            <div style="flex:1"></div>
+            <button class="btn btn-sm" id="whImport">⇧ Import Excel</button>
+            <input type="file" id="whFile" accept=".xlsx,.xls" hidden />
+            <button class="btn btn-sm" id="whExport">⇩ Export Excel</button>
+            <button class="btn btn-primary btn-sm" id="whAdd" style="display:none">+ Add Carton</button>
+          </div>
+
+          <!-- Populated on load from /api/warehouse/stocks/carton-list -->
+          <datalist id="dl-carton-no"></datalist>
+          <datalist id="dl-stock-location"></datalist>
+          <datalist id="dl-stock-status">
+            <option>Stock</option><option>Reserved</option><option>Dispatched</option>
+            <option>Damaged</option><option>Sample</option>
+          </datalist>
+
+          <div class="wh-source-legend">
+            <span><span class="swatch nav"></span>Blue = live from NAV Item Ledger Entry (read-only)</span>
+            <span><span class="swatch manual"></span>White = the warehouse lead's manual carton tracking (type + 💾 Save)</span>
+          </div>
+          <div class="wh-table-wrap">
+            <table class="wh-table wh-inline-edit">
+              <thead>
+                <tr>
+                  <!-- Manual SN + Carton + extra location -->
+                  <th>SN</th>
+                  <th>Cartoon No</th>
+                  <!-- NAV identity -->
+                  <th class="nav-col">Invoice No</th>
+                  <th>NEW Location</th>
+                  <th class="nav-col">Location</th>
+                  <th class="nav-col">MPN (Item No)</th>
+                  <th class="nav-col">Make</th>
+                  <!-- NAV qty (remaining) -->
+                  <th class="num nav-col">Qty Remaining</th>
+                  <!-- Manual physical -->
+                  <th>Dimension Cms</th>
+                  <th class="num">Weight</th>
+                  <th class="nav-col">Origin</th>
+                  <th>Date Code</th>
+                  <!-- NAV dates -->
+                  <th class="nav-col">Inword Date</th>
+                  <th class="num nav-col">Aging (days)</th>
+                  <!-- NAV cost -->
+                  <th class="num nav-col">Purchase Price</th>
+                  <th class="num">Purchase Amount</th>
+                  <th class="num">Cust Resale</th>
+                  <th class="num">Cust Resale Amount</th>
+                  <!-- Manual customer -->
+                  <th>Customer Name</th>
+                  <th>Franchise / Non-F</th>
+                  <th>Status</th>
+                  <th>Dispatched Date</th>
+                  <th>Remark</th>
+                  <th>Package</th>
+                  <th>Type</th>
+                  <th>Legend</th>
+                  <th>Meaning</th>
+                  <th class="actions-col">Save</th>
+                </tr>
+              </thead>
+              <tbody id="whTbody"><tr><td colspan="28" class="wh-loading">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="whPaging" class="wh-paging"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/common.js"></script>
+  <script src="/shared/modules.js"></script>
+  <script src="./js/warehouse-common.js?v=106"></script>
+  <script src="./js/stocks.js?v=106"></script>
+</body>
+</html>

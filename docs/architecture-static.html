@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Source for docs/architecture.png (the README hero image).
+     Regenerate after edits:
+     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
+       --disable-gpu --hide-scrollbars --force-device-scale-factor=2 \
+       --window-size=1600,1380 --screenshot=docs/architecture.png \
+       "file://$(pwd)/docs/architecture-static.html"
+     The interactive companion (click boxes for detail) is docs/architecture.html. -->
+<head>
+<meta charset="utf-8">
+<title>ONE App — architecture (static)</title>
+<style>
+  :root {
+    --ink:#1f2a24; --muted:#5f6b64; --line:#e2dccf; --bg:#fbf8f2; --card:#fffdf9;
+    --green:#1b5e20; --green-2:#2e7d32; --green-soft:#e7f0e4;
+    --orange:#b7410e; --orange-soft:#fbe9df;
+    --plum:#6b21a8; --plum-soft:#efe6f7;
+    --slate:#334e68; --slate-soft:#e6ecf1;
+    --gold:#8a5a00; --gold-soft:#f7efd8;
+  }
+  * { box-sizing:border-box; margin:0; }
+  html, body { width:1600px; background:var(--bg); }
+  body { font:15px/1.45 "Avenir Next","Helvetica Neue",Arial,sans-serif; color:var(--ink); padding:36px 46px 28px; }
+  .serif, h1, h2, h3 { font-family:Charter,"Iowan Old Style",Georgia,"Times New Roman",serif; }
+
+  /* header: editorial double rule */
+  .head { display:flex; align-items:flex-end; justify-content:space-between; gap:36px;
+          padding-bottom:16px; border-bottom:3px double var(--green); }
+  .head h1 { font-size:40px; font-weight:700; letter-spacing:-.01em; line-height:1; }
+  .head h1 span { color:var(--green); font-style:italic; font-weight:400; }
+  .head .tag { font-size:16px; color:var(--muted); margin-top:10px; max-width:820px; }
+  .contract { max-width:560px; font-size:14px; background:var(--card); border:1px solid var(--line);
+      border-left:5px solid var(--green); padding:11px 16px; color:var(--ink); }
+  .contract b { font-family:Charter,Georgia,serif; color:var(--green); font-size:15px; }
+
+  /* path of pills */
+  .path { margin:20px 0 24px; display:flex; align-items:center; gap:0; }
+  .pill { font-size:13.5px; font-weight:600; color:var(--green); background:var(--green-soft);
+          border:1px solid #cfe0cb; padding:6px 14px; border-radius:2px; letter-spacing:.01em; }
+  .pill i { font-style:normal; font-family:Charter,Georgia,serif; font-weight:400; color:var(--green-2); margin-right:7px; }
+  .link { width:26px; height:1.5px; background:#c9c1b0; position:relative; }
+  .link::after { content:""; position:absolute; right:-1px; top:-3px; width:7px; height:7px; border-radius:50%; background:#c9c1b0; }
+  .path .right { margin-left:auto; font-size:13px; color:var(--muted); font-style:italic; font-family:Charter,Georgia,serif; }
+
+  /* lanes: solid, titled inline */
+  .lane { border:1px solid var(--line); background:var(--card); padding:16px 18px 16px; margin-bottom:14px; }
+  .lanehead { display:flex; align-items:baseline; gap:12px; margin-bottom:14px; }
+  .lanehead h2 { font-size:17px; font-weight:700; }
+  .lanehead .rule { flex:1; height:1px; background:var(--line); }
+  .lanehead .sub { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+  .lane.lc .lanehead h2 { color:var(--slate); }  .lane.mo .lanehead h2 { color:var(--green); }  .lane.ra .lanehead h2 { color:var(--orange); }
+
+  .row { display:flex; gap:12px; align-items:stretch; }
+  .stage { position:relative; flex:1; background:var(--bg); border:1px solid var(--line); border-left:4px solid var(--slate);
+           padding:12px 13px 11px 14px; border-radius:2px; }
+  .stage .num { position:absolute; top:-1px; right:-1px; min-width:24px; height:22px; padding:0 6px;
+      background:var(--slate); color:#fff; font-family:Charter,Georgia,serif; font-size:12.5px; font-weight:700;
+      display:flex; align-items:center; justify-content:center; border-radius:0 0 0 4px; }
+  .stage h3 { font-size:16px; font-weight:700; margin-bottom:5px; padding-right:26px; }
+  .stage p { font-size:12.3px; color:var(--muted); }
+  .stage .mod { display:block; font-family:"SF Mono",Menlo,ui-monospace,monospace; font-size:10.5px; color:var(--slate); margin-top:8px; }
+  .lane.mo .stage { border-left-color:var(--green); }  .lane.mo .stage .num { background:var(--green); }  .lane.mo .stage .mod { color:var(--green-2); }
+  .lane.ra .stage { border-left-color:var(--gold); }   .lane.ra .stage .num { background:var(--gold); }   .lane.ra .stage .mod { color:var(--gold); }
+  .lane.ra .stage.notif { border-left-color:var(--plum); } .lane.ra .stage.notif .num { background:var(--plum); } .lane.ra .stage.notif .mod { color:var(--plum); }
+  .lane.ra .stage.safe { border-left-color:var(--orange); } .lane.ra .stage.safe .num { background:var(--orange); } .lane.ra .stage.safe .mod { color:var(--orange); }
+  .between { align-self:center; flex:0 0 auto; width:18px; height:1.5px; background:#c9c1b0; position:relative; }
+  .between::after { content:""; position:absolute; right:-1px; top:-3px; width:7px; height:7px; border-radius:50%; background:#c9c1b0; }
+
+  /* bottom */
+  .strips { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:14px; margin-top:6px; }
+  .strip { border:1px solid var(--line); background:var(--card); padding:14px 18px 16px; }
+  .strip h3 { font-size:15px; margin-bottom:9px; color:var(--ink); }
+  .strip h3 small { font-family:"Avenir Next","Helvetica Neue",sans-serif; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-left:8px; font-weight:600; }
+  .strip li { font-size:13.5px; margin:6px 0 0 16px; }
+  .strip li::marker { color:var(--green); }
+  .strip li b { color:var(--ink); }
+  .nums { display:grid; grid-template-columns:repeat(4,1fr); gap:10px 8px; }
+  .nums div { line-height:1.05; }
+  .nums b { display:block; font-family:Charter,Georgia,serif; font-size:30px; font-weight:700; color:var(--green); }
+  .nums span { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { font-size:12px; padding:4px 9px; border-radius:2px; background:var(--slate-soft); color:var(--slate); border:1px solid #d3dce5; }
+  .foot { text-align:center; color:var(--muted); font-size:12px; margin-top:18px; font-family:Charter,Georgia,serif; font-style:italic; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div>
+    <h1>ONE <span>App</span></h1>
+    <div class="tag">One platform for every department, layered on the company's ERP — one login, one codebase, two legal entities, six live modules.</div>
+  </div>
+  <div class="contract"><b>The ERP contract.</b> The ERP database is strictly read-only — SELECT with NOLOCK, never a write. Everything the organisation authors itself lives in a writable companion database, with an audit stamp on every row.</div>
+</div>
+
+<div class="path">
+  <span class="pill"><i>1</i>Login</span><span class="link"></span>
+  <span class="pill"><i>2</i>Company</span><span class="link"></span>
+  <span class="pill"><i>3</i>Scope</span><span class="link"></span>
+  <span class="pill"><i>4</i>Module</span><span class="link"></span>
+  <span class="pill"><i>5</i>ERP read · App write</span><span class="link"></span>
+  <span class="pill"><i>6</i>Notify</span>
+  <span class="right">web · PWA · Android shell</span>
+</div>
+
+<div class="lane lc">
+  <div class="lanehead"><h2>Request lifecycle</h2><span class="rule"></span><span class="sub">every call passes through these</span></div>
+  <div class="row">
+    <div class="stage"><div class="num">1</div><h3>JWT login</h3>
+      <p>Signed token carries role + company codes · 8 h, or 30 d with remember-me · offline login caches a PBKDF2 hash so field staff can sign in without signal</p>
+      <span class="mod">auth.js · login.js</span></div>
+    <div class="between"></div>
+    <div class="stage"><div class="num">2</div><h3>Company resolution</h3>
+      <p>?company= → X-Company header → default · one route file serves two entities with their own currency, locale and ERP table prefix</p>
+      <span class="mod">shared/company.js</span></div>
+    <div class="between"></div>
+    <div class="stage"><div class="num">3</div><h3>Role + scope</h3>
+      <p>Role buckets (full access · heads · sales · HR · FAE · warehouse · store) · a user's salesperson codes become an IN(...) clause · no codes → sees nothing</p>
+      <span class="mod">auth.js · shared/roleScope.js</span></div>
+    <div class="between"></div>
+    <div class="stage"><div class="num">4</div><h3>Module router</h3>
+      <p>11 department routers under /api/&lt;dept&gt; · HR alone fans out to 27 sub-routers · every /:id route guarded against non-numeric ids</p>
+      <span class="mod">modules/*/index.js</span></div>
+    <div class="between"></div>
+    <div class="stage"><div class="num">5</div><h3>Two pools</h3>
+      <p>ERP pool: READ UNCOMMITTED, SELECT only · App pool: read/write with CreatedBy / UpdatedBy stamps · cross-DB joins collated explicitly</p>
+      <span class="mod">db.js · core/middleware/audit.js</span></div>
+    <div class="between"></div>
+    <div class="stage"><div class="num">6</div><h3>Response</h3>
+      <p>{rows, totals, currency, symbol, company} · window functions on paged queries so stat cards reflect the full filtered set, not the visible page</p>
+      <span class="mod">res.json · 401/403 → auto-logout</span></div>
+  </div>
+</div>
+
+<div class="lane mo">
+  <div class="lanehead"><h2>Modules</h2><span class="rule"></span><span class="sub">what each department gets</span></div>
+  <div class="row">
+    <div class="stage"><div class="num">S</div><h3>Sales</h3>
+      <p>AR &amp; aging · customers with live ledger · billing · inventory · SO backlog · visit &amp; beat plans · PDC cheque tracker · credit notes · MOM action points · budget vs actual · invoice / credit-memo / payment-advice PDFs</p>
+      <span class="mod">modules/sales/ · 13 sub-routers</span></div>
+    <div class="stage"><div class="num">H</div><h3>HR · Lens</h3>
+      <p>Geo-attendance from battery-adaptive GPS pings · visits auto-detected by geofence dwell · selfie punch-in/out · road-snapped journeys · leave &amp; regularisation · payroll runs, payslips, Form 16 · letters · helpdesk · engage feed</p>
+      <span class="mod">modules/hr/ · 27 sub-routers · 40+ tables</span></div>
+    <div class="stage"><div class="num">W</div><h3>Warehouse</h3>
+      <p>Inbound ASN wizard with carton splits · stock by carton and location · outbound sales · cheque &amp; expense ledgers · every list enriched from the ERP in one batched query</p>
+      <span class="mod">modules/warehouse/</span></div>
+    <div class="stage"><div class="num">St</div><h3>Store</h3>
+      <p>Mobile OCR scanner for inward / outward audits · on-device ML Kit first, cloud fallback · net quantity per item reconciled against ERP inventory</p>
+      <span class="mod">modules/store/</span></div>
+    <div class="stage"><div class="num">P</div><h3>Product</h3>
+      <p>Design-conversion (DC) tracker mapping product lines to product managers and field engineers · PM chart · per-line FAE assignment</p>
+      <span class="mod">modules/product/</span></div>
+    <div class="stage"><div class="num">N</div><h3>Notifications</h3>
+      <p>One inbox filled by every module · bell + badge on every page · push to devices · WhatsApp escalation · daily scan + 20-minute ERP poll for new invoices and payments</p>
+      <span class="mod">modules/notifications/ · services/notify.js</span></div>
+  </div>
+</div>
+
+<div class="lane ra">
+  <div class="lanehead"><h2>Rails</h2><span class="rule"></span><span class="sub">shared by every module</span></div>
+  <div class="row">
+    <div class="stage"><div class="num">⏰</div><h3>Cron engine</h3>
+      <p>Monthly statement emails · daily stage-based WhatsApp reminders (pre-due → due → overdue → follow-up) · payment advice on new receipts · beat-plan generation · notification scans</p>
+      <span class="mod">services/reminderCron.js · node-cron</span></div>
+    <div class="stage notif"><div class="num">✉</div><h3>Messaging</h3>
+      <p>WhatsApp Cloud API: templates, media upload, CC escalation chain · SMTP mail with RFC threading and per-company From · per-channel test modes</p>
+      <span class="mod">shared/whatsapp.js · services/mailer.js</span></div>
+    <div class="stage"><div class="num">📄</div><h3>PDF engine</h3>
+      <p>Tax invoice · credit memo · payment advice · payslip · Form 16 · HR letters — all server-rendered, streamed on request or buffered for the cron</p>
+      <span class="mod">services/*Pdf.js · pdfkit</span></div>
+    <div class="stage"><div class="num">▦</div><h3>Excel in / out</h3>
+      <p>Import with header auto-detect and fuzzy column match · styled export with merged cells · six ready templates for the bulk feeds</p>
+      <span class="mod">multer · xlsx-js-style · import-templates/</span></div>
+    <div class="stage notif"><div class="num">📱</div><h3>Mobile shell</h3>
+      <p>Capacitor WebView loading the live site — UI ships with no rebuild · background geolocation service · camera · ML Kit OCR · push · offline fallback</p>
+      <span class="mod">mobile-app/ · Capacitor 6</span></div>
+    <div class="stage safe"><div class="num">🛡</div><h3>Guard rails</h3>
+      <p>ERP never written · audit stamps on every app write · 401/403 = auto-logout · scoped IN-lists, never role strings · idempotent, add-only migrations</p>
+      <span class="mod">auth.js · audit.js · SQL Files/</span></div>
+  </div>
+</div>
+
+<div class="strips">
+  <div class="strip"><h3>The human's whole job <small>by role</small></h3>
+    <ul>
+      <li><b>Field rep:</b> sign in once; visits are detected, punches are selfies, tomorrow is planned.</li>
+      <li><b>Sales head:</b> dashboard → outstanding → one-click reminder → payment advice arrives on its own.</li>
+      <li><b>HR:</b> review anomalies, approve leave, run payroll, issue the letter.</li>
+      <li><b>Warehouse:</b> ASN wizard → mark received → stock updates itself.</li>
+    </ul></div>
+  <div class="strip"><h3>By the numbers</h3>
+    <div class="nums">
+      <div><b>11</b><span>routers</span></div><div><b>27</b><span>HR sub-routers</span></div>
+      <div><b>6</b><span>live modules</span></div><div><b>40+</b><span>HRMS tables</span></div>
+      <div><b>2</b><span>legal entities</span></div><div><b>1</b><span>codebase</span></div>
+      <div><b>350+</b><span>endpoints</span></div><div><b>0</b><span>writes to ERP</span></div>
+    </div></div>
+  <div class="strip"><h3>Stack</h3>
+    <div class="chips">
+      <span class="chip">Node.js</span><span class="chip">Express 5</span><span class="chip">SQL Server · 2 pools</span>
+      <span class="chip">JWT</span><span class="chip">node-cron</span><span class="chip">pdfkit</span>
+      <span class="chip">xlsx</span><span class="chip">WhatsApp Cloud API</span><span class="chip">Nodemailer</span>
+      <span class="chip">FCM</span><span class="chip">Capacitor 6</span><span class="chip">Vanilla JS PWA</span>
+    </div></div>
+</div>
+
+<div class="foot">ONE App · interactive version with module-level detail: docs/architecture.html</div>
+</body>
+</html>

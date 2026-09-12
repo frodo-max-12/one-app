@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONE App Lens — Leave Approvals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/shared/common.css" />
+  <link rel="stylesheet" href="/shared/theme.css" />
+  <link rel="stylesheet" href="/shared/responsive.css" />
+  <link rel="stylesheet" href="./css/home.css?v=3" />
+  <link rel="stylesheet" href="./css/leave.css?v=1" />
+</head>
+<body class="lens-body">
+  <div class="app-shell">
+    <aside id="sidebar"></aside>
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">ONE App Lens · Leave Approvals</span>
+        <div class="topbar-actions">
+          <div class="req-tabs">
+            <button class="req-tab active" data-tab="pending-mine" onclick="setTab('pending-mine')">Assigned to me</button>
+            <button class="req-tab" data-tab="all" onclick="setTab('all')" id="tabAll" style="display:none;">All</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="content lens-scroll">
+        <div class="leave-shell">
+
+          <div id="reqList" class="req-list">
+            <div class="holiday-skel" style="height:90px;"></div>
+            <div class="holiday-skel" style="height:90px;"></div>
+          </div>
+
+          <section class="lens-diag" id="lensDiag" style="display:none;">
+            <h3>⚠ Diagnostics</h3>
+            <ul id="diagList"></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approve / Reject note modal -->
+  <div class="lens-modal" id="actionModal" hidden>
+    <div class="lens-modal-card" style="max-width:440px;">
+      <div class="lens-modal-head">
+        <button class="lens-modal-back" type="button" onclick="closeActionModal()">←</button>
+        <span id="actionTitle">Approve Leave</span>
+      </div>
+      <div class="kv">
+        <div class="kv-label" id="noteLabel">Approval note (optional)</div>
+        <textarea id="actionNote" placeholder="" maxlength="500"></textarea>
+      </div>
+      <div class="gf-actions">
+        <div style="flex:1;"></div>
+        <button class="selfie-btn" type="button" onclick="closeActionModal()">Cancel</button>
+        <button class="sign-action-btn gf-save-btn" type="button" id="actionConfirm" onclick="confirmAction()">Confirm</button>
+      </div>
+      <div class="sign-error" id="actionError" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/shared/modules.js?v=3"></script>
+  <script src="/shared/common.js?v=3"></script>
+  <script src="/shared/mobile-menu.js?v=3"></script>
+  <script src="/shared/lens-tracker.js?v=1"></script>
+  <script src="./js/leave-approvals.js?v=1"></script>
+</body>
+</html>
